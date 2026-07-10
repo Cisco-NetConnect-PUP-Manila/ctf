@@ -111,7 +111,23 @@ This website should stay spoiler-safe.
 
 ## Deployment
 
-The project can be deployed to any platform that supports Next.js, including Vercel.
+The project is ready for Vercel deployment. Vercel will detect Next.js automatically.
+
+Recommended Vercel settings:
+
+- Framework Preset: `Next.js`
+- Install Command: `npm install`
+- Build Command: `npm run build`
+- Output Directory: leave blank
+- Node.js Version: `20.x` or newer
+
+Optional environment variable:
+
+```text
+NEXT_PUBLIC_SITE_URL=https://your-production-domain.com
+```
+
+If `NEXT_PUBLIC_SITE_URL` is not set, Vercel's `VERCEL_URL` value is used for metadata URLs.
 
 Before deploying:
 
@@ -119,6 +135,9 @@ Before deploying:
 npm run lint
 npm run build
 ```
+
+The browser tab title and social preview metadata are configured in `src/app/layout.tsx`.
+The favicon and Apple touch icon use `src/app/icon.png` and `src/app/apple-icon.png`, sourced from `public/assets/ctf.png`.
 
 ## Repository Hygiene
 
