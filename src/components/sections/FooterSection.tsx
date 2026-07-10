@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { gsap } from "gsap";
 import Image from "next/image";
+import { SectionContainer, SectionShell } from "@/components/ui/SectionLayout";
 import { useReveal } from "@/lib/useReveal";
 
 export function FinalTransmissionSection() {
@@ -23,20 +24,20 @@ export function FinalTransmissionSection() {
   });
 
   return (
-    <section
+    <SectionShell
       id="register"
-      ref={sectionRef}
-      className="relative container-pad overflow-hidden pb-24 pt-[clamp(80px,10vw,140px)] md:pb-32 lg:pb-40"
+      sectionRef={sectionRef}
+      pad="normal"
     >
       <div className="pointer-events-none absolute bottom-0 left-1/2 h-[70%] w-[120%] -translate-x-1/2 bg-[radial-gradient(ellipse_at_bottom,#ff0a9c44,transparent_65%)]" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-[40vw] w-[40vw] bg-[radial-gradient(circle,#5b2eff33,transparent_60%)] blur-[40px]" />
 
-      <div className="relative mx-auto max-w-[1600px]">
+      <SectionContainer>
         <div className="mx-auto flex flex-col items-center text-center">
           <span className="label mb-6 block text-fg/40">
             Final Transmission
           </span>
-          <h2 className="display mb-12 text-5xl leading-[1.06] sm:text-6xl md:text-7xl lg:text-9xl">
+          <h2 className="display mb-10 text-5xl leading-[1.08] sm:text-6xl md:text-7xl lg:text-8xl">
             <span className="block overflow-visible">
               <span className="cta-line block leading-[0.95]">Join the</span>
             </span>
@@ -59,8 +60,8 @@ export function FinalTransmissionSection() {
             Registration Opening Soon
           </p>
         </div>
-      </div>
-    </section>
+      </SectionContainer>
+    </SectionShell>
   );
 }
 

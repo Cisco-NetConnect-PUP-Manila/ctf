@@ -163,16 +163,16 @@ export function FourActsSection() {
     <section
       id="acts"
       ref={sectionRef}
-      className="relative isolate h-screen min-h-[760px] overflow-hidden"
+      className="relative isolate h-screen min-h-[720px] overflow-hidden"
     >
-      <div className="absolute left-0 right-0 top-8 z-10 container-pad md:top-12">
+      <div className="absolute left-0 right-0 top-6 z-10 container-pad md:top-9">
         <div className="mx-auto max-w-[1600px]">
           <div className="mb-3 flex items-center gap-5">
             <span className="label text-magenta">(02)</span>
             <span className="label text-fg/40">Four Acts</span>
             <span className="h-px flex-1 bg-fg/10" />
           </div>
-          <h2 className="display text-4xl leading-tight md:text-6xl">
+          <h2 className="display text-3xl leading-[1.05] md:text-5xl">
             The <span className="chaos-type glitch-shadow text-magenta">Investigation</span>
           </h2>
           <p className="terminal mt-3 max-w-2xl text-xs text-fg/35">
@@ -182,12 +182,12 @@ export function FourActsSection() {
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-0 right-0 z-10 container-pad md:bottom-12">
+      <div className="absolute bottom-6 left-0 right-0 z-10 container-pad md:bottom-9">
         <div className="mx-auto flex max-w-[1600px] items-center justify-center gap-3">
           {acts.map((act) => (
             <div
               key={act.name}
-              className="h-2 w-14 opacity-45"
+              className="h-1.5 w-12 opacity-45"
               style={{ background: act.color }}
             />
           ))}
@@ -199,14 +199,14 @@ export function FourActsSection() {
         return (
           <div
             key={act.name}
-            className="act-scene absolute inset-0 flex items-center justify-center container-pad"
+            className="act-scene absolute inset-0 flex items-center justify-center container-pad pb-20 pt-36 md:pb-24 md:pt-40"
             style={{
               visibility: i === 0 ? "visible" : "hidden",
               perspective: "800px",
             }}
           >
             <div
-              className="absolute h-[48vw] max-h-[620px] w-[48vw] max-w-[620px] rounded-full opacity-25 blur-[110px]"
+              className="absolute h-[42vw] max-h-[520px] w-[42vw] max-w-[520px] rounded-full opacity-22 blur-[110px]"
               style={{ background: act.color }}
             />
 
@@ -219,7 +219,7 @@ export function FourActsSection() {
               style={{ background: `${act.color}12` }}
             />
 
-            <article className="relative z-10 grid w-full max-w-5xl gap-10 py-8 md:grid-cols-[0.82fr_1.18fr] md:py-12">
+            <article className="relative z-10 grid w-full max-w-5xl gap-8 md:grid-cols-[0.82fr_1.18fr]">
               <div
                 className="pointer-events-none absolute -left-4 top-6 h-24 w-px"
                 style={{
@@ -242,7 +242,7 @@ export function FourActsSection() {
                 </div>
 
                 <div
-                  className="mb-6 grid h-16 w-16 place-items-center md:h-20 md:w-20"
+                  className="mb-5 grid h-14 w-14 place-items-center md:h-16 md:w-16"
                   style={{
                     background: `${act.color}10`,
                     border: `1px solid ${act.color}25`,
@@ -251,36 +251,36 @@ export function FourActsSection() {
                 >
                   <Icon
                     aria-hidden="true"
-                    className="h-7 w-7 md:h-9 md:w-9"
+                    className="h-6 w-6 md:h-7 md:w-7"
                     style={{ color: act.color }}
                     strokeWidth={1.5}
                   />
                 </div>
 
                 <h3
-                  className="display mb-4 text-3xl leading-[1.02] drop-shadow-[0_0_28px_rgba(255,10,156,0.13)] md:text-5xl lg:text-6xl"
+                  className="display mb-4 text-3xl leading-[1.05] drop-shadow-[0_0_28px_rgba(255,10,156,0.13)] md:text-5xl"
                   style={{ textShadow: `0 0 34px ${act.color}24` }}
                 >
                   {act.name}
                 </h3>
-                <p className="max-w-md text-sm leading-relaxed text-fg/50 md:text-base">
+                <p className="max-w-md text-sm leading-[1.65] text-fg/50">
                   {act.desc}
                 </p>
               </div>
 
-              <div className="act-enter flex flex-col justify-between gap-7">
+              <div className="act-enter flex flex-col justify-between gap-6">
                 <div className="grid grid-cols-3 gap-3">
                   <div className="border-t border-fg/12 py-3">
                     <span className="meta-chip block text-[0.56rem] text-fg/35">Cases</span>
-                    <strong className="pixel text-xl leading-relaxed text-fg">{act.challenges}</strong>
+                    <strong className="pixel text-lg leading-relaxed text-fg md:text-xl">{act.challenges}</strong>
                   </div>
                   <div className="border-t border-fg/12 py-3">
                     <span className="meta-chip block text-[0.56rem] text-fg/35">Points</span>
-                    <strong className="pixel text-xl leading-relaxed text-fg">{act.points}</strong>
+                    <strong className="pixel text-lg leading-relaxed text-fg md:text-xl">{act.points}</strong>
                   </div>
                   <div className="border-t border-fg/12 py-3">
                     <span className="meta-chip block text-[0.56rem] text-fg/35">Status</span>
-                    <strong className="pixel text-xl leading-relaxed text-fg">Live</strong>
+                    <strong className="pixel text-lg leading-relaxed text-fg md:text-xl">Live</strong>
                   </div>
                 </div>
 
