@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { gsap } from "gsap";
 import { EyeOff, KeyRound, Network, ShieldCheck } from "lucide-react";
+import { SectionContainer, SectionHeader, SectionShell } from "@/components/ui/SectionLayout";
 import { useReveal } from "@/lib/useReveal";
 
 const rules = [
@@ -50,45 +51,41 @@ export function RulesSection() {
   });
 
   return (
-    <section
+    <SectionShell
       id="rules"
-      ref={sectionRef}
-      className="relative section-pad container-pad overflow-hidden"
+      sectionRef={sectionRef}
+      pad="compact"
     >
-      <div className="pointer-events-none absolute left-[-20%] top-1/4 h-[55vw] w-[55vw] rounded-full bg-[radial-gradient(circle,#5b2eff33,transparent_62%)] blur-[60px]" />
+      <div className="pointer-events-none absolute left-[-18%] top-1/4 h-[48vw] w-[48vw] rounded-full bg-[radial-gradient(circle,#5b2eff24,transparent_64%)] blur-[70px]" />
 
-      <div className="relative mx-auto max-w-[1600px]">
-        <div className="mb-4 flex items-center gap-5">
-          <span className="label text-magenta">(03)</span>
-          <span className="label text-fg/40">Rules of Engagement</span>
-          <span className="h-px flex-1 bg-fg/10" />
-        </div>
+      <SectionContainer>
+        <SectionHeader index="(03)" label="Rules of Engagement" />
 
-        <div className="mb-14 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
-          <h2 className="display max-w-4xl text-4xl leading-tight md:text-6xl lg:text-8xl">
+        <div className="mb-12 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+          <h2 className="display max-w-4xl text-4xl leading-[1.05] md:text-6xl lg:text-7xl">
             Preserve the <span className="chaos-type glitch-shadow text-yellow">Evidence</span>
           </h2>
-          <p className="max-w-2xl text-base leading-relaxed text-fg/52 md:text-lg">
+          <p className="max-w-2xl text-base leading-[1.7] text-fg/52">
             This is an incident response operation, not a free-for-all. Follow
             the trail, respect the scope, and keep every recovered artifact
             until the final transmission tells you otherwise.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           {rules.map((rule) => {
             const Icon = rule.icon;
             return (
               <article
                 key={rule.title}
-                className="rule-card scan-panel corner-cut group relative overflow-hidden p-7 md:p-8"
+                className="rule-card scan-panel corner-cut group relative overflow-hidden p-6 md:p-7"
               >
                 <div
                   className="absolute -right-12 -top-12 h-36 w-36 rounded-full opacity-25 blur-[50px] transition-opacity duration-500 group-hover:opacity-50"
                   style={{ background: rule.color }}
                 />
                 <div
-                  className="mb-7 grid h-12 w-12 place-items-center border"
+                  className="mb-6 grid h-11 w-11 place-items-center border"
                   style={{
                     borderColor: `${rule.color}35`,
                     background: `${rule.color}10`,
@@ -111,7 +108,7 @@ export function RulesSection() {
             );
           })}
         </div>
-      </div>
-    </section>
+      </SectionContainer>
+    </SectionShell>
   );
 }

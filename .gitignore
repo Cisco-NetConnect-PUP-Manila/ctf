@@ -39,3 +39,25 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local assistant / AI workspace files
+.agents/
+.codex/
+.claude/
+.gemini/
+.cursor/
+AGENTS.md
+CLAUDE.md
+CONTEXT.md
+
+# local dev logs
+dev-server*.log
+*.log
+
+# local backups / restore folders
+backup*/
+restore-source*/
+
+# editor / machine-local settings
+.vscode/
+.idea/

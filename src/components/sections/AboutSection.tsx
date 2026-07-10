@@ -2,8 +2,12 @@
 
 import { useRef } from "react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
+import { SectionContainer, SectionHeader, SectionShell } from "@/components/ui/SectionLayout";
 import { useReveal } from "@/lib/useReveal";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const stats = [
   { value: "4", label: "Narrative Acts", color: "#ff0a9c" },
@@ -12,23 +16,31 @@ const stats = [
   { value: "1", label: "Final Layer", color: "#ffc400" },
 ];
 
-const tags = ["CIRT-BRIEF", "ANOMALY-TRACE", "EVIDENCE-CHAIN", "KEYS-PRESERVED"];
-
 export function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
 
   useReveal(sectionRef, () => {
+    const statementEl = sectionRef.current?.querySelector(".statement");
     const words = sectionRef.current?.querySelectorAll(".reveal-word");
-    if (words) {
-      gsap.from(words, {
-        scrollTrigger: {
-          trigger: ".statement",
-          start: "top 70%",
-          end: "bottom center",
-          scrub: 1,
+    if (statementEl && words) {
+      const wordList = Array.from(words) as HTMLElement[];
+      const clamp = gsap.utils.clamp(0, 1);
+
+      gsap.set(wordList, { color: "rgba(245, 245, 242, 0.2)" });
+
+      ScrollTrigger.create({
+        trigger: statementEl,
+        start: "top 78%",
+        end: "bottom 28%",
+        scrub: true,
+        onUpdate: ({ progress }) => {
+          wordList.forEach((word, i) => {
+            const activationPoint = i / Math.max(wordList.length - 1, 1);
+            const localProgress = clamp((progress - activationPoint * 0.78) / 0.22);
+            const alpha = 0.2 + localProgress * 0.8;
+            word.style.color = `rgba(245, 245, 242, ${alpha})`;
+          });
         },
-        opacity: 0.1,
-        stagger: 0.3,
       });
     }
 
@@ -60,10 +72,10 @@ export function AboutSection() {
     "Every network has two realities: the trusted surface everyone sees, and the hidden layer where abandoned systems, corrupted logs, and impossible traffic tell the real story.";
 
   return (
-    <section
+    <SectionShell
       id="about"
-      ref={sectionRef}
-      className="relative isolate section-pad container-pad overflow-hidden"
+      sectionRef={sectionRef}
+      pad="compact"
     >
       <Image
         src="/assets/ctf-gradient.webp"
@@ -73,45 +85,38 @@ export function AboutSection() {
         className="about-gradient pointer-events-none absolute -right-40 top-0 w-[55vw] max-w-[800px] select-none opacity-25 mix-blend-screen"
       />
 
-      <div className="relative mx-auto max-w-[1600px]">
-        <div className="mb-4 flex items-center gap-5">
-          <span className="label text-magenta">(01)</span>
-          <span className="label text-fg/40">Incident Brief</span>
-          <span className="h-px flex-1 bg-fg/10" />
-        </div>
+      <SectionContainer>
+        <SectionHeader index="(01)" label="Incident Brief" />
 
-        <div className="mb-8 flex flex-wrap gap-3">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="terminal border border-fg/10 bg-fg/[0.03] px-3 py-2 text-xs text-fg/45"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        <h2 className="statement display mb-16 max-w-6xl text-3xl font-bold leading-[1.08] md:mb-20 md:text-5xl lg:text-7xl">
+        <h2
+          aria-label={statement}
+          className="statement display mb-12 flex max-w-5xl flex-wrap gap-x-[0.32em] gap-y-[0.16em] text-3xl font-bold leading-[1.16] md:mb-16 md:text-5xl md:leading-[1.12] lg:text-6xl"
+        >
           {statement.split(" ").map((w, i) => (
-            <span key={i} className="reveal-word mr-[0.28em] inline-block">
+            <span
+              key={i}
+              aria-hidden="true"
+              className="reveal-word inline-block will-change-[color]"
+              style={{ color: "rgba(245, 245, 242, 0.22)" }}
+            >
               {w}
             </span>
           ))}
         </h2>
 
-        <div className="stat-grid grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-4">
+        <div className="stat-grid grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-4">
           {stats.map((s) => (
             <div
               key={s.label}
               data-cursor
-              className="stat scan-panel corner-cut group relative overflow-hidden p-8 md:p-10"
+              className="stat scan-panel corner-cut group relative overflow-hidden p-6 md:p-8"
             >
               <div
                 className="absolute -bottom-10 -right-10 h-32 w-32 rounded-full opacity-40 blur-[50px] transition-opacity duration-500 group-hover:opacity-70"
                 style={{ background: s.color }}
               />
               <div
-                className="chaos-type relative mb-3 text-6xl leading-none md:text-8xl"
+                className="chaos-type relative mb-3 text-5xl leading-[1.05] md:text-7xl"
                 style={{ color: s.color }}
               >
                 {s.value}
@@ -120,7 +125,7 @@ export function AboutSection() {
             </div>
           ))}
         </div>
-      </div>
-    </section>
+      </SectionContainer>
+    </SectionShell>
   );
 }

@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Packet Capture CTF Website
+
+Official event website for **Packet Capture**, a narrative-driven Capture The Flag experience about incident response, hidden network layers, recovered artifacts, and a final transmission.
+
+The site is built as an interactive landing page with scroll-driven sections, animated typography, a persistent network-core visual layer, and spoiler-safe challenge metadata.
+
+## Features
+
+- Futuristic CTF event landing page
+- Narrative sections for the event story and four acts
+- Public challenge metadata without flags or solution spoilers
+- GSAP and ScrollTrigger-powered scroll animations
+- Smooth scrolling with reduced-motion support
+- Custom cursor and subtle visual effects
+- Responsive layout for desktop, tablet, and mobile
+- Local custom fonts and brand assets from `public/fonts` and `public/assets`
+
+## Tech Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- GSAP / ScrollTrigger
+- Framer Motion
+- Three.js / React Three Fiber / Drei
+- Lenis smooth scrolling
+- Lucide React icons
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open the site:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Starts the local development server.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Creates a production build.
 
-## Deploy on Vercel
+```bash
+npm run start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Runs the production build locally.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+```
+
+Runs ESLint checks.
+
+## Project Structure
+
+```text
+ctf-website/
+  public/
+    assets/          Event imagery and visual assets
+    fonts/           Local custom fonts
+  src/
+    app/             Next.js app entry, layout, and global styles
+    components/      Shared UI, effects, navigation, and page sections
+    lib/             Animation and preference utilities
+  scripts/           Local helper scripts
+```
+
+Main page sections live in:
+
+```text
+src/components/sections/
+```
+
+Shared CTA and section layout primitives live in:
+
+```text
+src/components/ui/
+```
+
+## Content Guidelines
+
+This website should stay spoiler-safe.
+
+- Do not publish real flags.
+- Do not publish final phrases or exact solve paths.
+- Challenge names, point values, and public unlock metadata are okay.
+- Story hints should tease the mechanic without revealing the final answer.
+- Registration status should not look clickable unless a real registration action exists.
+
+## Deployment
+
+The project can be deployed to any platform that supports Next.js, including Vercel.
+
+Before deploying:
+
+```bash
+npm run lint
+npm run build
+```
+
+## Repository Hygiene
+
+Local assistant files, generated logs, build outputs, dependency folders, and environment files are intentionally ignored through `.gitignore`.
+
+Keep private planning notes, local AI workspace files, and machine-specific files out of the public repository.

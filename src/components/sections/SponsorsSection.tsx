@@ -5,7 +5,6 @@ import { gsap } from "gsap";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
-  Award,
   Building2,
   Cpu,
   Handshake,
@@ -13,7 +12,6 @@ import {
   ShieldCheck,
   Trophy,
   Users,
-  Zap,
 } from "lucide-react";
 import { CtaLink } from "@/components/ui/CtaButton";
 import { useReveal } from "@/lib/useReveal";
@@ -26,11 +24,6 @@ const sponsors = [
   { label: "HackCom", icon: Users, color: "#ff0a9c" },
   { label: "FlagPrize", icon: Trophy, color: "#ff7a18" },
   { label: "AllyNet", icon: Handshake, color: "#5b2eff" },
-  { label: "TopAward", icon: Award, color: "#ff2d4f" },
-  { label: "ZeroDay", icon: Zap, color: "#ffc400" },
-  { label: "RootKit", icon: ShieldCheck, color: "#ff0a9c" },
-  { label: "ByteForce", icon: Cpu, color: "#5b2eff" },
-  { label: "VaultNet", icon: Network, color: "#ff7a18" },
 ] satisfies Array<{ label: string; icon: LucideIcon; color: string }>;
 
 export function SponsorsSection() {
