@@ -4,28 +4,28 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const PUBLIC_MENU = [
-  { k: ">", label: "Incident Brief", href: "/#about" },
-  { k: "[]", label: "Competition Overview", href: "/#overview" },
-  { k: "A", label: "The Four Acts", href: "/#acts" },
-  { k: "!", label: "Rules of Engagement", href: "/#rules" },
-  { k: "?", label: "FAQ", href: "/#faq" },
-  { k: "T", label: "Operation Timeline", href: "/#timeline" },
-  { k: "$", label: "Sponsors", href: "/#sponsors" },
+  { label: "Incident Brief", href: "/#about" },
+  { label: "Competition Overview", href: "/#overview" },
+  { label: "The Four Acts", href: "/#acts" },
+  { label: "Rules of Engagement", href: "/#rules" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "Operation Timeline", href: "/#timeline" },
+  { label: "Sponsors", href: "/#sponsors" },
 ];
 
 const PLATFORM_MENU = [
-  { k: "D", label: "Dashboard", href: "/platform#dashboard" },
-  { k: "S", label: "Storyline", href: "/platform#storyline" },
-  { k: "M", label: "Platform Modules", href: "/platform#modules" },
-  { k: "C", label: "Challenge Workspace", href: "/platform#challenges" },
-  { k: "!", label: "Portal Status", href: "/platform#portal-status" },
+  { label: "Dashboard", href: "/platform#dashboard" },
+  { label: "Storyline", href: "/platform#storyline" },
+  { label: "Platform Modules", href: "/platform#modules" },
+  { label: "Challenge Workspace", href: "/platform#challenges" },
+  { label: "Portal Status", href: "/platform#portal-status" },
 ];
 
 const ADMIN_MENU = [
-  { k: "O", label: "Admin Overview", href: "/admin#overview" },
-  { k: "M", label: "Admin Modules", href: "/admin#modules" },
-  { k: "A", label: "Backend Authority", href: "/admin#authority" },
-  { k: "!", label: "Admin Status", href: "/admin#admin-status" },
+  { label: "Admin Overview", href: "/admin#overview" },
+  { label: "Admin Modules", href: "/admin#modules" },
+  { label: "Backend Authority", href: "/admin#authority" },
+  { label: "Admin Status", href: "/admin#admin-status" },
 ];
 
 const ZONES = [
@@ -148,7 +148,6 @@ export default function Taskbar() {
                 className="startmenu__item"
                 onClick={() => setOpen(false)}
               >
-                <span className="k">{m.k}</span>
                 {m.label}
               </a>
             ))}
@@ -159,7 +158,7 @@ export default function Taskbar() {
                 className="startmenu__item"
                 onClick={() => setOpen(false)}
               >
-                <span className="k">&gt;</span>Registration Status
+                Registration Status
               </a>
             ) : (
               <a
@@ -167,7 +166,7 @@ export default function Taskbar() {
                 className="startmenu__item"
                 onClick={() => setOpen(false)}
               >
-                <span className="k">&gt;</span>Return To Main Site
+                Return To Main Site
               </a>
             )}
           </div>
@@ -181,7 +180,7 @@ export default function Taskbar() {
           aria-expanded={open}
         >
           <span className="flag">&gt;</span>
-          START
+          Start
         </button>
 
         <div className="taskbar__tasks">
@@ -191,7 +190,7 @@ export default function Taskbar() {
             }`}
             href="/"
           >
-            MAIN
+            Main
           </a>
           <a
             className={`taskbar__task ${
@@ -199,7 +198,7 @@ export default function Taskbar() {
             }`}
             href="/platform"
           >
-            COMPETITION PLATFORM
+            Competition Platform
           </a>
           <a
             className={`taskbar__task ${
@@ -207,7 +206,7 @@ export default function Taskbar() {
             }`}
             href="/admin"
           >
-            ADMIN
+            Admin
           </a>
         </div>
 
@@ -222,7 +221,10 @@ export default function Taskbar() {
             <span className="taskbar__date">{date}</span>
             <span className="taskbar__clock">{time}</span>
             <span className="tz-zone">{z.label}</span>
-            <span className="tz-caret">v</span>
+            <span
+              className={`tz-caret ${tzOpen ? "is-open" : ""}`}
+              aria-hidden="true"
+            />
           </button>
 
           {tzOpen && (

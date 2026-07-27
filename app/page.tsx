@@ -1,4 +1,5 @@
 import Marquee from "./components/Marquee";
+import FaqAccordion from "./components/FaqAccordion";
 import TimelineWave from "./components/TimelineWave";
 import Window from "./components/Window";
 import Reveal from "./components/Reveal";
@@ -43,11 +44,11 @@ export default function Home() {
                 </span>
               </h1>
               <p className="hero__lead">{competition.hero}</p>
-              <div className="btn-row">
-                <span className="btn btn--primary btn--disabled" aria-disabled="true">
+              <div className="btn-row hero__actions">
+                <span className="btn btn--primary btn--disabled btn--terminal" aria-disabled="true">
                   Registration opening soon
                 </span>
-                <a href="#rules" className="btn btn--ghost">
+                <a href="#rules" className="btn btn--ghost btn--terminal">
                   Read official rules
                 </a>
               </div>
@@ -74,15 +75,15 @@ export default function Home() {
                 <div className="lcd">
                   <div className="lcd__row">
                     <span className="lcd__k">&gt; EVENT</span>
-                    <span className="lcd__v">PACKET CAPTURE</span>
+                    <span className="lcd__v">Packet Capture</span>
                   </div>
                   <div className="lcd__row">
                     <span className="lcd__k">&gt; REGISTRATION</span>
-                    <span className="lcd__v amber">OPENING SOON</span>
+                    <span className="lcd__v amber">Opening Soon</span>
                   </div>
                   <div className="lcd__row">
                     <span className="lcd__k">&gt; ACTS</span>
-                    <span className="lcd__v">4 SEQUENTIAL</span>
+                    <span className="lcd__v">4 Sequential</span>
                   </div>
                   <div className="lcd__row">
                     <span className="lcd__k">&gt; PUBLIC CASES</span>
@@ -90,7 +91,7 @@ export default function Home() {
                   </div>
                   <div className="lcd__row">
                     <span className="lcd__k">&gt; FINAL LAYER</span>
-                    <span className="lcd__v alert">LOCKED</span>
+                    <span className="lcd__v alert">Locked</span>
                   </div>
                   <div className="progress">
                     <i />
@@ -114,7 +115,7 @@ export default function Home() {
             </Reveal>
 
             <Reveal className="about about__grid">
-              <Window title="brief.log" meta="cleared">
+              <Window title="brief.log" meta="cleared" className="brief-window">
                 <div>
                   <p>{competition.description}</p>
                   <p>{competition.about}</p>
@@ -343,19 +344,14 @@ export default function Home() {
           <div className="shell">
             <Reveal className="sec__head">
               <div>
-                <span className="eyebrow">(06) Frequently Asked Questions</span>
+                <span className="eyebrow">(06) FAQ</span>
                 <h2>FAQ</h2>
               </div>
               <span className="section-index">06 / 08</span>
             </Reveal>
 
-            <Reveal className="faq-list">
-              {faqs.map((item, i) => (
-                <details className="faq-item" key={item.q} open={i === 0}>
-                  <summary className="faq-q">{item.q}</summary>
-                  <p className="faq-a">{item.a}</p>
-                </details>
-              ))}
+            <Reveal>
+              <FaqAccordion items={faqs} />
             </Reveal>
           </div>
         </section>
@@ -424,7 +420,7 @@ export default function Home() {
           <div className="shell">
             <Reveal>
               <span className="eyebrow">REGISTER.EXE - Pending Launch</span>
-              <h2>Join The Response?</h2>
+              <h2>Join The Response</h2>
               <p>
                 The network is only the surface. Assemble your team, study the
                 rules, prepare your tools, and wait for the official

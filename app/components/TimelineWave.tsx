@@ -8,11 +8,12 @@ const VW = 1000;
 const VH = 200;
 const CY = 100;
 const AMP = 40; /* wave depth */
+const PAD_X = 150;
 
 export default function TimelineWave({ items }: { items: TItem[] }) {
   const n = items.length;
-  const dx = VW / n;
-  const x0 = dx / 2; // first node x (sine extremum)
+  const dx = (VW - PAD_X * 2) / (n - 1);
+  const x0 = PAD_X; // first node x (sine extremum)
   const yAt = (x: number) => CY + AMP * Math.cos((Math.PI * (x - x0)) / dx);
 
   // dense samples for a very smooth polyline; spans node 1 -> node n
@@ -107,8 +108,8 @@ export default function TimelineWave({ items }: { items: TItem[] }) {
         const topPct = (pts[i].y / VH) * 100;
         const above = pts[i].y < CY;
         const cardStyle: React.CSSProperties = above
-          ? { left: `${leftPct}%`, bottom: `calc(${100 - topPct}% + 44px)` }
-          : { left: `${leftPct}%`, top: `calc(${topPct}% + 44px)` };
+          ? { left: `${leftPct}%`, bottom: `calc(${100 - topPct}% + 22px)` }
+          : { left: `${leftPct}%`, top: `calc(${topPct}% + 22px)` };
         return (
           <div key={i}>
             <button

@@ -102,7 +102,7 @@ export default function RootLayout({
             <feDisplacementMap
               in="SourceGraphic"
               in2="map"
-              scale="20"
+              scale="6"
               xChannelSelector="R"
               yChannelSelector="G"
             />

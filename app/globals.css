@@ -64,6 +64,7 @@
   --display: "Orbitron", var(--pixel);
   --display-alt: "Orbitron", var(--pixel);
   --chrome: "Tahoma", "MS Sans Serif", "Segoe UI", sans-serif;
+  --rodin: "New Rodin Pro DB", "FOT-NewRodin Pro DB", "HKGroteskWide", "Segoe UI", sans-serif;
 
   --bevel-out: inset -1px -1px 0 0 var(--w95-dk),
     inset 1px 1px 0 0 var(--w95-hi), inset -2px -2px 0 0 var(--w95-sh),
@@ -336,7 +337,7 @@ h1, h2, h3 { font-weight: 800; line-height: 1.04; }
    ============================================================ */
 .nav { position: fixed; top: var(--tv-tuck); left: var(--tv-tuck); right: var(--tv-tuck); z-index: 9990; background: var(--w95-face); box-shadow: var(--bevel-out); }
 .nav__inner { max-width: 1120px; margin: 0 auto; padding: 15px 20px 10px; display: flex; align-items: center; gap: 16px; }
-.nav__logo { font-family: "OffBit", var(--vga); font-weight: 700; font-size: 1.05rem; color: var(--amber-2); white-space: nowrap; display: flex; align-items: center; gap: 4px; letter-spacing: 0.02em; text-shadow: var(--glow); }
+.nav__logo { font-family: "OffBit", var(--vga); font-weight: 700; font-size: 1.14rem; color: var(--amber-2); white-space: nowrap; display: flex; align-items: center; gap: 4px; letter-spacing: 0.02em; text-shadow: var(--glow); }
 .nav__logo b { color: var(--orange); }
 .nav__blink { color: var(--orange); animation: blink 1s steps(1) infinite; }
 .nav__links { display: flex; gap: 4px; margin-left: auto; font-family: var(--chrome); font-size: 0.78rem; }
@@ -508,7 +509,19 @@ h1, h2, h3 { font-weight: 800; line-height: 1.04; }
 .act:hover { transform: translateY(-4px); }
 .act__num { font-family: var(--pixel); font-size: 0.5rem; letter-spacing: 0.08em; color: var(--orange); }
 .act__title { font-size: 1.35rem; text-transform: uppercase; margin: 8px 0 4px; color: var(--amber-2); font-weight: 800; }
-.act__disc { color: var(--amber); font-size: 0.82rem; letter-spacing: 0.08em; margin-bottom: 12px; }
+.act__title {
+  font-family: "OffBit", var(--vga);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.act__disc {
+  color: var(--amber);
+  font-family: var(--pixel);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
 .act__desc { color: var(--ink-dim); font-size: 0.9rem; margin-bottom: 16px; }
 .act__figs { display: flex; gap: 8px; margin-bottom: 14px; }
 .act__fig { flex: 1; box-shadow: var(--bevel-thin-in); background: #0c0703; padding: 9px 6px; text-align: center; }
@@ -534,7 +547,15 @@ h1, h2, h3 { font-weight: 800; line-height: 1.04; }
 .rule:hover { transform: translateY(-3px); }
 .rule__n { font-family: var(--pixel); font-size: 1.5rem; color: var(--wire-2); line-height: 1; margin-bottom: 12px; }
 .rule:hover .rule__n { color: var(--amber); text-shadow: var(--glow); }
-.rule h3 { font-size: 1.02rem; color: var(--amber-2); text-transform: uppercase; margin-bottom: 8px; }
+.rule h3 {
+  color: var(--amber-2);
+  font-family: "OffBit", var(--vga);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
 .rule p { font-size: 0.86rem; color: var(--ink-dim); }
 
 /* ============================================================
@@ -608,9 +629,8 @@ h1, h2, h3 { font-weight: 800; line-height: 1.04; }
 .startmenu__rail { display: grid; grid-template-columns: 26px 1fr; }
 .startmenu__side { background: linear-gradient(180deg, var(--w95-title), var(--orange)); writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-family: var(--pixel); font-size: 0.62rem; color: #1c0f00; padding: 10px 4px; letter-spacing: 0.1em; }
 .startmenu__items { padding: 3px 0; }
-.startmenu__item { display: flex; align-items: center; gap: 10px; padding: 7px 12px; font-family: var(--chrome); font-size: 0.82rem; color: var(--w95-text); cursor: pointer; }
+.startmenu__item { display: flex; align-items: center; gap: 0; padding: 7px 12px; font-family: var(--chrome); font-size: 0.82rem; color: var(--w95-text); cursor: pointer; }
 .startmenu__item:hover { background: var(--w95-title-2); color: #1c0f00; }
-.startmenu__item .k { width: 16px; text-align: center; }
 .startmenu__sep { height: 1px; background: var(--w95-sh); box-shadow: 0 1px 0 var(--w95-hi); margin: 3px 6px; }
 
 /* ============================================================
@@ -650,8 +670,7 @@ h1, h2, h3 { font-weight: 800; line-height: 1.04; }
 body { background: #080503; text-shadow: 0 0 1px rgba(255, 154, 82, 0.45); }
 .tube { background: #080503; }
 /* slight phosphor glow on body/data text — subtle so it stays sharp */
-.win__body, .lcd, .tindex, .loom, .about p, .act__desc, .rule p,
-.tl-item p, .partner p, .hero__lead, .case-chip, .win__status {
+.lcd, .tindex, .loom, .case-chip, .win__status {
   text-shadow: 0 0 2px rgba(255, 150, 70, 0.35);
 }
 /* inverted blocks (amber background) get no glow — keep them clean */
@@ -756,6 +775,29 @@ body { background: #080503; text-shadow: 0 0 1px rgba(255, 154, 82, 0.45); }
 .sec__head h2::after { content: " *"; }
 .eyebrow { color: var(--amber-dim); }
 .section-index { background: transparent; box-shadow: none; border: 1px solid var(--line); color: var(--amber); }
+.section-index {
+  font-family: var(--rodin);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.sec__head {
+  display: inline-flex !important;
+  width: auto !important;
+  max-width: 100%;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.sec__head > div {
+  flex: 0 0 auto;
+  width: max-content;
+  max-width: 100%;
+}
+
+.sec__head .section-index {
+  flex: 0 0 auto;
+}
 
 /* hero */
 .hero h1 {
@@ -840,6 +882,28 @@ body { background: #080503; text-shadow: 0 0 1px rgba(255, 154, 82, 0.45); }
   margin-left: 8px;
   text-shadow: none;
 }
+.nav__links,
+.nav__links a,
+.taskbar__start,
+.taskbar__task {
+  font-family: var(--rodin);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+.hero__channel,
+.hero__lead,
+.dialog__body {
+  font-family: var(--rodin);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.hero__lead,
+.dialog__body {
+  line-height: 1.55;
+  text-shadow: none;
+}
 .taskbar { background: rgba(8, 5, 3, 0.9); box-shadow: none; border: 1px solid var(--line); }
 .taskbar__start { background: transparent; box-shadow: none; border: 1px solid var(--line); color: var(--amber); text-shadow: var(--glow); }
 .taskbar__start:active { background: var(--amber); color: var(--invert-text); }
@@ -851,7 +915,7 @@ body { background: #080503; text-shadow: 0 0 1px rgba(255, 154, 82, 0.45); }
 .startmenu__item:hover { background: var(--amber); color: var(--invert-text); }
 
 /* ---- window controls area removed; keep chrome fonts terminal-y ---- */
-.win__body, .about p, .act__desc, .rule p, .tl-item p, .partner p, .hero__lead {
+.win__body {
   font-family: var(--term);
   font-size: 1.02rem;
   line-height: 1.35;
@@ -868,10 +932,33 @@ body { background: #080503; text-shadow: 0 0 1px rgba(255, 154, 82, 0.45); }
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: "HKGroteskWide";
+  src: url("/fonts/HKGroteskWide-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "The Citadels";
+  src: url("/fonts/The%20Citadels.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "DS-DIGI";
+  src: url("/fonts/DS-DIGIB.TTF") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 :root {
   --vga: "IBM VGA 8x14", "IBM Plex Mono", ui-monospace, monospace;
   --term: var(--vga);
   --mono: var(--vga);
+  --citadel: "The Citadels", var(--rodin);
+  --digi: "DS-DIGI", var(--rodin);
 }
 
 /* keep the bitmap font crisp (no anti-alias smoothing) */
@@ -882,13 +969,13 @@ body {
 }
 
 /* the VGA face reads best around 15-16px; nudge terminal text up a touch */
-.win__body, .about p, .act__desc, .rule p, .tl-item p, .partner p, .hero__lead {
+.win__body {
   font-family: var(--vga);
   font-size: 1rem;
   line-height: 1.45;
 }
-.lcd, .tindex__row, .tindex__head, .node__id, .node__s, .loom__label,
-.case-chip, .cases__label, .win__title, .win__status, .btn, .reg-status {
+.tindex__row, .tindex__head, .node__id, .node__s, .loom__label,
+.case-chip, .cases__label, .win__title, .win__status, .reg-status {
   font-family: var(--vga);
 }
 .sec__head h2, .hero h1, .register h2 { font-family: var(--vga); letter-spacing: 0.04em; }
@@ -936,6 +1023,26 @@ body {
   22% { background: var(--amber); color: var(--invert-text); text-shadow: none; box-shadow: 0 0 22px rgba(255, 132, 25, 0.4); }
   25% { background: transparent; color: var(--amber); text-shadow: var(--glow); box-shadow: var(--bevel-thin-in); }
   100% { background: transparent; color: var(--amber); text-shadow: var(--glow); box-shadow: var(--bevel-thin-in); }
+}
+
+.stats .stat b {
+  font-family: var(--term);
+  font-size: 3.7rem;
+  line-height: 0.86;
+}
+
+.stats .stat span {
+  color: inherit;
+  display: block;
+  font-family: var(--rodin);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  margin-top: 14px;
+  opacity: 0.9;
+  text-shadow: none;
+  text-transform: uppercase;
 }
 
 /* ============================================================
@@ -1100,7 +1207,20 @@ body {
 .tz-pick .taskbar__date { color: var(--amber-dim); }
 .tz-pick .taskbar__clock { color: var(--ink); font-variant-numeric: tabular-nums; }
 .tz-pick .tz-zone { color: var(--amber); font-weight: 700; }
-.tz-caret { color: var(--amber); font-size: 0.85em; align-self: center; }
+.tz-caret {
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--amber);
+  border-bottom: 2px solid var(--amber);
+  transform: translateY(-2px) rotate(45deg);
+  transform-origin: center;
+  transition: transform 0.16s ease;
+  align-self: center;
+  flex: 0 0 9px;
+}
+.tz-caret.is-open {
+  transform: translateY(2px) rotate(225deg);
+}
 
 /* dropdown menu (opens upward, above the taskbar) */
 .tz-menu {
@@ -1262,7 +1382,6 @@ body { text-shadow: none; }
 .rule p,
 .tl-item p,
 .partner p,
-.hero__lead,
 .sec__lead,
 .win__status,
 .case-chip {
@@ -1273,7 +1392,6 @@ body { text-shadow: none; }
 .rule p,
 .tl-item p,
 .partner p,
-.hero__lead,
 .sec__lead {
   color: var(--ink-dim);
 }
@@ -1290,7 +1408,6 @@ body { text-shadow: none; }
 .rule p,
 .tl-item p,
 .partner p,
-.hero__lead,
 .sec__lead {
   line-height: 1.55;
 }
@@ -1323,7 +1440,8 @@ body { text-shadow: none; }
 }
 .footer a,
 .footer li {
-  font-family: var(--vga);
+  font-family: "OffBit", var(--vga);
+  font-weight: 700;
   font-size: 0.98rem;
   color: var(--ink-dim);
 }
@@ -1421,7 +1539,7 @@ body { text-shadow: none; }
    TIMELINE WAVE — horizontal sine wave, 5 glowing orb nodes,
    alternating cards, interactive fill (ref-accurate, TVA amber)
    ============================================================ */
-.wave { position: relative; width: 100%; height: 470px; }
+.wave { position: relative; width: 100%; height: 560px; }
 .wave__svg {
   position: absolute; inset: 0; width: 100%; height: 100%;
   overflow: visible;
@@ -1466,7 +1584,7 @@ body { text-shadow: none; }
 .wave__card {
   position: absolute;
   transform: translateX(-50%);
-  width: 200px;
+  width: 190px;
   opacity: 0.5;
   transition: opacity 0.3s ease;
 }
@@ -1475,7 +1593,14 @@ body { text-shadow: none; }
   font-family: var(--vga); font-size: 0.78rem; letter-spacing: 0.06em;
   color: var(--amber); text-shadow: var(--glow); margin-bottom: 4px;
 }
-.wave__card h3 { font-size: 1.02rem; color: var(--ink); margin-bottom: 5px; }
+.wave__card h3 {
+  font-family: "OffBit", var(--vga);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  margin-bottom: 5px;
+}
 .wave__card.on h3 { color: var(--amber-2); }
 .wave__card p { font-size: 0.86rem; line-height: 1.5; color: var(--ink-dim); }
 
@@ -1494,7 +1619,14 @@ body { text-shadow: none; }
     background: radial-gradient(circle at 50% 38%, #ff9a4d, #d64a10 70%, #7a2a08);
     box-shadow: 0 0 14px rgba(255, 120, 20, 0.5);
   }
-  .wm-item h3 { font-size: 1rem; color: var(--amber-2); margin-bottom: 3px; }
+  .wm-item h3 {
+    font-family: "OffBit", var(--vga);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--amber-2);
+    margin-bottom: 3px;
+  }
   .wm-item p { font-size: 0.88rem; color: var(--ink-dim); line-height: 1.5; }
 }
 
@@ -1703,6 +1835,42 @@ body { text-shadow: none; }
   .fakeland.is-glitch .fakeland__dropout { animation: none; }
 }
 
+.hero__lead {
+  font-family: var(--rodin);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  text-shadow: none;
+}
+
+.hero__actions .btn--terminal {
+  font-family: var(--term);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.lcd {
+  text-transform: none;
+}
+
+.lcd__k {
+  font-family: var(--vga);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.lcd__v {
+  font-family: var(--rodin);
+  font-size: 0.73em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
 /* ============================================================
    CONTENT REVAMP - official Packet Capture public sections
    ============================================================ */
@@ -1753,7 +1921,10 @@ body { text-shadow: none; }
 
 .mechanic-card h3 {
   color: var(--amber-2);
+  font-family: "OffBit", var(--vga);
   font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   margin: 10px 0 8px;
 }
@@ -1788,6 +1959,7 @@ body { text-shadow: none; }
   border: 1px solid var(--line);
   color: var(--amber);
   font-family: var(--vga);
+  font-size: 1.12rem;
   letter-spacing: 0.05em;
   text-shadow: var(--glow);
 }
@@ -1843,11 +2015,19 @@ body { text-shadow: none; }
 
 .faq-q {
   color: var(--amber-2);
-  font-family: var(--vga);
-  font-size: 1rem;
+  font-family: "OffBit", var(--vga);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   padding: 13px 16px;
   list-style: none;
   text-transform: uppercase;
+}
+
+.faq-q__mark {
+  font-family: var(--vga);
+  font-size: 1.18em;
+  font-weight: 400;
 }
 
 .faq-q::-webkit-details-marker {
@@ -1884,6 +2064,35 @@ body { text-shadow: none; }
   font-size: 0.95rem;
   margin-top: 10px;
   max-width: 36ch;
+}
+
+.brief-window .win__title {
+  font-size: 1.22rem;
+}
+
+.brief-window .win__body p {
+  font-family: var(--rodin) !important;
+  font-size: 0.73rem !important;
+  font-weight: 700;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+  text-shadow: none;
+}
+
+.dialog__actions .btn {
+  font-size: 1rem;
+  padding: 9px 22px;
+}
+
+.taskbar__tray,
+.tz-pick,
+.taskbar__date,
+.taskbar__clock,
+.tz-zone,
+.tz-caret {
+  font-family: var(--rodin);
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 @media (max-width: 980px) {
@@ -2147,10 +2356,13 @@ body { text-shadow: none; }
   margin-bottom: 10px;
 }
 .welcome__p {
-  font-family: var(--vga);
+  font-family: "OffBit", var(--vga);
   color: var(--ink-dim);
+  font-size: 0.9rem;
+  font-weight: 700;
   line-height: 1.55;
   margin-bottom: 14px;
+  text-shadow: none;
 }
 .welcome__hint {
   font-family: var(--vga);
@@ -2158,4 +2370,187 @@ body { text-shadow: none; }
   letter-spacing: 0.14em;
   font-size: 0.88rem;
   animation: blink 1s steps(1) infinite;
+}
+
+/* Final prose contract: readable body copy uses New Rodin. */
+main p,
+.sec__lead,
+.mechanic-card p,
+.rule p,
+.act__desc,
+.faq-a,
+.portal-card p,
+.module-card p,
+.terminal-list,
+.ranking-list,
+.notice-line,
+.empty-state,
+.footer__copy {
+  font-family: var(--rodin) !important;
+  font-size: 0.73rem !important;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+  text-shadow: none;
+}
+
+.hero__lead,
+#overview .sec__lead,
+#acts .sec__lead,
+#rules .sec__lead,
+.register p {
+  font-size: 0.81rem !important;
+}
+
+.dialog__body {
+  font-size: 0.82rem !important;
+}
+
+.act__fig b,
+.act__fig .tag--live {
+  display: block;
+  font-family: var(--term);
+  font-size: 2.05rem !important;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 0.9;
+  margin-bottom: 8px;
+}
+
+.act__fig span:last-child {
+  display: block;
+  font-family: var(--rodin);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.act__fig:nth-child(3) .tag--live,
+.act__fig:nth-child(3) span:last-child {
+  color: var(--ink-dim);
+  display: block;
+  font-family: var(--rodin);
+  font-size: 0.56rem !important;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  margin: 0;
+  text-shadow: none;
+  text-transform: uppercase;
+}
+
+.act__fig:nth-child(3) {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.act__fig:nth-child(3) .tag--live::before {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 6px;
+}
+
+.cases__label {
+  font-family: "OffBit", var(--vga) !important;
+  font-size: 0.72rem !important;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--amber);
+  text-transform: uppercase;
+}
+
+.case-chip,
+.act__unlock {
+  font-family: var(--rodin) !important;
+  font-size: 0.72rem !important;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+  text-shadow: none;
+}
+
+.case-chip {
+  padding: 6px 10px;
+}
+
+/* Deep readability fix: do not raster-warp readable DOM text. */
+.tube {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+.crt-bg,
+.crt {
+  filter: url(#barrel);
+  -webkit-filter: url(#barrel);
+}
+
+body {
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: geometricPrecision;
+}
+
+.crt__scanlines {
+  opacity: 0.14;
+}
+
+[data-glitch] .screen {
+  animation: none !important;
+  transform: none !important;
+}
+
+main p,
+.hero__channel,
+.hero__lead,
+.dialog__body,
+.lcd__k,
+.lcd__v,
+.section-index,
+.nav__links a,
+.taskbar__start,
+.taskbar__task,
+.taskbar__tray,
+.startmenu__item,
+.mechanic-card p,
+.rule p,
+.act__desc,
+.case-chip,
+.act__unlock,
+.faq-a,
+.terminal-list,
+.ranking-list,
+.notice-line,
+.empty-state,
+.footer a,
+.footer li,
+.footer__copy,
+.module-card p,
+.portal-card p {
+  text-shadow: none !important;
+}
+
+/* Keep section counters beside the title, not pushed to the far edge. */
+.sec__head {
+  align-items: end !important;
+  column-gap: 12px !important;
+  display: inline-grid !important;
+  grid-template-columns: max-content max-content !important;
+  max-width: 100% !important;
+  width: max-content !important;
+}
+
+.sec__head > div {
+  max-width: min(100%, 82vw) !important;
+  width: max-content !important;
+}
+
+.sec__head .section-index {
+  justify-self: start !important;
+  margin-left: 0 !important;
 }
