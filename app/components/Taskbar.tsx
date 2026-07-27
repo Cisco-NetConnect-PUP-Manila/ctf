@@ -191,7 +191,7 @@ export default function Taskbar() {
             }`}
             href="/"
           >
-            <i>M</i> MAIN
+            MAIN
           </a>
           <a
             className={`taskbar__task ${
@@ -199,7 +199,7 @@ export default function Taskbar() {
             }`}
             href="/platform"
           >
-            <i>P</i> COMPETITION PLATFORM
+            COMPETITION PLATFORM
           </a>
           <a
             className={`taskbar__task ${
@@ -207,7 +207,7 @@ export default function Taskbar() {
             }`}
             href="/admin"
           >
-            <i>A</i> ADMIN
+            ADMIN
           </a>
         </div>
 
