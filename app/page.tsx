@@ -1,43 +1,54 @@
-// import BootSequence from "./components/BootSequence"; // disabled: replaced by IntroExperience (fake landing -> glitch -> welcome)
 import Marquee from "./components/Marquee";
 import TimelineWave from "./components/TimelineWave";
 import Window from "./components/Window";
 import Reveal from "./components/Reveal";
-import { acts, rules, timeline, sponsors } from "./data";
+import {
+  acts,
+  aiExamples,
+  allowedResources,
+  competition,
+  faqs,
+  mechanics,
+  rankingCriteria,
+  recommendedTools,
+  rules,
+  sponsors,
+  timeline,
+} from "./data";
 
 export default function Home() {
+  const totalCases = acts.reduce((sum, act) => sum + act.cases, 0);
+  const totalScore = acts.reduce(
+    (sum, act) => sum + Number(act.points.replace(/,/g, "")),
+    0
+  );
+
   return (
     <>
-      {/* <BootSequence /> */}
-
       <main id="top">
-        {/* ===================== HERO ===================== */}
         <section className="hero">
           <div className="shell hero__grid">
             <div>
               <div className="hero__channel">
                 <span className="live" />
-                Channel Open — Cyber Incident Response Team
+                {competition.status} - Cyber Incident Response CTF
               </div>
               <h1>
-                Beneath
+                Packet
                 <br />
-                The{" "}
-                <span className="glitch" data-text="Network">
-                  Network
+                Capture
+                <br />
+                <span className="glitch" data-text="Beneath">
+                  Beneath
                 </span>
               </h1>
-              <p className="hero__lead">
-                A seemingly ordinary infrastructure is broadcasting impossible
-                anomalies. Join the response team, trace the evidence, and
-                preserve every key you recover.
-              </p>
+              <p className="hero__lead">{competition.hero}</p>
               <div className="btn-row">
-                <a href="#register" className="btn btn--primary">
-                  &raquo; Begin Investigation
-                </a>
-                <a href="#about" className="btn btn--ghost">
-                  Read the brief
+                <span className="btn btn--primary btn--disabled" aria-disabled="true">
+                  Registration opening soon
+                </span>
+                <a href="#rules" className="btn btn--ghost">
+                  Read official rules
                 </a>
               </div>
             </div>
@@ -45,39 +56,41 @@ export default function Home() {
             <div className="hero__side">
               <div className="dialog" role="alert">
                 <div className="dialog__hatch" aria-hidden="true" />
-                <div className="dialog__title">! WARNING !</div>
+                <div className="dialog__title">INCOMING TRANSMISSION</div>
                 <div className="dialog__body">
-                  ACCESS DENIED: INVALID TEMPORAL AURA
-                  <br />
-                  Unsanctioned signal on subnet 10.29.0.0/16 — response team required.
+                  You are looking at the network. Someone built something beneath it.
                 </div>
                 <div className="dialog__actions">
-                  <a href="#register" className="btn">Respond</a>
-                  <a href="#about" className="btn">Details</a>
+                  <a href="#about" className="btn">
+                    Open brief
+                  </a>
+                  <a href="#faq" className="btn">
+                    FAQ
+                  </a>
                 </div>
               </div>
 
-              <Window title="STATUS.LCD" meta="rt-monitor // intrusion active" icon="▣" tone="alert">
+              <Window title="STATUS.LCD" meta="public-brief // standby" icon="[]">
                 <div className="lcd">
                   <div className="lcd__row">
-                    <span className="lcd__k">&gt; SYSTEM</span>
-                    <span className="lcd__v">ONLINE</span>
+                    <span className="lcd__k">&gt; EVENT</span>
+                    <span className="lcd__v">PACKET CAPTURE</span>
                   </div>
                   <div className="lcd__row">
-                    <span className="lcd__k">&gt; INTRUSION</span>
-                    <span className="lcd__v alert">DETECTED</span>
+                    <span className="lcd__k">&gt; REGISTRATION</span>
+                    <span className="lcd__v amber">OPENING SOON</span>
                   </div>
                   <div className="lcd__row">
-                    <span className="lcd__k">&gt; EVIDENCE</span>
-                    <span className="lcd__v">0 / 29</span>
+                    <span className="lcd__k">&gt; ACTS</span>
+                    <span className="lcd__v">4 SEQUENTIAL</span>
                   </div>
                   <div className="lcd__row">
-                    <span className="lcd__k">&gt; ACTS UNLOCKED</span>
-                    <span className="lcd__v">1 / 4</span>
+                    <span className="lcd__k">&gt; PUBLIC CASES</span>
+                    <span className="lcd__v">{totalCases}</span>
                   </div>
                   <div className="lcd__row">
-                    <span className="lcd__k">&gt; TEAM STATUS</span>
-                    <span className="lcd__v amber">STANDBY</span>
+                    <span className="lcd__k">&gt; FINAL LAYER</span>
+                    <span className="lcd__v alert">LOCKED</span>
                   </div>
                   <div className="progress">
                     <i />
@@ -88,79 +101,91 @@ export default function Home() {
           </div>
         </section>
 
-        <div className="shell">
-          <div className="hazard">
-            <span>// FOR ALL TIMELINES // AUTHORIZED RESPONDERS ONLY // PRESERVE EVERY KEY //</span>
-          </div>
-        </div>
-
         <Marquee />
 
-        {/* ===================== ABOUT ===================== */}
         <section id="about" className="sec">
           <div className="shell">
             <Reveal className="sec__head">
               <div>
                 <span className="eyebrow">(01) Incident Brief</span>
-                <h2>ABOUT.TXT</h2>
+                <h2>About Packet Capture</h2>
               </div>
-              <span className="section-index">01 / 05</span>
+              <span className="section-index">01 / 08</span>
             </Reveal>
 
             <Reveal className="about about__grid">
               <Window title="brief.log" meta="cleared">
                 <div>
-                  <p>
-                    Every network has two realities: the trusted surface everyone
-                    sees, and the hidden layer where abandoned systems, corrupted
-                    logs, and <strong>impossible traffic</strong> tell the real
-                    story.
-                  </p>
-                  <p>
-                    Your response team will follow that trail across four acts —
-                    from open-source traces to the network&apos;s buried
-                    infrastructure — preserving every artifact until the final
-                    transmission.
-                  </p>
+                  <p>{competition.description}</p>
+                  <p>{competition.about}</p>
+                  <p>{competition.story}</p>
                 </div>
               </Window>
 
               <div className="stats">
                 <div className="stat">
                   <b>4</b>
-                  <span>Narrative Acts</span>
+                  <span>Sequential Acts</span>
                 </div>
                 <div className="stat">
-                  <b>29</b>
+                  <b>{totalCases}</b>
                   <span>Public Cases</span>
                 </div>
                 <div className="stat">
-                  <b>4,050</b>
-                  <span>Total Points</span>
+                  <b>{totalScore.toLocaleString()}</b>
+                  <span>Investigation Score</span>
                 </div>
                 <div className="stat">
                   <b>1</b>
-                  <span>Final Layer</span>
+                  <span>Final Investigation</span>
                 </div>
               </div>
             </Reveal>
           </div>
         </section>
 
-        {/* ===================== ACTS ===================== */}
+        <section id="overview" className="sec">
+          <div className="shell">
+            <Reveal className="sec__head">
+              <div>
+                <span className="eyebrow">(02) Competition Overview</span>
+                <h2>Race Smart. Score Higher.</h2>
+              </div>
+              <span className="section-index">02 / 08</span>
+            </Reveal>
+            <Reveal>
+              <p className="sec__lead">
+                Score leads the ranking. Time, Intel penalties, and Final
+                Investigation timing break ties. Teams should solve accurately,
+                manage time, and decide carefully when to request hints.
+              </p>
+            </Reveal>
+
+            <div className="mechanics__grid">
+              {mechanics.map((item, i) => (
+                <Reveal className="mechanic-card" key={item.title} delay={i * 50}>
+                  <div className="rule__n">{String(i + 1).padStart(2, "0")}</div>
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section id="acts" className="sec">
           <div className="shell">
             <Reveal className="sec__head">
               <div>
-                <span className="eyebrow">(02) Four Acts</span>
+                <span className="eyebrow">(03) Four Acts</span>
                 <h2>The Investigation</h2>
               </div>
-              <span className="section-index">02 / 05</span>
+              <span className="section-index">03 / 08</span>
             </Reveal>
             <Reveal>
               <p className="sec__lead">
-                Challenge names, point totals, and unlock thresholds are public.
-                Flags and solution fragments stay{" "}
+                Challenge names and point totals are public. Correct flags,
+                final answers, and solution fragments remain{" "}
                 <span className="classified">classified</span>.
               </p>
             </Reveal>
@@ -169,13 +194,13 @@ export default function Home() {
               {acts.map((act, i) => (
                 <Reveal className="act" key={act.id} delay={i * 60}>
                   <Window
-                    title={`${act.num} — ${act.track}`}
+                    title={`${act.num} - ${act.track}`}
                     meta={`status: ${act.status} // ${act.cases} cases`}
-                    icon="▤"
+                    icon="[]"
                   >
                     <div className="act__num">{act.track.toUpperCase()}</div>
                     <div className="act__title">{act.title}</div>
-                    <div className="act__disc">&ldquo;{act.title}&rdquo;</div>
+                    <div className="act__disc">&quot;{act.title}&quot;</div>
                     <p className="act__desc">{act.desc}</p>
 
                     <div className="act__figs">
@@ -217,27 +242,68 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ===================== RULES ===================== */}
+        <section id="scoring" className="sec">
+          <div className="shell">
+            <Reveal className="sec__head">
+              <div>
+                <span className="eyebrow">(04) Investigation Score</span>
+                <h2>Ranking Priority</h2>
+              </div>
+              <span className="section-index">04 / 08</span>
+            </Reveal>
+
+            <Reveal className="brief-grid">
+              <Window title="score.rules" meta="official scope">
+                <div>
+                  <p>
+                    Teams are ranked primarily by total Investigation Score.
+                    The competition rewards accuracy first, then efficiency when
+                    teams are tied.
+                  </p>
+                  <ol className="ranking-list">
+                    {rankingCriteria.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ol>
+                </div>
+              </Window>
+
+              <Window title="flag.intel" meta="submission policy">
+                <div>
+                  <p>
+                    Official flag format:
+                    <span className="flag-format">{competition.format}</span>
+                  </p>
+                  <p>
+                    Flags are case-sensitive. Incorrect submissions award no
+                    points. Intel Requests may reveal hints at the cost of
+                    Investigation Score.
+                  </p>
+                </div>
+              </Window>
+            </Reveal>
+          </div>
+        </section>
+
         <section id="rules" className="sec">
           <div className="shell">
             <Reveal className="sec__head">
               <div>
-                <span className="eyebrow">(03) Rules of Engagement</span>
-                <h2>Preserve the Evidence</h2>
+                <span className="eyebrow">(05) Rules of Engagement</span>
+                <h2>Official Rules</h2>
               </div>
-              <span className="section-index">03 / 05</span>
+              <span className="section-index">05 / 08</span>
             </Reveal>
             <Reveal>
               <p className="sec__lead">
-                This is an incident response operation, not a free-for-all.
-                Follow the trail, respect the scope, and keep every recovered
-                artifact until the final transmission tells you otherwise.
+                By registering, participants agree to follow the rules and any
+                decisions made by the organizing committee.
               </p>
             </Reveal>
 
             <div className="rules__grid">
               {rules.map((rule, i) => (
-                <Reveal className="rule" key={rule.title} delay={i * 60}>
+                <Reveal className="rule" key={rule.title} delay={i * 45}>
                   <div className="rule__n">
                     {String(i + 1).padStart(2, "0")}
                   </div>
@@ -246,85 +312,123 @@ export default function Home() {
                 </Reveal>
               ))}
             </div>
+
+            <Reveal className="resources-grid">
+              <Window title="allowed.resources" meta="ethical use only">
+                <ul className="terminal-list">
+                  {allowedResources.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </Window>
+              <Window title="ai.examples" meta="permitted">
+                <ul className="terminal-list">
+                  {aiExamples.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </Window>
+              <Window title="recommended.tools" meta="prepare before event">
+                <ul className="terminal-list">
+                  {recommendedTools.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </Window>
+            </Reveal>
           </div>
         </section>
 
-        {/* ===================== TIMELINE ===================== */}
+        <section id="faq" className="sec">
+          <div className="shell">
+            <Reveal className="sec__head">
+              <div>
+                <span className="eyebrow">(06) Frequently Asked Questions</span>
+                <h2>FAQ</h2>
+              </div>
+              <span className="section-index">06 / 08</span>
+            </Reveal>
+
+            <Reveal className="faq-list">
+              {faqs.map((item, i) => (
+                <details className="faq-item" key={item.q} open={i === 0}>
+                  <summary className="faq-q">{item.q}</summary>
+                  <p className="faq-a">{item.a}</p>
+                </details>
+              ))}
+            </Reveal>
+          </div>
+        </section>
+
         <section id="timeline" className="sec">
           <div className="shell">
             <Reveal className="sec__head">
               <div>
-                <span className="eyebrow">(04) Operation Timeline</span>
+                <span className="eyebrow">(07) Operation Timeline</span>
                 <h2>Event Timeline</h2>
               </div>
-              <span className="section-index">04 / 05</span>
+              <span className="section-index">07 / 08</span>
             </Reveal>
 
             <Reveal>
-              <Window title="TIMELINE.LOG" meta="operation-2026 // 5 events" icon="◷">
+              <p className="notice-line">
+                Dates are pending organizer confirmation. No final schedule has
+                been invented in this public build.
+              </p>
+            </Reveal>
+
+            <Reveal>
+              <Window title="TIMELINE.LOG" meta="dates pending // organizer confirmation" icon="[]">
                 <TimelineWave items={timeline} />
               </Window>
             </Reveal>
           </div>
         </section>
 
-        {/* ===================== SPONSORS ===================== */}
         <section id="sponsors" className="sec">
           <div className="shell">
             <Reveal className="sec__head">
               <div>
-                <span className="eyebrow">(05) Backed By</span>
-                <h2>Partners &amp; Sponsors</h2>
+                <span className="eyebrow">(08) Sponsors &amp; Partners</span>
+                <h2>Sponsors &amp; Partners</h2>
               </div>
-              <span className="section-index">05 / 05</span>
+              <span className="section-index">08 / 08</span>
             </Reveal>
 
             <Reveal>
-              <div className="sponsors__grid">
-                {sponsors.map((s) => (
-                  <div className="sponsor" key={s}>
-                    {s}
-                    <small>PLACEHOLDER</small>
+              <Window title="partners.db" meta="pending">
+                {sponsors.length > 0 ? (
+                  <div className="sponsors__grid">
+                    {sponsors.map((sponsor) => (
+                      <a
+                        className="sponsor"
+                        href={sponsor.link || "#sponsors"}
+                        key={sponsor.name}
+                      >
+                        {sponsor.name}
+                        <small>{sponsor.tier}</small>
+                      </a>
+                    ))}
                   </div>
-                ))}
-                <div className="sponsor" style={{ color: "var(--w95-title)" }}>
-                  + YOU?
-                  <small>SLOT OPEN</small>
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal>
-              <Window title="PARTNER_WITH_US.EXE" meta="run">
-                <div className="partner">
-                  <div>
-                    <h3>Become a Partner</h3>
-                    <p>
-                      Put your brand in front of the region&apos;s sharpest
-                      security talent. Let&apos;s build something together.
-                    </p>
+                ) : (
+                  <div className="empty-state">
+                    Sponsor and partner details are not finalized yet.
                   </div>
-                  <a
-                    href="mailto:sponsors@packetcapture.ctf"
-                    className="btn btn--primary"
-                  >
-                    Get in Touch →
-                  </a>
-                </div>
+                )}
               </Window>
             </Reveal>
           </div>
         </section>
 
-        {/* ===================== REGISTER ===================== */}
         <section id="register" className="register">
           <div className="shell">
             <Reveal>
-              <span className="eyebrow">REGISTER.EXE — Final Transmission</span>
-              <h2>Join the Response?</h2>
+              <span className="eyebrow">REGISTER.EXE - Pending Launch</span>
+              <h2>Join The Response?</h2>
               <p>
-                The network is only the surface. Register your team, preserve
-                every artifact, and wait for the final transmission.
+                The network is only the surface. Assemble your team, study the
+                rules, prepare your tools, and wait for the official
+                registration window.
               </p>
               <div className="reg-status">REGISTRATION OPENING SOON</div>
             </Reveal>
@@ -332,22 +436,13 @@ export default function Home() {
         </section>
       </main>
 
-      {/* ===================== FOOTER ===================== */}
       <footer className="footer">
         <div className="shell">
           <div className="footer__grid">
             <div>
               <div className="footer__logo">PACKET CAPTURE</div>
-              <p
-                style={{
-                  color: "var(--ink-dim)",
-                  fontSize: "0.95rem",
-                  marginTop: "10px",
-                  maxWidth: "36ch",
-                  lineHeight: 1.5,
-                }}
-              >
-                Beneath the Network. A cyber incident response CTF operation.
+              <p className="footer__copy">
+                Beneath the Network. A story-driven cyber incident response CTF.
               </p>
             </div>
             <div>
@@ -363,37 +458,30 @@ export default function Home() {
                   <a href="#rules">Rules</a>
                 </li>
                 <li>
-                  <a href="#timeline">Timeline</a>
+                  <a href="#faq">FAQ</a>
+                </li>
+                <li>
+                  <a href="#sponsors">Sponsors</a>
                 </li>
               </ul>
             </div>
             <div>
-              <h4>Connect</h4>
+              <h4>Status</h4>
               <ul>
-                <li>
-                  Discord <span className="footer__soon">(soon)</span>
-                </li>
-                <li>
-                  Twitter / X <span className="footer__soon">(soon)</span>
-                </li>
-                <li>
-                  GitHub <span className="footer__soon">(soon)</span>
-                </li>
+                <li>Registration <span className="footer__soon">(opening soon)</span></li>
+                <li>Timeline <span className="footer__soon">(TBA)</span></li>
+                <li>Partners <span className="footer__soon">(pending)</span></li>
               </ul>
             </div>
             <div>
               <h4>Contact</h4>
               <ul>
-                <li>
-                  <a href="mailto:hello@packetcapture.ctf">
-                    hello@packetcapture.ctf
-                  </a>
-                </li>
+                <li>{competition.contact}</li>
               </ul>
             </div>
           </div>
           <div className="footer__base">
-            <span>© 2026 Packet Capture CTF — Beneath the Network</span>
+            <span>2026 Packet Capture CTF - Beneath the Network</span>
             <span>// CHANNEL CLOSED</span>
           </div>
         </div>

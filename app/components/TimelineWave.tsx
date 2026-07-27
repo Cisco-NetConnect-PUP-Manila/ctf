@@ -121,7 +121,7 @@ export default function TimelineWave({ items }: { items: TItem[] }) {
               <span className="wave__num">{String(i + 1).padStart(2, "0")}</span>
             </button>
             <div className={`wave__card ${above ? "above" : "below"} ${i <= active ? "on" : ""}`} style={cardStyle}>
-              <div className="wave__step">STEP {String(i + 1).padStart(2, "0")} · {t.date}</div>
+              <div className="wave__step">STEP {String(i + 1).padStart(2, "0")} / {t.date}</div>
               <h3>{t.title}</h3>
               <p>{t.body}</p>
             </div>
@@ -135,7 +135,7 @@ export default function TimelineWave({ items }: { items: TItem[] }) {
           <div className="wm-item" key={i}>
             <span className="wm-node">{String(i + 1).padStart(2, "0")}</span>
             <div>
-              <div className="wave__step">STEP {String(i + 1).padStart(2, "0")} · {t.date}</div>
+              <div className="wave__step">STEP {String(i + 1).padStart(2, "0")} / {t.date}</div>
               <h3>{t.title}</h3>
               <p>{t.body}</p>
             </div>

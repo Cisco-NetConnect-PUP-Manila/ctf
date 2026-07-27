@@ -8,12 +8,12 @@ import IntroExperience from "./components/IntroExperience";
 export const metadata: Metadata = {
   title: "PACKET CAPTURE // Beneath The Network",
   description:
-    "A cyber incident response CTF. Trace the evidence, unlock four acts, and preserve every key you recover.",
+    "A team-based, story-driven Capture-the-Flag competition bridging networking fundamentals and cybersecurity.",
   keywords: ["CTF", "cybersecurity", "capture the flag", "packet capture", "incident response"],
   openGraph: {
     title: "PACKET CAPTURE // Beneath The Network",
     description:
-      "Join the response team, trace the evidence, and preserve every key you recover.",
+      "Trace the evidence across four sequential Acts and reconstruct the investigation beneath the network.",
     type: "website",
   },
 };

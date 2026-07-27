@@ -1,12 +1,31 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
-const MENU = [
-  { k: "◈", label: "Incident Brief", href: "#about" },
-  { k: "▤", label: "The Four Acts", href: "#acts" },
-  { k: "!", label: "Rules of Engagement", href: "#rules" },
-  { k: "◷", label: "Operation Timeline", href: "#timeline" },
+const PUBLIC_MENU = [
+  { k: ">", label: "Incident Brief", href: "/#about" },
+  { k: "[]", label: "Competition Overview", href: "/#overview" },
+  { k: "A", label: "The Four Acts", href: "/#acts" },
+  { k: "!", label: "Rules of Engagement", href: "/#rules" },
+  { k: "?", label: "FAQ", href: "/#faq" },
+  { k: "T", label: "Operation Timeline", href: "/#timeline" },
+  { k: "$", label: "Sponsors", href: "/#sponsors" },
+];
+
+const PLATFORM_MENU = [
+  { k: "D", label: "Dashboard", href: "/platform#dashboard" },
+  { k: "S", label: "Storyline", href: "/platform#storyline" },
+  { k: "M", label: "Platform Modules", href: "/platform#modules" },
+  { k: "C", label: "Challenge Workspace", href: "/platform#challenges" },
+  { k: "!", label: "Portal Status", href: "/platform#portal-status" },
+];
+
+const ADMIN_MENU = [
+  { k: "O", label: "Admin Overview", href: "/admin#overview" },
+  { k: "M", label: "Admin Modules", href: "/admin#modules" },
+  { k: "A", label: "Backend Authority", href: "/admin#authority" },
+  { k: "!", label: "Admin Status", href: "/admin#admin-status" },
 ];
 
 const ZONES = [
@@ -42,15 +61,15 @@ function fmtDate(tz: string, d: Date) {
 }
 
 export default function Taskbar() {
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [now, setNow] = useState<Date | null>(null);
-  const [selected, setSelected] = useState(0); // 0 = PH, 1 = AU (user's choice)
+  const [selected, setSelected] = useState(0);
   const [gli, setGli] = useState(false);
   const [open, setOpen] = useState(false);
   const [tzOpen, setTzOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
-  // clock tick + restore saved timezone choice
   useEffect(() => {
     setMounted(true);
     setNow(new Date());
@@ -62,7 +81,6 @@ export default function Taskbar() {
     return () => clearInterval(id);
   }, []);
 
-  // scroll → time briefly swaps to the OTHER zone (minimal glitch, stays visible)
   useEffect(() => {
     const screen = document.getElementById("screen");
     if (!screen) return;
@@ -87,7 +105,6 @@ export default function Taskbar() {
     setTzOpen(false);
   };
 
-  // close start menu on outside click
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
@@ -99,19 +116,32 @@ export default function Taskbar() {
     return () => document.removeEventListener("mousedown", onDown);
   }, []);
 
-  // while glitching, show the OTHER zone than the one the user picked
   const displayZone = gli ? (selected === 0 ? 1 : 0) : selected;
   const z = ZONES[displayZone];
   const time = mounted && now ? fmtTime(z.tz, now) : "--:--";
   const date = mounted && now ? fmtDate(z.tz, now) : "--- --";
+  const activeRoute =
+    pathname === "/platform" ? "platform" : pathname === "/admin" ? "admin" : "main";
+  const menu =
+    activeRoute === "platform"
+      ? PLATFORM_MENU
+      : activeRoute === "admin"
+        ? ADMIN_MENU
+        : PUBLIC_MENU;
+  const startSide =
+    activeRoute === "platform"
+      ? "COMPETITION_PLATFORM"
+      : activeRoute === "admin"
+        ? "ADMIN_PANEL"
+        : "PACKET_CAPTURE";
 
   return (
     <div ref={rootRef}>
       <div className={`startmenu ${open ? "open" : ""}`}>
         <div className="startmenu__rail">
-          <div className="startmenu__side">PACKET·CAPTURE</div>
+          <div className="startmenu__side">{startSide}</div>
           <div className="startmenu__items">
-            {MENU.map((m) => (
+            {menu.map((m) => (
               <a
                 key={m.label}
                 href={m.href}
@@ -123,13 +153,23 @@ export default function Taskbar() {
               </a>
             ))}
             <div className="startmenu__sep" />
-            <a
-              href="#register"
-              className="startmenu__item"
-              onClick={() => setOpen(false)}
-            >
-              <span className="k">&raquo;</span>Begin Investigation
-            </a>
+            {activeRoute === "main" ? (
+              <a
+                href="/#register"
+                className="startmenu__item"
+                onClick={() => setOpen(false)}
+              >
+                <span className="k">&gt;</span>Registration Status
+              </a>
+            ) : (
+              <a
+                href="/"
+                className="startmenu__item"
+                onClick={() => setOpen(false)}
+              >
+                <span className="k">&gt;</span>Return To Main Site
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -140,20 +180,35 @@ export default function Taskbar() {
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
         >
-          <span className="flag">◈</span>
+          <span className="flag">&gt;</span>
           START
         </button>
 
         <div className="taskbar__tasks">
-          <span className="taskbar__task taskbar__task--active">
-            <i>▣</i> STATUS.LCD
-          </span>
-          <span className="taskbar__task">
-            <i>▤</i> ACTS.DAT
-          </span>
-          <span className="taskbar__task">
-            <i>!</i> INTRUSION.LOG
-          </span>
+          <a
+            className={`taskbar__task ${
+              activeRoute === "main" ? "taskbar__task--active" : ""
+            }`}
+            href="/"
+          >
+            <i>M</i> MAIN
+          </a>
+          <a
+            className={`taskbar__task ${
+              activeRoute === "platform" ? "taskbar__task--active" : ""
+            }`}
+            href="/platform"
+          >
+            <i>P</i> COMPETITION PLATFORM
+          </a>
+          <a
+            className={`taskbar__task ${
+              activeRoute === "admin" ? "taskbar__task--active" : ""
+            }`}
+            href="/admin"
+          >
+            <i>A</i> ADMIN
+          </a>
         </div>
 
         <div className="taskbar__tray tzdd">
@@ -162,12 +217,12 @@ export default function Taskbar() {
             onClick={() => setTzOpen((v) => !v)}
             aria-haspopup="listbox"
             aria-expanded={tzOpen}
-            title="Change timezone — Philippines / Australia"
+            title="Change timezone - Philippines / Australia"
           >
             <span className="taskbar__date">{date}</span>
             <span className="taskbar__clock">{time}</span>
             <span className="tz-zone">{z.label}</span>
-            <span className="tz-caret">▾</span>
+            <span className="tz-caret">v</span>
           </button>
 
           {tzOpen && (
@@ -178,7 +233,7 @@ export default function Taskbar() {
                 className={selected === 0 ? "sel" : ""}
                 onClick={() => chooseZone(0)}
               >
-                Philippines &middot; MNL
+                Philippines - MNL
               </button>
               <button
                 role="option"
@@ -186,7 +241,7 @@ export default function Taskbar() {
                 className={selected === 1 ? "sel" : ""}
                 onClick={() => chooseZone(1)}
               >
-                Australia &middot; SYD
+                Australia - SYD
               </button>
             </div>
           )}
