@@ -1,0 +1,468 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Packet Capture Developer Handoff</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.45;
+        max-width: 850px;
+        margin: 40px auto;
+        color: #111;
+      }
+      h1 {
+        font-size: 30px;
+        font-weight: 400;
+      }
+      h2 {
+        font-size: 24px;
+        font-weight: 400;
+        margin-top: 28px;
+      }
+      h3 {
+        font-size: 19px;
+        font-weight: 400;
+        margin-top: 22px;
+      }
+      code,
+      pre {
+        font-family: Consolas, monospace;
+        background: #f6f8fa;
+      }
+      pre {
+        padding: 10px;
+        border: 1px solid #ddd;
+      }
+      li {
+        margin: 4px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Packet Capture Developer Handoff</h1>
+    <p>
+      This project is currently a frontend-only Next.js app for
+      <strong>Packet Capture: Beneath the Network</strong>. The public content
+      is aligned with the provided CTF Guidelines and Storyline documentation,
+      but the competition platform and admin panel are still shells. This guide
+      explains what exists, what is missing, and what the next developers should
+      build.
+    </p>
+    <h2>Current State</h2>
+    <ul>
+      <li>Framework: Next.js App Router</li>
+      <li>Main public site route: <code>/</code></li>
+      <li>Competition platform shell: <code>/platform</code></li>
+      <li>Admin panel shell: <code>/admin</code></li>
+      <li>Shared public content source: <code>app/data.ts</code></li>
+      <li>Main styles and font rules: <code>app/globals.css</code></li>
+      <li>
+        Public assets: <code>public/fonts</code>, <code>public/images</code>
+      </li>
+      <li>
+        Current implementation type: static frontend, no API, no database, no
+        authentication
+      </li>
+    </ul>
+    <p>The site currently includes public sections for:</p>
+    <ul>
+      <li>Hero / event intro</li>
+      <li>About</li>
+      <li>Competition overview</li>
+      <li>Four Acts</li>
+      <li>Rules</li>
+      <li>Scoring / flag format</li>
+      <li>FAQ</li>
+      <li>Timeline</li>
+      <li>Sponsors and partners</li>
+      <li>Footer</li>
+    </ul>
+    <p>
+      The public content intentionally avoids exposing private flags, final
+      answers, and hidden storyline solutions.
+    </p>
+    <h2>Important Content Rules</h2>
+    <p>
+      Do not expose any real flag values or final investigation answers in
+      frontend code, public JSON, static files, comments, or generated HTML.
+    </p>
+    <p>Publicly safe format:</p>
+    <pre>
+PacketCapture{FLAG_NAME}
+
+</pre
+    >
+    <p>
+      Keep secret material only in backend-controlled storage or organizer-only
+      files outside the public frontend bundle.
+    </p>
+    <h2>Main Missing Work</h2>
+    <h3>1. Backend/API</h3>
+    <p>The app needs a real backend for all competition behavior.</p>
+    <p>Required API areas:</p>
+    <ul>
+      <li>Authentication</li>
+      <li>Registration</li>
+      <li>Team management</li>
+      <li>Challenge loading</li>
+      <li>Flag submission</li>
+      <li>Score calculation</li>
+      <li>Act unlock logic</li>
+      <li>Intel Request/hint penalties</li>
+      <li>Leaderboard</li>
+      <li>Announcements</li>
+      <li>Admin operations</li>
+      <li>Submission and audit logs</li>
+      <li>Platform settings</li>
+    </ul>
+    <p>Suggested starting point:</p>
+    <ul>
+      <li>Keep public website static where possible.</li>
+      <li>Add backend routes or a separate API service.</li>
+      <li>Use server-side validation for flags and scoring.</li>
+      <li>
+        Never trust frontend state for score, unlocks, rank, penalties, or
+        solved status.
+      </li>
+    </ul>
+    <h3>2. Database</h3>
+    <p>No database exists yet.</p>
+    <p>Minimum tables/entities needed:</p>
+    <ul>
+      <li>users</li>
+      <li>teams</li>
+      <li>team_members</li>
+      <li>registrations</li>
+      <li>challenges</li>
+      <li>challenge_files</li>
+      <li>flags</li>
+      <li>submissions</li>
+      <li>solves</li>
+      <li>acts</li>
+      <li>act_unlocks</li>
+      <li>intel_requests</li>
+      <li>story_fragments</li>
+      <li>evidence_items</li>
+      <li>announcements</li>
+      <li>penalties</li>
+      <li>leaderboard_snapshots</li>
+      <li>audit_logs</li>
+      <li>platform_settings</li>
+    </ul>
+    <p>
+      Security note: flags should be hashed or otherwise protected. Do not store
+      plain flags if avoidable.
+    </p>
+    <h3>3. Authentication and Access Control</h3>
+    <p>Needed roles:</p>
+    <ul>
+      <li>public visitor</li>
+      <li>registered participant</li>
+      <li>team captain</li>
+      <li>organizer/admin</li>
+    </ul>
+    <p>Required behavior:</p>
+    <ul>
+      <li>Login/logout</li>
+      <li>Registration approval or confirmation flow</li>
+      <li>Protected <code>/platform</code></li>
+      <li>Protected <code>/admin</code></li>
+      <li>Role-based authorization</li>
+      <li>Session expiration</li>
+      <li>Password reset or organizer reset flow</li>
+    </ul>
+    <p>
+      Admin access must be checked on the server, not only hidden in the UI.
+    </p>
+    <h3>4. Registration System</h3>
+    <p>Current site only says registration is opening soon.</p>
+    <p>Needed:</p>
+    <ul>
+      <li>Registration form</li>
+      <li>Team name</li>
+      <li>Team members</li>
+      <li>Institution/organization</li>
+      <li>Contact email</li>
+      <li>Team size validation based on organizer rules</li>
+      <li>Terms/rules agreement</li>
+      <li>Confirmation status</li>
+      <li>Organizer approval flow if required</li>
+      <li>Registration open/closed state</li>
+    </ul>
+    <p>
+      Public content still has TBA values for contact and timeline. Replace
+      those only after the organizers confirm official details.
+    </p>
+    <h3>5. Competition Platform</h3>
+    <p>The <code>/platform</code> route is only a frontend shell.</p>
+    <p>Needed participant pages/modules:</p>
+    <ul>
+      <li>Dashboard</li>
+      <li>Storyline</li>
+      <li>Challenges</li>
+      <li>Progress</li>
+      <li>Investigation Board</li>
+      <li>Leaderboard</li>
+      <li>Announcements</li>
+      <li>Team Profile</li>
+      <li>Settings</li>
+      <li>Logout</li>
+    </ul>
+    <p>Functional requirements:</p>
+    <ul>
+      <li>Show current team score and rank</li>
+      <li>Show current Act</li>
+      <li>Show solved and unsolved challenges</li>
+      <li>Lock Acts until minimum Investigation Score is reached</li>
+      <li>Keep previous unlocked Acts accessible</li>
+      <li>Submit flags through backend validation</li>
+      <li>Deduct points when Intel Requests are used</li>
+      <li>Save recovered story fragments, keys, files, and evidence</li>
+      <li>Support Final Investigation only for qualified teams</li>
+    </ul>
+    <h3>6. Challenge System</h3>
+    <p>Needed challenge data:</p>
+    <ul>
+      <li>Act</li>
+      <li>Category</li>
+      <li>Difficulty</li>
+      <li>Public title</li>
+      <li>Public mission brief</li>
+      <li>Story context</li>
+      <li>Objectives</li>
+      <li>Point value</li>
+      <li>Flag hash / validator</li>
+      <li>Attachments</li>
+      <li>Hints / Intel Requests</li>
+      <li>Hint penalty values</li>
+      <li>Unlock requirements</li>
+      <li>Visibility state</li>
+      <li>Solve state per team</li>
+    </ul>
+    <p>
+      Challenge names and public case names can appear on the site, but correct
+      answers, solution fragments, hidden keys, and final phrases must stay
+      private.
+    </p>
+    <h3>7. Scoring Engine</h3>
+    <p>
+      The docs define scoring as Investigation Score first, then tie-breakers.
+    </p>
+    <p>Needed:</p>
+    <ul>
+      <li>Score awarded per challenge</li>
+      <li>No points for incorrect flags</li>
+      <li>Hint/Intel penalties</li>
+      <li>Optional penalty adjustments by admin</li>
+      <li>Ranking by total Investigation Score</li>
+      <li>Tie-breakers:</li>
+      <ul>
+        <li>fastest overall completion time</li>
+        <li>lowest accumulated Intel Request penalties</li>
+        <li>
+          earliest successful Final Investigation submission, when applicable
+        </li>
+      </ul>
+    </ul>
+    <p>All score math must happen on the backend.</p>
+    <h3>8. Leaderboard</h3>
+    <p>Current leaderboard content is static/shell only.</p>
+    <p>Needed:</p>
+    <ul>
+      <li>Live ranked teams</li>
+      <li>Team name</li>
+      <li>Investigation Score</li>
+      <li>Challenges solved</li>
+      <li>Current Act</li>
+      <li>Completion time</li>
+      <li>Intel penalties</li>
+      <li>Final Investigation status when applicable</li>
+      <li>Optional freeze mode near awarding</li>
+    </ul>
+    <p>Consider rate-limiting public leaderboard endpoints.</p>
+    <h3>9. Admin Panel</h3>
+    <p>The <code>/admin</code> route is a visual shell only.</p>
+    <p>Needed admin modules:</p>
+    <ul>
+      <li>Admin dashboard</li>
+      <li>Challenge management</li>
+      <li>Team management</li>
+      <li>Leaderboard management</li>
+      <li>Announcement management</li>
+      <li>Submission logs</li>
+      <li>Platform settings</li>
+    </ul>
+    <p>Admin requirements:</p>
+    <ul>
+      <li>Create/edit/delete challenges</li>
+      <li>Upload files</li>
+      <li>Configure flags securely</li>
+      <li>Configure Intel Requests and penalties</li>
+      <li>Lock/unlock Acts or challenges</li>
+      <li>View teams</li>
+      <li>Reset team password</li>
+      <li>Reset team progress</li>
+      <li>Apply penalties</li>
+      <li>Disqualify teams</li>
+      <li>Publish announcements</li>
+      <li>View submission logs</li>
+      <li>Freeze leaderboard</li>
+      <li>Configure event status and registration state</li>
+    </ul>
+    <p>Every admin action should create an audit log.</p>
+    <h3>10. File and Attachment Handling</h3>
+    <p>Needed:</p>
+    <ul>
+      <li>Secure upload storage</li>
+      <li>File access control</li>
+      <li>
+        Virus/malware scanning if challenge files can be uploaded by organizers
+      </li>
+      <li>Download tracking if needed</li>
+      <li>Private challenge files gated by team/Act/challenge access</li>
+    </ul>
+    <p>
+      Do not put real challenge attachments directly in <code>public/</code> if
+      they should be access-controlled.
+    </p>
+    <h3>11. Security Hardening</h3>
+    <p>Needed before launch:</p>
+    <ul>
+      <li>Server-side authorization checks</li>
+      <li>Rate limiting for login and flag submission</li>
+      <li>CSRF protection if using cookie sessions</li>
+      <li>Input validation</li>
+      <li>Output escaping</li>
+      <li>Audit logs</li>
+      <li>Secure password hashing</li>
+      <li>Environment variable management</li>
+      <li>No secrets in frontend bundle</li>
+      <li>No source maps with sensitive content in production</li>
+      <li>Backup and recovery plan</li>
+    </ul>
+    <p>
+      Flag submission should be rate-limited to prevent brute force and
+      automated submission scripts.
+    </p>
+    <h3>12. Event Configuration</h3>
+    <p>Still needs organizer-confirmed values:</p>
+    <ul>
+      <li>Exact registration open date</li>
+      <li>Exact registration close date</li>
+      <li>Competition start date</li>
+      <li>Final submission deadline</li>
+      <li>Awarding/closing date</li>
+      <li>Official contact channel</li>
+      <li>Team size requirements</li>
+      <li>Registration URL or form</li>
+      <li>Sponsor and partner names/logos</li>
+      <li>Final platform URL</li>
+    </ul>
+    <p>These are currently represented as TBA or empty placeholders.</p>
+    <h3>13. Testing</h3>
+    <p>Current project only has a build script.</p>
+    <p>Needed:</p>
+    <ul>
+      <li>Unit tests for scoring logic</li>
+      <li>Unit tests for unlock logic</li>
+      <li>Unit tests for flag format validation</li>
+      <li>Integration tests for submissions</li>
+      <li>Integration tests for Intel Request penalties</li>
+      <li>Auth and role access tests</li>
+      <li>Admin action tests</li>
+      <li>E2E tests for participant flow</li>
+      <li>E2E tests for admin flow</li>
+    </ul>
+    <p>Suggested tools:</p>
+    <ul>
+      <li>Vitest or Jest for unit tests</li>
+      <li>Playwright for E2E tests</li>
+      <li>API integration tests for backend routes</li>
+    </ul>
+    <h3>14. Developer Experience</h3>
+    <p>Needed:</p>
+    <ul>
+      <li>README</li>
+      <li><code>.env.example</code></li>
+      <li>setup instructions</li>
+      <li>database migration scripts</li>
+      <li>seed data for local development</li>
+      <li>API contract documentation</li>
+      <li>deployment notes</li>
+      <li>staging/production environment notes</li>
+      <li>lint configuration</li>
+    </ul>
+    <p>Current <code>package.json</code> has:</p>
+    <pre>
+"lint": "next lint"
+
+</pre
+    >
+    <p>
+      Verify this before relying on it. Newer Next.js versions may require an
+      explicit ESLint setup instead of <code>next lint</code>.
+    </p>
+    <h2>Recommended Build Order</h2>
+    <p>1. Add README and <code>.env.example</code>.</p>
+    <p>2. Choose backend/database stack.</p>
+    <p>3. Implement auth and role-based access.</p>
+    <p>4. Build registration and team model.</p>
+    <p>5. Build challenge schema and admin challenge management.</p>
+    <p>6. Build flag submission and scoring.</p>
+    <p>7. Build Act unlock and Intel Request logic.</p>
+    <p>8. Build participant platform pages using real API data.</p>
+    <p>9. Build leaderboard.</p>
+    <p>10. Build announcement system.</p>
+    <p>11. Build audit logs and admin controls.</p>
+    <p>12. Add tests and security hardening.</p>
+    <p>
+      13. Replace TBA event details with official organizer-approved values.
+    </p>
+    <p>14. Deploy staging, run QA, then deploy production.</p>
+    <h2>Current Frontend Files To Know</h2>
+    <ul>
+      <li><code>app/page.tsx</code>: public landing/event page</li>
+      <li><code>app/platform/page.tsx</code>: participant platform shell</li>
+      <li><code>app/admin/page.tsx</code>: admin shell</li>
+      <li>
+        <code>app/data.ts</code>: centralized public content and module
+        definitions
+      </li>
+      <li><code>app/components/Nav.tsx</code>: route-aware navigation</li>
+      <li>
+        <code>app/components/Taskbar.tsx</code>: bottom navigation/start menu
+      </li>
+      <li>
+        <code>app/components/FaqAccordion.tsx</code>: one-open-at-a-time FAQ
+        behavior
+      </li>
+      <li>
+        <code>app/components/TimelineWave.tsx</code>: timeline visualization
+      </li>
+      <li>
+        <code>app/globals.css</code>: typography, layout, theme, CRT styling
+      </li>
+    </ul>
+    <h2>Launch Readiness Checklist</h2>
+    <ul>
+      <li>[ ] Official dates are confirmed.</li>
+      <li>[ ] Official contact channel is confirmed.</li>
+      <li>[ ] Registration form is live.</li>
+      <li>[ ] Auth is implemented.</li>
+      <li>[ ] Participant platform is protected.</li>
+      <li>[ ] Admin panel is protected.</li>
+      <li>[ ] Challenges are stored outside the public frontend.</li>
+      <li>[ ] Real flags are not exposed.</li>
+      <li>[ ] Score logic is backend-controlled.</li>
+      <li>[ ] Intel penalties are backend-controlled.</li>
+      <li>[ ] Leaderboard is live and tested.</li>
+      <li>[ ] Submission logs are available to organizers.</li>
+      <li>[ ] Rate limiting is enabled.</li>
+      <li>[ ] Admin audit logs are enabled.</li>
+      <li>[ ] Full participant flow is tested.</li>
+      <li>[ ] Full admin flow is tested.</li>
+      <li>[ ] Production deployment is verified.</li>
+    </ul>
+  </body>
+</html>

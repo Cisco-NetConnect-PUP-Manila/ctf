@@ -6,10 +6,13 @@ import Nav from "./components/Nav";
 import IntroExperience from "./components/IntroExperience";
 
 export const metadata: Metadata = {
-  title: "PACKET CAPTURE // Beneath The Network",
+  title: "Packet Capture | Beneath the Network",
   description:
     "A team-based, story-driven Capture-the-Flag competition bridging networking fundamentals and cybersecurity.",
   keywords: ["CTF", "cybersecurity", "capture the flag", "packet capture", "incident response"],
+  icons: {
+    icon: "/images/ctf-icon.ico",
+  },
   openGraph: {
     title: "PACKET CAPTURE // Beneath The Network",
     description:
