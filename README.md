@@ -11,7 +11,9 @@ Use the Google Docs handoff as the source of truth for task ownership, feature s
 
 ## Current Status
 
-- Public website: built in Next.js and responsive for desktop, tablet, iPad, and mobile.
+- Live front-facing deployment: [https://cnc-pup-ctf.vercel.app/](https://cnc-pup-ctf.vercel.app/)
+- Deployment note: the live site is frontend-only and is not yet mobile-friendly.
+- Public website: built in Next.js. Mobile/tablet/iPad responsive work is still pending for the deployed frontend-only site.
 - Participant platform: `/platform` exists as a frontend shell.
 - Admin panel: `/admin` exists as a frontend shell.
 - Backend/API: not implemented yet.
