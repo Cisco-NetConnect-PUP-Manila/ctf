@@ -7,10 +7,23 @@ guarantees it, and a test sweeps every participant response for leakage.
 
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.core.flags import MAX_FLAG_LENGTH
 from app.models.challenge import ChallengeStatus
+
+
+class StrictRequest(BaseModel):
+    """Request base that rejects unknown fields.
+
+    Pydantic's default is to silently ignore them, which is a real footgun on an admin
+    API that challenge authors drive by hand: posting ``category`` instead of
+    ``category_id`` used to return 201 with the category silently unset, so a challenge
+    could go live miscategorised with no error anywhere. Failing the request is far
+    cheaper than discovering it mid-event.
+    """
+
+    model_config = ConfigDict(extra="forbid")
 
 
 def _clean(value: str) -> str:
@@ -32,7 +45,7 @@ class ActResponse(BaseModel):
     is_active: bool
 
 
-class ActUpdateRequest(BaseModel):
+class ActUpdateRequest(StrictRequest):
     title: str | None = Field(default=None, min_length=2, max_length=160)
     description: str | None = None
     unlock_threshold_points: int | None = Field(default=None, ge=0)
@@ -71,7 +84,7 @@ class LookupResponse(BaseModel):
 # ---------------------------------------------------------------------- challenges
 
 
-class ChallengeCreateRequest(BaseModel):
+class ChallengeCreateRequest(StrictRequest):
     act_id: UUID
     title: str = Field(min_length=2, max_length=200)
     slug: str = Field(min_length=2, max_length=160)
@@ -101,7 +114,7 @@ class ChallengeCreateRequest(BaseModel):
         return [_clean(item) for item in value if item and item.strip()]
 
 
-class ChallengeUpdateRequest(BaseModel):
+class ChallengeUpdateRequest(StrictRequest):
     act_id: UUID | None = None
     title: str | None = Field(default=None, min_length=2, max_length=200)
     slug: str | None = Field(default=None, min_length=2, max_length=160)
@@ -184,7 +197,7 @@ class ChallengeListResponse(BaseModel):
 # --------------------------------------------------------------------------- flags
 
 
-class ChallengeFlagCreateRequest(BaseModel):
+class ChallengeFlagCreateRequest(StrictRequest):
     value: str = Field(min_length=1, max_length=MAX_FLAG_LENGTH)
     label: str | None = Field(default=None, max_length=80)
 
@@ -199,5 +212,5 @@ class ChallengeFlagResponse(BaseModel):
     is_active: bool
 
 
-class ChallengePublishRequest(BaseModel):
+class ChallengePublishRequest(StrictRequest):
     status: ChallengeStatus
