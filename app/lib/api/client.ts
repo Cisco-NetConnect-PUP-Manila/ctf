@@ -82,6 +82,9 @@ export async function apiRequest<T>(
   const message =
     body.message ??
     (typeof body.detail === "string" ? body.detail : undefined) ??
+    (Array.isArray(body.detail)
+      ? "Please correct the highlighted fields and try again."
+      : undefined) ??
     "The server could not complete this request.";
 
   throw new ApiError(message, {
