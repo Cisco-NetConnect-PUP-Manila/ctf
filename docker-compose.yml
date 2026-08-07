@@ -27,6 +27,7 @@ services:
       SESSION_COOKIE_SECURE: "${SESSION_COOKIE_SECURE:-false}"
       SESSION_EXPIRE_HOURS: "${SESSION_EXPIRE_HOURS:-12}"
       REGISTRATION_OPEN_BY_DEFAULT: "${REGISTRATION_OPEN_BY_DEFAULT:-true}"
+      FLAG_HASH_SECRET: "${FLAG_HASH_SECRET:-change-me-local-flag-hash-secret}"
     depends_on:
       postgres:
         condition: service_healthy

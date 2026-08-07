@@ -3,6 +3,10 @@ from functools import lru_cache
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Shipped default for local development only. Any non-local environment must override it;
+# see Settings.assert_production_ready().
+EXAMPLE_FLAG_HASH_SECRET = "change-me-local-flag-hash-secret"
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -21,6 +25,20 @@ class Settings(BaseSettings):
     session_cookie_secure: bool = Field(default=False, alias="SESSION_COOKIE_SECURE")
     session_expire_hours: int = Field(default=12, alias="SESSION_EXPIRE_HOURS")
     registration_open_by_default: bool = Field(default=True, alias="REGISTRATION_OPEN_BY_DEFAULT")
+
+    # Pepper for challenge flag validators. Losing or rotating it makes every stored
+    # validator unverifiable and flags must be re-entered -- store it with the session
+    # secret. See app/core/flags.py.
+    flag_hash_secret: str = Field(default=EXAMPLE_FLAG_HASH_SECRET, alias="FLAG_HASH_SECRET")
+
+    def assert_production_ready(self) -> None:
+        """Fail fast rather than let every environment silently share one pepper."""
+        if self.backend_env == "local":
+            return
+        if not self.flag_hash_secret or self.flag_hash_secret == EXAMPLE_FLAG_HASH_SECRET:
+            raise RuntimeError(
+                "FLAG_HASH_SECRET must be set to a unique value when BACKEND_ENV is not 'local'."
+            )
 
 
 @lru_cache
