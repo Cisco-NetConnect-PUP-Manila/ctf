@@ -2,7 +2,7 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.deps import get_current_admin
-from app.api.routes import admin_acts, admin_challenges, auth, health
+from app.api.routes import admin_acts, admin_challenges, auth, health, submissions
 from app.core.config import settings
 from app.core.errors import register_error_handlers
 
@@ -30,6 +30,7 @@ def create_app() -> FastAPI:
 
     app.include_router(health.router)
     app.include_router(auth.router, prefix="/auth", tags=["auth"])
+    app.include_router(submissions.router, prefix="/challenges", tags=["challenges"])
 
     # Admin guard is attached at the router level so no individual endpoint can omit it.
     admin_dependencies = [Depends(get_current_admin)]
