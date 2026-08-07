@@ -11,7 +11,9 @@ export default function RegisterPage() {
           <h1 className="auth-title">
             Assemble
             <br />
-            The Response
+            The
+            <br />
+            Response
             <br />
             <span className="glitch" data-text="Team">
               Team

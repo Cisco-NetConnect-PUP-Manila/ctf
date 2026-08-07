@@ -2572,7 +2572,7 @@ main p,
 }
 
 .auth-page--register .auth-page__shell {
-  grid-template-columns: minmax(260px, 0.65fr) minmax(520px, 1.35fr);
+  grid-template-columns: minmax(300px, 0.85fr) minmax(520px, 1.15fr);
 }
 
 .auth-page__intro {
@@ -2609,6 +2609,10 @@ main p,
 
 .auth-page:not(.auth-page--register) .auth-page__intro h1 {
   font-size: clamp(2rem, 4vw, 3.55rem);
+}
+
+.auth-page--register .auth-page__intro h1 {
+  font-size: clamp(2rem, 3.6vw, 3.55rem);
 }
 
 .auth-page__intro p {
