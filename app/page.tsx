@@ -45,9 +45,14 @@ export default function Home() {
               </h1>
               <p className="hero__lead">{competition.hero}</p>
               <div className="btn-row hero__actions">
-                <a className="btn btn--primary btn--terminal" href="/register">
-                  Register team
-                </a>
+                <div className="hero__auth-actions">
+                  <a className="btn btn--primary btn--terminal" href="/register">
+                    Register team
+                  </a>
+                  <a className="btn btn--ghost btn--terminal" href="/login">
+                    Sign in
+                  </a>
+                </div>
                 <a href="#rules" className="btn btn--ghost btn--terminal">
                   Read official rules
                 </a>
