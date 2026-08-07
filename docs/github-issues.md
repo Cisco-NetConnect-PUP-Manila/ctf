@@ -394,7 +394,7 @@ Create the basic test and QA coverage needed before the MVP is considered ready 
 - [ ] Pull request template or contributor notes require test/build evidence.
 - [ ] MVP can be verified locally by a developer following documented steps.
 
-## Issue 20: Prepare AWS-Ready Deployment Plan And Environment Setup
+## Issue 20: Prepare Cloud-Ready Deployment Plan And Environment Setup
 
 Labels: `priority:p1`, `deployment`, `backend`, `frontend`, `database`, `security`, `ready-for-dev`
 
@@ -402,14 +402,14 @@ Blocked by: Issues 1, 2, 4
 
 ## What to build
 
-Prepare the project for the agreed AWS deployment direction once the AWS account is available. Local development should remain usable before AWS is ready.
+Prepare the project for deployment once the final cloud provider is selected. Local development should remain usable before the cloud account/provider is ready.
 
 ## Acceptance criteria
 
 - [ ] Required environment variables are documented for frontend and backend.
 - [ ] Local, staging, and production environment expectations are documented.
-- [ ] AWS target services are listed: Amplify Hosting, App Runner, RDS PostgreSQL, S3 private bucket, CloudWatch, and GitHub Actions.
-- [ ] Backend storage/auth modules are structured so Cognito and S3 can be added later.
+- [ ] Provider-neutral targets are listed: frontend hosting, containerized FastAPI backend hosting, managed PostgreSQL, private object storage, monitoring/logging, and GitHub Actions.
+- [ ] Backend storage/auth modules are structured so AWS, Azure, GCP, Oracle, or another provider can be added later.
 - [ ] Deployment checklist includes build, migration, secret, rollback, and monitoring steps.
 
 ## Issue 21: Add Platform Settings For Competition Control
@@ -459,5 +459,5 @@ Still pending from organizers and should not be guessed:
 - Final registration open/close dates
 - Final team size rules
 - Final contact channel
-- Final production AWS account details
+- Final production cloud provider/account details
 - Any custom scoring exceptions beyond the documented 20 percent Act progression and Intel penalties

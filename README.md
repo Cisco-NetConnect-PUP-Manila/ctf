@@ -87,7 +87,33 @@ npm run build
 
 ## Docker Setup
 
-Copy the example environment file if you want local overrides:
+Recommended on Windows: run the helper script. It writes the team-standard local ports to `.env`, starts Docker Compose, and runs backend migrations.
+
+```bash
+scripts\docker-dev.cmd
+```
+
+Team-standard local URLs:
+
+```txt
+Frontend:     http://localhost:3001
+Backend docs: http://localhost:8001/docs
+PostgreSQL:   localhost:5433
+```
+
+Check the current Docker URLs anytime:
+
+```bash
+scripts\docker-status.cmd
+```
+
+If a dev already has another project using one of those ports, they can either stop that project or intentionally run:
+
+```bash
+scripts\docker-dev.cmd -AutoPorts
+```
+
+Manual setup is also available. Copy the example environment file if you want local overrides:
 
 ```bash
 copy .env.example .env
@@ -108,19 +134,19 @@ docker-compose up --build
 Open the frontend:
 
 ```txt
-http://localhost:3000
+http://localhost:3001
 ```
 
 Open the backend API docs:
 
 ```txt
-http://localhost:8000/docs
+http://localhost:8001/docs
 ```
 
 PostgreSQL runs on:
 
 ```txt
-localhost:5432
+localhost:5433
 ```
 
 Default local database values are defined in `.env.example`. The FastAPI backend should use the Docker database host `postgres` when running inside Compose, and `localhost` when running directly on the host machine.
