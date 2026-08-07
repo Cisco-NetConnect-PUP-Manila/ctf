@@ -8,7 +8,15 @@ export default function LoginPage() {
       <div className="shell auth-page__shell">
         <Reveal className="auth-page__intro">
           <span className="eyebrow">TEAM ACCESS.EXE</span>
-          <h1>Resume the investigation</h1>
+          <h1 className="auth-title">
+            Resume
+            <br />
+            The
+            <br />
+            <span className="glitch" data-text="Investigation">
+              Investigation
+            </span>
+          </h1>
           <p>
             Sign in with the shared team account to enter the competition platform.
           </p>
@@ -23,4 +31,3 @@ export default function LoginPage() {
     </main>
   );
 }
-
