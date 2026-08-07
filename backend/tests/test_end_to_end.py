@@ -231,3 +231,34 @@ def test_admin_recompute_progression_unlocks_after_threshold_edit(
     assert response.status_code == 200, response.text
     unlocked = response.json()
     assert [act["act_number"] for act in unlocked] == [2]
+
+
+def test_misspelled_request_field_is_rejected_not_silently_ignored(db, admin_client, seed_reference_data):
+    """Regression: manual API testing found `category` (instead of `category_id`) was
+    accepted with 201 and the category silently left unset, so a challenge could go live
+    miscategorised with no error anywhere. Request schemas now forbid unknown fields.
+    """
+    client = admin_client
+    act1 = get_act(db, 1)
+
+    payload = {
+        "act_id": str(act1.id),
+        "title": "Typo Check",
+        "slug": "typo-check",
+        "mission_brief": "Brief.",
+        "points": 50,
+    }
+
+    response = client.post("/admin/challenges", json={**payload, "category": "osint"})
+    assert response.status_code == 422, response.text
+
+    response = client.post("/admin/challenges", json={**payload, "definitely_not_a_field": 1})
+    assert response.status_code == 422, response.text
+
+    # The correctly-named field still works.
+    categories = client.get("/admin/challenge-categories").json()
+    response = client.post(
+        "/admin/challenges", json={**payload, "category_id": categories[0]["id"]}
+    )
+    assert response.status_code == 201, response.text
+    assert response.json()["category"]["id"] == categories[0]["id"]
