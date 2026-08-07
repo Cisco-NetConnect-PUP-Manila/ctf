@@ -1,0 +1,61 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: packet-capture-frontend
+    ports:
+      - "${FRONTEND_PORT:-3001}:3000"
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: "${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8001}"
+    networks:
+      - packet-capture
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: packet-capture-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8001}:8000"
+    environment:
+      BACKEND_ENV: "${BACKEND_ENV:-local}"
+      DATABASE_URL: "${DOCKER_DATABASE_URL:-postgresql+psycopg://packet_capture:packet_capture_local_password@postgres:5432/packet_capture_ctf}"
+      FRONTEND_ORIGIN: "${FRONTEND_ORIGIN:-http://localhost:3001}"
+      SESSION_COOKIE_NAME: "${SESSION_COOKIE_NAME:-packet_capture_session}"
+      SESSION_COOKIE_SECURE: "${SESSION_COOKIE_SECURE:-false}"
+      SESSION_EXPIRE_HOURS: "${SESSION_EXPIRE_HOURS:-12}"
+      REGISTRATION_OPEN_BY_DEFAULT: "${REGISTRATION_OPEN_BY_DEFAULT:-true}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - packet-capture
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: packet-capture-postgres
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:-packet_capture_ctf}"
+      POSTGRES_USER: "${POSTGRES_USER:-packet_capture}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-packet_capture_local_password}"
+    volumes:
+      - postgres-18-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-packet_capture} -d ${POSTGRES_DB:-packet_capture_ctf}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - packet-capture
+
+volumes:
+  postgres-18-data:
+
+networks:
+  packet-capture:
+    driver: bridge
