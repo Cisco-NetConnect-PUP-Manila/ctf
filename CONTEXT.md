@@ -1,0 +1,77 @@
+# Packet Capture Domain Glossary
+
+## Account
+
+A login identity in the CTF platform. An account has credentials and a role. Participant/team accounts and admin/organizer accounts are separate account types.
+
+Accounts are separate from teams. Accounts store login credentials, role, and access status. Teams store participant group data. Admin accounts do not need team records.
+
+## Participant Account
+
+The login account used by a competing team/group. For the first release, one participant account represents one team/group and uses the team leader's email and password.
+
+## Team Leader
+
+The team member whose email is used as the participant account login email for the team.
+
+## Admin Account
+
+The login account used by organizers or challenge makers on the project team. Admin accounts manage challenges, teams, submissions, platform settings, announcements, and audit logs.
+
+## Team
+
+A competing group in the CTF. A team is linked to one participant account for the first release.
+
+## Team Member
+
+A person who belongs to a team. Team members do not have individual login accounts in the first release. A valid team registration requires 4 to 5 team members, each with a name and email.
+
+## Registration
+
+The first-release registration flow creates one participant account, one linked team, and the required team roster. Registration requires Group Name, Team Email, Password, and 4 to 5 Team Members.
+
+Registered teams start in a pending state. Organizers review registrations and approve teams before they can access the full participant platform.
+
+## Challenge Flag
+
+A secret validator record linked to a challenge. Challenge flags are not public challenge content. The platform stores hashed validator records instead of exposing plaintext flags through frontend code, public files, or participant-facing API responses.
+
+## Submission
+
+An attempt by a participant account/team to answer a challenge. Submissions include correct and incorrect attempts and are used for review, rate limiting, and auditability.
+
+## Solve
+
+A successful completion of a challenge by a team. Solves are the source of truth for score awards and challenge completion. A team can only have one solve per challenge.
+
+## Act Unlock
+
+A recorded event showing that a team gained access to an Act. The backend calculates eligibility from score and progression rules, then records an Act Unlock for history, stability, and auditability. Act Unlocks may be created by score threshold or admin override.
+
+## Challenge File
+
+A private resource attached to a challenge. Protected challenge files are controlled by the backend and are never stored in the frontend `public/` folder. The platform stores provider-neutral file metadata so local storage can be used first and cloud object storage can be chosen later.
+
+## Challenge Lifecycle
+
+The publishing state of a challenge. Challenges move through draft, ready for review, published, and archived states. Only published challenges are visible to approved participants, and only when the participant's team has access to the related Act.
+
+## Challenge Category
+
+A controlled classification for a challenge, such as OSINT, Web Penetration Testing, Digital Forensics, or Networking. Categories are selected from normalized lookup data rather than typed freely per challenge.
+
+## Challenge Difficulty
+
+A controlled difficulty value for a challenge, such as Easy, Medium, Hard, or Expert. Difficulties are selected from normalized lookup data and have a stable display order.
+
+## Audit Log
+
+A record of important admin or system activity. Audit Logs support event integrity, dispute review, and debugging by recording who did what, to which target, and when.
+
+## Investigation Score
+
+The competition score shown to participants and admins. Investigation Score is computed from source records such as Solves, Intel Requests, and Score Adjustments. The team profile is not the source of truth for total score.
+
+## Score Adjustment
+
+An admin-created bonus or deduction with a reason. Score Adjustments exist for controlled organizer corrections and must be audit logged.
