@@ -10,9 +10,11 @@ is unrecoverable by inspection.
 No function in this module commits. The caller owns the transaction.
 """
 
+from math import ceil
 from uuid import UUID
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.act import Act, ActUnlock, ActUnlockReason
@@ -139,3 +141,82 @@ def current_act_number(db: Session, team_id: UUID) -> int:
         )
     )
     return int(value or 0)
+
+
+# --------------------------------------------------------------- Act progression (#14)
+
+
+def resolve_threshold(act: Act, act_total_points_value: int) -> int:
+    """Points required inside ``act`` to unlock the next one.
+
+    The handoff contradicts itself: its prose says "20 percent of the total points of the
+    current challenge set", but its flags table gives explicit per-Act minimums of
+    500/700/700/700, which are 62-70 percent and not even a consistent ratio. No formula
+    recovers the table from the rule, so the threshold is stored as data on the Act and
+    the absolute column wins when set.
+
+    The seed ships the explicit table per the website lead's decision. Clearing
+    ``unlock_threshold_points`` falls back to the percentage rule with no migration.
+    """
+    if act.unlock_threshold_points is not None:
+        return act.unlock_threshold_points
+    return ceil(act_total_points_value * act.unlock_threshold_percent / 100)
+
+
+def act_progress(db: Session, team_id: UUID, act: Act) -> tuple[int, int, int]:
+    """Return ``(total_points, earned_points, required_points)`` for one Act."""
+    total = act_total_points(db, act.id)
+    earned = act_earned_points(db, team_id, act.id)
+    return total, earned, resolve_threshold(act, total)
+
+
+def evaluate_act_unlocks(db: Session, team_id: UUID) -> list[Act]:
+    """Create any act_unlock rows the team has now earned. Never commits.
+
+    Callers on the submission path MUST hold the team ``FOR UPDATE`` lock; without it two
+    concurrent solves can each compute progress without the other's points and neither
+    creates the unlock.
+
+    Evaluates ALL unlocked Acts rather than only the one just solved in, which makes the
+    function self-healing: if an admin edits point values or a threshold, the team's next
+    submission repairs their progression with no backfill job. It also lets a single call
+    cascade several unlocks after a threshold is lowered. Four rows -- the cost is
+    irrelevant.
+    """
+    acts = db.scalars(select(Act).where(Act.is_active.is_(True)).order_by(Act.act_number)).all()
+    by_number = {act.act_number: act for act in acts}
+    unlocked = unlocked_act_ids(db, team_id)
+
+    newly: list[Act] = []
+    for act in acts:
+        if act.id not in unlocked:
+            continue
+        next_act = by_number.get(act.act_number + 1)
+        if next_act is None or next_act.id in unlocked:
+            continue
+
+        total, earned, required = act_progress(db, team_id, act)
+        if earned < required:
+            continue
+
+        try:
+            with db.begin_nested():  # SAVEPOINT; uq_act_unlocks_team_act arbitrates
+                db.add(
+                    ActUnlock(
+                        team_id=team_id,
+                        act_id=next_act.id,
+                        reason=ActUnlockReason.SCORE_THRESHOLD.value,
+                        source_score=earned,
+                        threshold_points=required,
+                    )
+                )
+                db.flush()
+        except IntegrityError:
+            # Another transaction created it first. Idempotent, not an error.
+            unlocked.add(next_act.id)
+            continue
+
+        unlocked.add(next_act.id)
+        newly.append(next_act)
+
+    return newly

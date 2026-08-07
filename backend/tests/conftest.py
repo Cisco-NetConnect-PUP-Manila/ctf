@@ -44,12 +44,19 @@ os.environ.setdefault("FLAG_HASH_SECRET", "test-flag-hash-secret")
 # pool deadlocks on connection checkout and looks exactly like a scoring bug.
 CONCURRENCY_POOL_SIZE = 20
 
+# Reference data (acts, categories, difficulties) is truncated too, and re-seeded per
+# test by the seed_reference_data fixture. Sharing it across tests would be faster but
+# it is mutable -- tests legitimately toggle acts.is_active and rewrite thresholds, and
+# leaking that into the next test produces failures that look like scoring bugs.
 TABLES_TO_TRUNCATE = (
     "act_unlocks",
     "solves",
     "submissions",
     "challenge_flags",
     "challenges",
+    "challenge_categories",
+    "challenge_difficulties",
+    "acts",
     "audit_logs",
     "account_sessions",
     "team_members",

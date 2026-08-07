@@ -251,9 +251,8 @@ def submit_flag(
             "ALREADY_SOLVED", "Your team has already solved this challenge."
         ) from None
 
-    # 10. Act progression. Threshold evaluation is issue #14; until it lands, a correct
-    #     submission scores but unlocks nothing new.
-    newly_unlocked = _evaluate_act_unlocks(db, team)
+    # 10. Act progression, still uncommitted and still under the team lock.
+    newly_unlocked = scoring.evaluate_act_unlocks(db, team.id)
 
     db.add(
         AuditLog(
@@ -293,14 +292,3 @@ def submit_flag(
         message="Flag accepted.",
         next_act_unlocked=newly_unlocked[0] if newly_unlocked else None,
     )
-
-
-def _evaluate_act_unlocks(db: Session, team: Team) -> list[Act]:
-    """Seam for issue #14 (scoring and Act progression).
-
-    #13 delivers submissions and solve tracking; threshold-driven unlocking is #14's
-    deliverable and replaces this body. Returning an empty list here is accurate, not a
-    stub that silently swallows a requirement: with only #13 merged, nothing has been
-    specified to unlock anything.
-    """
-    return []
