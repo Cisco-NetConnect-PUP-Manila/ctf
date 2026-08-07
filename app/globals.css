@@ -2653,6 +2653,51 @@ main p,
   opacity: 0.72;
 }
 
+.auth-password-input {
+  display: block;
+  position: relative;
+}
+
+.auth-password-input input {
+  padding-right: 48px;
+}
+
+.auth-password-toggle {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--amber-dim);
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  right: 3px;
+  top: 2px;
+  width: 40px;
+}
+
+.auth-password-toggle:hover,
+.auth-password-toggle:focus-visible,
+.auth-password-toggle[aria-pressed="true"] {
+  color: var(--amber-2);
+  outline: none;
+}
+
+.auth-password-toggle:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--amber);
+}
+
+.auth-password-toggle svg {
+  fill: none;
+  height: 21px;
+  stroke: currentColor;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  stroke-width: 1.7;
+  width: 21px;
+}
+
 .auth-field small {
   color: var(--ink-dim);
   font-family: var(--rodin);

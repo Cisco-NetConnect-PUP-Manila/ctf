@@ -6,6 +6,7 @@ import { registerTeam } from "../../lib/api/auth";
 import { ApiError } from "../../lib/api/client";
 import type { TeamMemberInput } from "../../lib/api/types";
 import AuthNotice from "./AuthNotice";
+import PasswordVisibilityButton from "./PasswordVisibilityButton";
 
 const EMPTY_MEMBER: TeamMemberInput = { full_name: "", email: "" };
 
@@ -14,6 +15,7 @@ export default function RegistrationForm() {
   const [groupName, setGroupName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [members, setMembers] = useState<TeamMemberInput[]>([
     { ...EMPTY_MEMBER },
     { ...EMPTY_MEMBER },
@@ -101,17 +103,23 @@ export default function RegistrationForm() {
 
       <label className="auth-field">
         <span>Password</span>
-        <input
-          aria-describedby="password-help"
-          autoComplete="new-password"
-          maxLength={128}
-          minLength={12}
-          name="password"
-          onChange={(event) => setPassword(event.target.value)}
-          required
-          type="password"
-          value={password}
-        />
+        <span className="auth-password-input">
+          <input
+            aria-describedby="password-help"
+            autoComplete="new-password"
+            maxLength={128}
+            minLength={12}
+            name="password"
+            onChange={(event) => setPassword(event.target.value)}
+            required
+            type={passwordVisible ? "text" : "password"}
+            value={password}
+          />
+          <PasswordVisibilityButton
+            onToggle={() => setPasswordVisible((current) => !current)}
+            visible={passwordVisible}
+          />
+        </span>
         <small id="password-help">Use at least 12 characters.</small>
         {fieldErrors.password && <small>{fieldErrors.password}</small>}
       </label>
@@ -190,4 +198,3 @@ export default function RegistrationForm() {
     </form>
   );
 }
-

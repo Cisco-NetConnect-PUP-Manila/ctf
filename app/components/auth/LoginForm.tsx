@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { login } from "../../lib/api/auth";
 import { ApiError } from "../../lib/api/client";
 import AuthNotice from "./AuthNotice";
+import PasswordVisibilityButton from "./PasswordVisibilityButton";
 
 export default function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [error, setError] = useState("");
   const [registered, setRegistered] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -67,15 +69,21 @@ export default function LoginForm() {
 
       <label className="auth-field">
         <span>Password</span>
-        <input
-          autoComplete="current-password"
-          minLength={1}
-          name="password"
-          onChange={(event) => setPassword(event.target.value)}
-          required
-          type="password"
-          value={password}
-        />
+        <span className="auth-password-input">
+          <input
+            autoComplete="current-password"
+            minLength={1}
+            name="password"
+            onChange={(event) => setPassword(event.target.value)}
+            required
+            type={passwordVisible ? "text" : "password"}
+            value={password}
+          />
+          <PasswordVisibilityButton
+            onToggle={() => setPasswordVisible((current) => !current)}
+            visible={passwordVisible}
+          />
+        </span>
       </label>
 
       <button className="btn btn--primary auth-submit" disabled={submitting} type="submit">
@@ -88,4 +96,3 @@ export default function LoginForm() {
     </form>
   );
 }
-
