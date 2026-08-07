@@ -2554,3 +2554,236 @@ main p,
   justify-self: start !important;
   margin-left: 0 !important;
 }
+
+/* ============================================================
+   AUTHENTICATION // participant registration and login
+   ============================================================ */
+
+.auth-page {
+  min-height: 100%;
+  padding: clamp(46px, 8vw, 110px) 0;
+}
+
+.auth-page__shell {
+  display: grid;
+  gap: 30px;
+  grid-template-columns: minmax(0, 0.8fr) minmax(420px, 1.2fr);
+  align-items: start;
+}
+
+.auth-page--register .auth-page__shell {
+  grid-template-columns: minmax(260px, 0.65fr) minmax(520px, 1.35fr);
+}
+
+.auth-page__intro {
+  padding-top: 24px;
+  position: sticky;
+  top: 30px;
+}
+
+.auth-page__intro h1 {
+  color: var(--amber-2);
+  font-family: var(--vga);
+  font-size: clamp(2rem, 5vw, 4.6rem);
+  letter-spacing: 0.035em;
+  line-height: 1.02;
+  margin: 15px 0 22px;
+  text-transform: uppercase;
+}
+
+.auth-page__intro p {
+  color: var(--ink-dim);
+  font-family: var(--rodin);
+  font-size: 0.82rem;
+  font-weight: 700;
+  max-width: 48ch;
+}
+
+.auth-form {
+  display: grid;
+  gap: 20px;
+}
+
+.auth-form__grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.auth-field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.auth-field > span,
+.auth-roster legend {
+  color: var(--amber-2);
+  font-family: var(--rodin);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-field input {
+  background: rgba(5, 3, 2, 0.82);
+  border: 1px solid var(--wire-2);
+  border-radius: 0;
+  box-shadow: var(--bevel-thin-in);
+  color: var(--ink);
+  font: 700 0.8rem/1.2 var(--rodin);
+  min-height: 44px;
+  outline: none;
+  padding: 11px 12px;
+  width: 100%;
+}
+
+.auth-field input:focus {
+  border-color: var(--amber);
+  box-shadow: var(--bevel-thin-in), 0 0 10px rgba(255, 176, 0, 0.2);
+}
+
+.auth-field input:disabled {
+  color: var(--ink-dim);
+  opacity: 0.72;
+}
+
+.auth-field small {
+  color: var(--ink-dim);
+  font-family: var(--rodin);
+  font-size: 0.65rem;
+}
+
+.auth-roster {
+  border: 1px solid var(--wire-2);
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.auth-roster legend {
+  padding: 0 7px;
+}
+
+.auth-roster > p {
+  color: var(--ink-dim);
+  font-family: var(--rodin);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.auth-member {
+  align-items: start;
+  border-top: 1px solid var(--wire);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 36px repeat(2, minmax(0, 1fr));
+  padding-top: 14px;
+}
+
+.auth-member__number {
+  color: var(--orange);
+  font-family: var(--term);
+  font-size: 1.35rem;
+  padding-top: 25px;
+}
+
+.auth-roster__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.auth-submit {
+  justify-self: start;
+  min-width: 210px;
+}
+
+.auth-submit:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}
+
+.auth-switch {
+  color: var(--ink-dim);
+  font-family: var(--rodin);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.auth-switch a {
+  color: var(--amber-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth-notice {
+  align-items: start;
+  border: 1px solid var(--wire-2);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 18px 1fr;
+  padding: 12px;
+}
+
+.auth-notice span {
+  color: var(--amber-2);
+  font-family: var(--term);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.auth-notice p {
+  font-family: var(--rodin);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.auth-notice--error {
+  background: rgba(122, 26, 8, 0.25);
+  border-color: var(--alert);
+}
+
+.auth-notice--error span {
+  color: var(--alert);
+}
+
+.auth-notice--success {
+  background: rgba(255, 176, 0, 0.07);
+  border-color: var(--amber-dim);
+}
+
+@media (max-width: 900px) {
+  .auth-page__shell,
+  .auth-page--register .auth-page__shell {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-page__intro {
+    position: static;
+  }
+}
+
+@media (max-width: 620px) {
+  .auth-page {
+    padding: 24px 0 44px;
+  }
+
+  .auth-form__grid,
+  .auth-member {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-member__number {
+    padding-top: 0;
+  }
+
+  .auth-roster {
+    padding: 14px;
+  }
+
+  .auth-submit {
+    justify-self: stretch;
+    width: 100%;
+  }
+}
