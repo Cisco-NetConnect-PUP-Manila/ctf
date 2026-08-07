@@ -3,9 +3,10 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 from app.core.flags import MAX_FLAG_LENGTH
+from app.schemas.challenge import StrictRequest
 
 
-class FlagSubmissionRequest(BaseModel):
+class FlagSubmissionRequest(StrictRequest):
     # No validator strips or rewrites the value here -- normalization is the validator's
     # job (trim only, per docs/database-normalization.md section 7) and doing it twice in
     # two places is how normalization rules silently diverge.
