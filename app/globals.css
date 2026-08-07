@@ -2607,6 +2607,13 @@ main p,
   width: 100%;
 }
 
+.btn--title-font {
+  font-family: "OffBit Dot", var(--vga) !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.055em !important;
+}
+
 .auth-page:not(.auth-page--register) .auth-page__intro h1 {
   font-size: clamp(2rem, 4vw, 3.55rem);
 }

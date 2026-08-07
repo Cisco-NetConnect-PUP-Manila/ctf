@@ -46,7 +46,7 @@ export default function Home() {
               <p className="hero__lead">{competition.hero}</p>
               <div className="btn-row hero__actions">
                 <div className="hero__auth-actions">
-                  <a className="btn btn--primary btn--terminal" href="/register">
+                  <a className="btn btn--primary btn--terminal btn--title-font" href="/register">
                     Register team
                   </a>
                   <a className="btn btn--ghost btn--terminal" href="/login">
@@ -432,7 +432,7 @@ export default function Home() {
                 registration window.
               </p>
               <div className="btn-row">
-                <a className="btn btn--primary" href="/register">
+                <a className="btn btn--primary btn--title-font" href="/register">
                   Register team
                 </a>
                 <a className="btn" href="/login">
