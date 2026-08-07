@@ -1,8 +1,8 @@
 import type { FieldErrors } from "./types";
 
-const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8001"
-).replace(/\/$/, "");
+// Keep browser requests on the frontend origin. The Next.js proxy forwards
+// them to FastAPI, so session cookies work without exposing a second port.
+const API_BASE_URL = "/api/backend";
 
 type FastApiValidationError = {
   loc?: Array<string | number>;
@@ -90,4 +90,3 @@ export async function apiRequest<T>(
     fieldErrors,
   });
 }
-
