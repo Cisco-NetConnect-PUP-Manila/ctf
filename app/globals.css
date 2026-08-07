@@ -2566,8 +2566,8 @@ main p,
 
 .auth-page__shell {
   display: grid;
-  gap: 30px;
-  grid-template-columns: minmax(0, 0.8fr) minmax(420px, 1.2fr);
+  gap: clamp(34px, 4vw, 58px);
+  grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
   align-items: start;
 }
 
@@ -2589,6 +2589,10 @@ main p,
   line-height: 1.02;
   margin: 15px 0 22px;
   text-transform: uppercase;
+}
+
+.auth-page:not(.auth-page--register) .auth-page__intro h1 {
+  font-size: clamp(2rem, 4vw, 3.55rem);
 }
 
 .auth-page__intro p {
