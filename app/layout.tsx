@@ -65,7 +65,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    // suppressHydrationWarning: some browser extensions inject attributes
+    // (e.g. data-*-nonce) onto <html> before React hydrates, which would
+    // otherwise trip a hydration-mismatch warning. This only suppresses
+    // attribute noise on <html> itself, not real mismatches in the tree.
+    <html lang="en" suppressHydrationWarning>
       <body>
         <div className="tube">
           {/* dark CRT desktop + faint tech grid + phosphor glow */}

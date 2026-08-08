@@ -2993,6 +2993,28 @@ main p,
   letter-spacing: 0.06em;
 }
 
+/* ---- Horizontal-overflow guard ----
+   Grid/flex items default to min-width:auto and refuse to shrink below
+   their widest content. Long pixel-font track names and the metric row
+   then force the Act card wider than a phone, and .screen's
+   overflow-x:hidden clips the right edge. Allow these to shrink and let
+   wide strings wrap instead. */
+@media (max-width: 1024px) {
+  .acts__grid,
+  .acts__grid > .act,
+  .act > *,
+  .win,
+  .win__body,
+  .act__figs,
+  .act__fig { min-width: 0; }
+
+  .act__num,
+  .act__title,
+  .act__disc,
+  .act__desc,
+  .act__unlock { overflow-wrap: anywhere; }
+}
+
 /* iPad / tablet: barrel distortion offsets touch hit-testing near the
    edges, so drop it on all touch-sized screens (was <=760px only). */
 @media (max-width: 1024px) {
@@ -3009,6 +3031,10 @@ main p,
 
 /* ---- Nav collapses into the hamburger menu at <=820px ---- */
 @media (max-width: 820px) {
+  /* The TVA theme leaves the desktop nav 75% translucent; on mobile the
+     bar sits over scrolling content, so make it opaque to stop bleed. */
+  .nav { background: #0b0704; }
+
   .nav__inner {
     padding: 10px 16px;
     gap: 10px;
