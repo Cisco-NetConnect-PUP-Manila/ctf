@@ -2774,6 +2774,11 @@ main p,
   min-width: 210px;
 }
 
+.registration-submit {
+  justify-content: center;
+  text-align: center;
+}
+
 .auth-submit:disabled {
   cursor: wait;
   opacity: 0.58;
