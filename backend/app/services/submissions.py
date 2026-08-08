@@ -42,6 +42,14 @@ from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
+from app.core.errors import (
+    ALREADY_SOLVED,
+    LOCKED_CHALLENGE,
+    NOT_FOUND,
+    RATE_LIMITED,
+    SUBMISSIONS_CLOSED,
+    TEAM_NOT_APPROVED,
+)
 from app.core.flags import (
     MAX_FLAG_LENGTH,
     flags_match,
@@ -137,11 +145,11 @@ def submit_flag(
     # 1. Team gating. get_current_team already applied the approval policy; this is the
     #    service-level backstop for direct (test / future internal) callers.
     if team.status == TeamStatus.DISABLED.value:
-        raise SubmissionError("TEAM_NOT_APPROVED", "This team has been disabled.")
+        raise SubmissionError(TEAM_NOT_APPROVED, "This team has been disabled.")
 
     # 2. Competition open for submissions.
     if not submissions_are_open(db):
-        raise SubmissionError("COMPETITION_CLOSED", "Submissions are currently closed.")
+        raise SubmissionError(SUBMISSIONS_CLOSED, "Submissions are currently closed.")
 
     # 3. Load the challenge and verify published + visible.
     challenge = db.scalar(
@@ -156,7 +164,7 @@ def submit_flag(
     ):
         # Draft, archived, hidden and nonexistent are deliberately indistinguishable --
         # distinguishing them leaks the challenge roster before release.
-        raise SubmissionError("CHALLENGE_NOT_FOUND", "Challenge not found.")
+        raise SubmissionError(NOT_FOUND, "Challenge not found.")
 
     # ---- serialization point: per-team mutex, held until commit ----
     _acquire_team_lock(db, team.id)
@@ -165,7 +173,7 @@ def submit_flag(
 
     # 3b. ...unlocked and accessible.
     if not scoring.team_can_access_act(db, team.id, challenge.act):
-        raise SubmissionError("CHALLENGE_LOCKED", "This challenge is not available yet.")
+        raise SubmissionError(LOCKED_CHALLENGE, "This challenge is not available yet.")
 
     # 4. Rate limit BEFORE any validator work, per handoff section 10 step 4.
     #    Placed after the access check so a team hammering a locked challenge gets
@@ -196,7 +204,7 @@ def submit_flag(
     )
     if existing_solve is not None:
         db.commit()  # nothing written; releases the lock cleanly
-        raise SubmissionError("ALREADY_SOLVED", "Your team has already solved this challenge.")
+        raise SubmissionError(ALREADY_SOLVED, "Your team has already solved this challenge.")
 
     # 5. Record the attempt.
     attempt = Submission(
