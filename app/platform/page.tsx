@@ -31,7 +31,7 @@ export default function CompetitionPlatformPage() {
             </p>
             <div className="portal-actions">
               <ParticipantAccountControls />
-              <a className="btn" href="/">
+              <a className="btn btn--primary" href="/">
                 Back to public site
               </a>
             </div>
