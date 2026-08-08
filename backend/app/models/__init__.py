@@ -2,6 +2,7 @@
 
 from app.models.account import Account, AccountRole, AccountSession, AccountStatus
 from app.models.act import Act, ActUnlock, ActUnlockReason
+from app.models.announcement import Announcement, AnnouncementStatus
 from app.models.audit_log import AuditLog
 from app.models.challenge import (
     Challenge,
@@ -22,6 +23,8 @@ __all__ = [
     "Act",
     "ActUnlock",
     "ActUnlockReason",
+    "Announcement",
+    "AnnouncementStatus",
     "AuditLog",
     "Challenge",
     "ChallengeCategory",

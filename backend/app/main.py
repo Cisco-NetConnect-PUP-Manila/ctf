@@ -3,7 +3,14 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.deps import get_current_admin
-from app.api.routes import admin_acts, admin_challenges, auth, health
+from app.api.routes import (
+    admin_acts,
+    admin_announcements,
+    admin_challenges,
+    announcements,
+    auth,
+    health,
+)
 from app.core.config import settings
 from app.core.errors import APIError, api_error_handler, validation_error_handler
 
@@ -30,6 +37,7 @@ def create_app() -> FastAPI:
 
     app.include_router(health.router)
     app.include_router(auth.router, prefix="/auth", tags=["auth"])
+    app.include_router(announcements.router, tags=["announcements"])
 
     # Admin guard is attached at the router level so no individual endpoint can omit it.
     admin_dependencies = [Depends(get_current_admin)]
@@ -41,6 +49,12 @@ def create_app() -> FastAPI:
     )
     app.include_router(
         admin_challenges.router,
+        prefix="/admin",
+        tags=["admin"],
+        dependencies=admin_dependencies,
+    )
+    app.include_router(
+        admin_announcements.router,
         prefix="/admin",
         tags=["admin"],
         dependencies=admin_dependencies,
