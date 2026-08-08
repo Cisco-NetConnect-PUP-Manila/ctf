@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Taskbar from "./components/Taskbar";
 import ScrollGlitch from "./components/ScrollGlitch";
@@ -19,6 +19,16 @@ export const metadata: Metadata = {
       "Trace the evidence across four sequential Acts and reconstruct the investigation beneath the network.",
     type: "website",
   },
+};
+
+/* Explicit viewport control for mobile / tablet / iPad. Zoom is left
+   enabled (no maximum-scale / user-scalable=no) for accessibility.
+   viewportFit=cover lets the CRT frame reach into iPhone safe areas. */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#050302",
 };
 
 /* Displacement map for the CRT barrel: R = horizontal offset, G = vertical.
