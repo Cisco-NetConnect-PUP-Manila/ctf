@@ -26,6 +26,8 @@ export default function LoginForm() {
       setSessionMessage("Your session is missing or expired. Sign in again to continue.");
     } else if (reason === "access") {
       setSessionMessage("A participant team account is required to open that page.");
+    } else if (reason === "admin") {
+      setSessionMessage("An organizer admin account is required to access the admin panel.");
     } else if (reason === "logged-out") {
       setSessionMessage("Your team session has been closed successfully.");
     }
@@ -38,8 +40,13 @@ export default function LoginForm() {
 
     try {
       const current = await login({ email: email.trim(), password });
+      if (current.account.role === "admin") {
+        router.push("/admin");
+        router.refresh();
+        return;
+      }
       if (current.account.role !== "participant") {
-        setError("This login is not a participant account.");
+        setError("This account role is not recognized.");
         return;
       }
       router.push("/platform");
