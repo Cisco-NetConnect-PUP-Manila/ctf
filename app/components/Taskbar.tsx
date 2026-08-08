@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const PUBLIC_MENU = [
@@ -142,32 +143,32 @@ export default function Taskbar() {
           <div className="startmenu__side">{startSide}</div>
           <div className="startmenu__items">
             {menu.map((m) => (
-              <a
+              <Link
                 key={m.label}
                 href={m.href}
                 className="startmenu__item"
                 onClick={() => setOpen(false)}
               >
                 {m.label}
-              </a>
+              </Link>
             ))}
             <div className="startmenu__sep" />
             {activeRoute === "main" ? (
-              <a
+              <Link
                 href="/#register"
                 className="startmenu__item"
                 onClick={() => setOpen(false)}
               >
                 Registration Status
-              </a>
+              </Link>
             ) : (
-              <a
+              <Link
                 href="/"
                 className="startmenu__item"
                 onClick={() => setOpen(false)}
               >
                 Return To Main Site
-              </a>
+              </Link>
             )}
           </div>
         </div>
@@ -184,30 +185,30 @@ export default function Taskbar() {
         </button>
 
         <div className="taskbar__tasks">
-          <a
+          <Link
             className={`taskbar__task ${
               activeRoute === "main" ? "taskbar__task--active" : ""
             }`}
             href="/"
           >
             Main
-          </a>
-          <a
+          </Link>
+          <Link
             className={`taskbar__task ${
               activeRoute === "platform" ? "taskbar__task--active" : ""
             }`}
             href="/platform"
           >
             Competition Platform
-          </a>
-          <a
+          </Link>
+          <Link
             className={`taskbar__task ${
               activeRoute === "admin" ? "taskbar__task--active" : ""
             }`}
             href="/admin"
           >
             Admin
-          </a>
+          </Link>
         </div>
 
         <div className="taskbar__tray tzdd">

@@ -1,4 +1,5 @@
 import Marquee from "./components/Marquee";
+import Link from "next/link";
 import FaqAccordion from "./components/FaqAccordion";
 import TimelineWave from "./components/TimelineWave";
 import Window from "./components/Window";
@@ -46,12 +47,12 @@ export default function Home() {
               <p className="hero__lead">{competition.hero}</p>
               <div className="btn-row hero__actions">
                 <div className="hero__auth-actions">
-                  <a className="btn btn--primary btn--terminal" href="/register">
+                  <Link className="btn btn--primary btn--terminal" href="/register">
                     Register team
-                  </a>
-                  <a className="btn btn--ghost btn--terminal hero__sign-in" href="/login">
+                  </Link>
+                  <Link className="btn btn--ghost btn--terminal hero__sign-in" href="/login">
                     Sign in
-                  </a>
+                  </Link>
                 </div>
                 <a href="#rules" className="btn btn--ghost btn--terminal">
                   Read official rules
@@ -432,12 +433,12 @@ export default function Home() {
                 registration window.
               </p>
               <div className="btn-row">
-                <a className="btn btn--primary" href="/register">
+                <Link className="btn btn--primary" href="/register">
                   Register team
-                </a>
-                <a className="btn" href="/login">
+                </Link>
+                <Link className="btn" href="/login">
                   Team login
-                </a>
+                </Link>
               </div>
             </Reveal>
           </div>
@@ -490,7 +491,7 @@ export default function Home() {
           </div>
           <div className="footer__base">
             <span>2026 Packet Capture CTF - Beneath the Network</span>
-            <span>// CHANNEL CLOSED</span>
+            <span>{"// CHANNEL CLOSED"}</span>
           </div>
         </div>
       </footer>

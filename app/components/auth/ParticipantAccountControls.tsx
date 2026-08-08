@@ -34,7 +34,11 @@ export default function ParticipantAccountControls() {
       <div className="portal-account__identity">
         <span>Authenticated team</span>
         <strong>{team?.group_name}</strong>
-        <small>{account.email} // {team?.status}</small>
+        <small>
+          {account.email}
+          {" // "}
+          {team?.status}
+        </small>
       </div>
       <button className="btn" disabled={signingOut} onClick={handleLogout} type="button">
         {signingOut ? "Closing session..." : "Logout"}

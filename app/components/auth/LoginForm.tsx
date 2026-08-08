@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { login } from "../../lib/api/auth";
 import { ApiError } from "../../lib/api/client";
@@ -102,7 +103,7 @@ export default function LoginForm() {
       </button>
 
       <p className="auth-switch">
-        No team account yet? <a href="/register">Register your team</a>
+        No team account yet? <Link href="/register">Register your team</Link>
       </p>
     </form>
   );
