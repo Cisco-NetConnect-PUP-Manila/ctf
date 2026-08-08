@@ -1,11 +1,13 @@
 import Link from "next/link";
 import Reveal from "../components/Reveal";
 import Window from "../components/Window";
+import AdminSessionGuard from "../components/auth/AdminSessionGuard";
 import { adminModules } from "../data";
 
 export default function AdminPanelPage() {
   return (
-    <main className="portal-page portal-page--admin" id="admin-top">
+    <AdminSessionGuard>
+      <main className="portal-page portal-page--admin" id="admin-top">
       <section className="portal-hero">
         <div className="shell portal-hero__grid">
           <Reveal>
@@ -214,5 +216,6 @@ export default function AdminPanelPage() {
         </div>
       </footer>
     </main>
+    </AdminSessionGuard>
   );
 }
