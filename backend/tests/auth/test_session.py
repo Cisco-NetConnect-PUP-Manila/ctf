@@ -107,5 +107,6 @@ class TestSession:
 
         logout_resp = client.post("/auth/logout", cookies=login_resp.cookies)
         assert logout_resp.status_code == 204
-        assert "packet_capture_session" in logout_resp.cookies
-        assert logout_resp.cookies["packet_capture_session"] == '""'
+        set_cookie = logout_resp.headers.get("set-cookie", "")
+        assert "packet_capture_session" in set_cookie.lower()
+        assert "max-age=0" in set_cookie.lower() or "expires=thu, 01 jan 1970" in set_cookie.lower()

@@ -51,10 +51,10 @@ class TestRegistration:
     def test_duplicate_member_emails(self, client, db_session):
         seed_registration_open(db_session, True)
         payload = build_payload(members=[
-            {"full_name": "A", "email": "team@test.com"},
-            {"full_name": "B", "email": "team@test.com"},
-            {"full_name": "C", "email": "three@test.com"},
-            {"full_name": "D", "email": "four@test.com"},
+            {"full_name": "Alpha", "email": "team@test.com"},
+            {"full_name": "Bravo", "email": "team@test.com"},
+            {"full_name": "Charlie", "email": "three@test.com"},
+            {"full_name": "Delta", "email": "four@test.com"},
         ])
         resp = client.post("/auth/register", json=payload)
         assert resp.status_code == 400
@@ -67,10 +67,10 @@ class TestRegistration:
         payload = build_payload(
             email="outsider@test.com",
             members=[
-                {"full_name": "A", "email": "a@test.com"},
-                {"full_name": "B", "email": "b@test.com"},
-                {"full_name": "C", "email": "c@test.com"},
-                {"full_name": "D", "email": "d@test.com"},
+                {"full_name": "Alice", "email": "alice@test.com"},
+                {"full_name": "Bob", "email": "bob@test.com"},
+                {"full_name": "Carol", "email": "carol@test.com"},
+                {"full_name": "Dave", "email": "dave@test.com"},
             ],
         )
         resp = client.post("/auth/register", json=payload)
