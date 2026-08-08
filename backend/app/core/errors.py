@@ -13,6 +13,17 @@ VALIDATION_ERROR = "VALIDATION_ERROR"
 TEAM_NOT_APPROVED = "TEAM_NOT_APPROVED"
 INTERNAL_ERROR = "INTERNAL_ERROR"
 
+# Added for challenge management (#11). FORBIDDEN and NOT_FOUND are the codes named in
+# docs/api-contract.md section 3; the rest cover admin cases the contract does not yet
+# describe and should be added to it rather than dropped.
+FORBIDDEN = "FORBIDDEN"
+NOT_FOUND = "NOT_FOUND"
+TEAM_REQUIRED = "TEAM_REQUIRED"
+SLUG_TAKEN = "SLUG_TAKEN"
+FLAG_TAKEN = "FLAG_TAKEN"
+CHALLENGE_HAS_SOLVES = "CHALLENGE_HAS_SOLVES"
+CHALLENGE_HAS_NO_VALIDATOR = "CHALLENGE_HAS_NO_VALIDATOR"
+
 
 class APIError(Exception):
     def __init__(

@@ -5,7 +5,9 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.db.base import Base
-from app.models import account, audit_log, platform_setting, team
+# Imported for their side effects: every model module must be listed here or
+# --autogenerate will propose dropping its tables.
+from app.models import account, act, audit_log, challenge, platform_setting, team
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

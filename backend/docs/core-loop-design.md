@@ -9,12 +9,8 @@ Governing specs: `docs/packet-capture-developer-guide.md` (handoff) and
 `docs/database-normalization.md` (DB spec). Where they conflict, this document names the
 conflict rather than silently picking a side — see [Open decisions](#open-decisions).
 
-> **Status:** this is the Wave 1 design deliverable. It was written before
-> `docs/api-contract.md` was frozen, and the two disagree on error codes and statuses.
-> **The frozen contract wins.** See
-> [Contract reconciliation](#contract-reconciliation-required) for the exact deltas and
-> the follow-up work they imply — the implementation described here has not yet been
-> aligned.
+> **Status:** written before `docs/api-contract.md` was frozen. Where they disagree, the
+> contract wins — see [Contract reconciliation](#contract-reconciliation-required).
 
 ---
 
@@ -504,15 +500,24 @@ raw nor normalized flag after correct and incorrect submissions; non-admin → 4
 single source of truth, so **every disagreement below resolves in the contract's
 favour** and the code must change, not the contract.
 
-| Situation | This design / current code | Frozen contract | Action |
-|---|---|---|---|
-| Challenge locked for team | 403 `CHALLENGE_LOCKED` | **422 `LOCKED_CHALLENGE`** | rename + restatus |
-| Already solved | 409 `ALREADY_SOLVED` | **422 `ALREADY_SOLVED`** | restatus |
-| Unknown/unpublished challenge | 404 `CHALLENGE_NOT_FOUND` | **404 `NOT_FOUND`** | rename |
-| Submissions disabled | 403 `COMPETITION_CLOSED` | **403 `SUBMISSIONS_CLOSED`** | rename |
-| Non-admin on `/admin/*` | 403 `ADMIN_REQUIRED` | **403 `FORBIDDEN`** | rename |
-| Request validation failure | 422 `VALIDATION_ERROR` | **400 `VALIDATION_ERROR`** | restatus |
-| Unauthenticated | `{"detail": "..."}` | **401 `AUTH_REQUIRED` / `SESSION_EXPIRED`** | owned by auth (#9) |
+§9 of this document is superseded. Error handling uses `app/core/errors.py` — `APIError`
+plus the named code constants. #11 is aligned with it.
+
+Codes #11 uses: `FORBIDDEN`, `NOT_FOUND`, `VALIDATION_ERROR`, `SLUG_TAKEN`, `FLAG_TAKEN`,
+`CHALLENGE_HAS_SOLVES`, `CHALLENGE_HAS_NO_VALIDATOR`, `TEAM_REQUIRED`,
+`TEAM_NOT_APPROVED`.
+
+Still to align in #13 and #14:
+
+| Situation | Current | Contract |
+|---|---|---|
+| Challenge locked | 403 `CHALLENGE_LOCKED` | 422 `LOCKED_CHALLENGE` |
+| Already solved | 409 `ALREADY_SOLVED` | 422 `ALREADY_SOLVED` |
+| Submissions disabled | 403 `COMPETITION_CLOSED` | 403 `SUBMISSIONS_CLOSED` |
+
+`ALREADY_SOLVED` at 422 needs a lead ruling — 409 is the conventional status. Also
+`APIError` takes no `headers`, so #13's rate limiter needs another way to send
+`Retry-After`.
 
 Two codes in this design have no contract equivalent because they are admin-only and the
 contract does not cover admin error cases: `CHALLENGE_HAS_SOLVES` (delete blocked by a
