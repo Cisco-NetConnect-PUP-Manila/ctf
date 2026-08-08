@@ -25,6 +25,8 @@ export default function LoginForm() {
       setSessionMessage("Your session is missing or expired. Sign in again to continue.");
     } else if (reason === "access") {
       setSessionMessage("A participant team account is required to open that page.");
+    } else if (reason === "logged-out") {
+      setSessionMessage("Your team session has been closed successfully.");
     }
   }, []);
 

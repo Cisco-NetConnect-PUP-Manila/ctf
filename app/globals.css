@@ -2870,6 +2870,49 @@ main p,
   100% { transform: scaleX(0.12); transform-origin: right; }
 }
 
+.portal-account {
+  align-items: stretch;
+  display: grid;
+  gap: 8px;
+  min-width: min(100%, 280px);
+}
+
+.portal-account__identity {
+  border: 1px solid var(--wire-2);
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+}
+
+.portal-account__identity span,
+.portal-account__identity small {
+  color: var(--ink-dim);
+  font-family: var(--rodin);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.portal-account__identity strong {
+  color: var(--amber-2);
+  font-family: var(--vga);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.portal-account .btn {
+  justify-content: center;
+  width: 100%;
+}
+
+.portal-account__error {
+  color: var(--alert);
+  font-family: var(--rodin);
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
 @media (max-width: 900px) {
   .auth-page__shell,
   .auth-page--register .auth-page__shell {

@@ -1,6 +1,9 @@
 import Reveal from "../components/Reveal";
 import Window from "../components/Window";
 import ParticipantSessionGuard from "../components/auth/ParticipantSessionGuard";
+import ParticipantAccountControls, {
+  ParticipantTeamName,
+} from "../components/auth/ParticipantAccountControls";
 import {
   acts,
   competition,
@@ -23,9 +26,7 @@ export default function CompetitionPlatformPage() {
               position, announcements, and team profile.
             </p>
             <div className="portal-actions">
-              <span className="btn btn--primary btn--disabled">
-                Login required
-              </span>
+              <ParticipantAccountControls />
               <a className="btn" href="/">
                 Back to public site
               </a>
@@ -33,13 +34,13 @@ export default function CompetitionPlatformPage() {
           </Reveal>
 
           <Reveal>
-            <Window title="ACCESS.STATE" meta="frontend shell // no backend">
+            <Window title="ACCESS.STATE" meta="authenticated frontend shell">
               <div className="portal-lock">
-                <b>Participant access is not live yet.</b>
+                <b>Team channel authenticated.</b>
                 <span>
-                  Authentication, score calculation, unlock logic, Intel
-                  penalties, flag validation, and final-answer verification must
-                  be handled by backend services before launch.
+                  Protected participant access is active. Score calculation,
+                  unlock logic, Intel penalties, flag validation, and final-answer
+                  verification remain controlled by backend services.
                 </span>
               </div>
             </Window>
@@ -62,7 +63,7 @@ export default function CompetitionPlatformPage() {
               <div className="metric-grid">
                 <div className="metric">
                   <span>Team</span>
-                  <b>Awaiting Registration</b>
+                  <ParticipantTeamName />
                 </div>
                 <div className="metric">
                   <span>Investigation Score</span>
