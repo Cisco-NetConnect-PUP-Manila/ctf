@@ -2153,7 +2153,8 @@ body { text-shadow: none; }
   line-height: 1.04;
   margin: 12px 0 18px;
   text-transform: uppercase;
-  text-shadow: var(--glow);
+  text-shadow: 0 0 8px rgba(255, 176, 0, 0.5),
+    0 0 24px rgba(255, 120, 0, 0.3), 3px 3px 0 #1a0e00;
 }
 
 .portal-hero p {
