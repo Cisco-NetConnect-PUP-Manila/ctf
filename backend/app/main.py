@@ -1,8 +1,10 @@
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import auth, health
 from app.core.config import settings
+from app.core.errors import APIError, api_error_handler, validation_error_handler
 
 
 def create_app() -> FastAPI:
@@ -19,6 +21,9 @@ def create_app() -> FastAPI:
         allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["*"],
     )
+
+    app.add_exception_handler(APIError, api_error_handler)
+    app.add_exception_handler(RequestValidationError, validation_error_handler)
 
     app.include_router(health.router)
     app.include_router(auth.router, prefix="/auth", tags=["auth"])
