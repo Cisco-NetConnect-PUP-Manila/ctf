@@ -15,3 +15,16 @@ export function login(payload: LoginInput) {
   });
 }
 
+export function getCurrentAccount() {
+  return apiRequest<CurrentAccount>("/auth/me", {
+    method: "GET",
+    cache: "no-store",
+  });
+}
+
+export function logout() {
+  return apiRequest<void>("/auth/logout", {
+    method: "POST",
+  });
+}
+
