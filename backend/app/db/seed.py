@@ -1,6 +1,6 @@
 """Seed initial platform settings and default data for local development."""
 
-from app.core.config import settings
+import app.models  # noqa: F401
 from app.db.session import SessionLocal
 from app.models.platform_setting import PlatformSetting
 
