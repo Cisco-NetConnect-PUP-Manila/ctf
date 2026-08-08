@@ -19,7 +19,13 @@ export default function CompetitionPlatformPage() {
         <div className="shell portal-hero__grid">
           <Reveal>
             <span className="eyebrow">TEAM PORTAL.EXE</span>
-            <h1>Competition Platform</h1>
+            <h1>
+              Competition
+              <br />
+              <span className="glitch" data-text="Platform">
+                Platform
+              </span>
+            </h1>
             <p>
               Participant workspace for story progression, challenge access,
               Investigation Score tracking, recovered evidence, leaderboard
