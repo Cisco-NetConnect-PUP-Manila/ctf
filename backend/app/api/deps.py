@@ -17,6 +17,7 @@ from app.core.errors import (
 from app.core.security import hash_session_token
 from app.db.session import get_db
 from app.models.account import Account, AccountRole, AccountSession, AccountStatus
+from app.models.audit_log import AuditLog
 from app.models.team import Team, TeamStatus
 from app.services.platform_settings import team_approval_required
 
@@ -59,7 +60,10 @@ def get_current_account(
     return account
 
 
-def get_current_admin(account: Account = Depends(get_current_account)) -> Account:
+def get_current_admin(
+    account: Account = Depends(get_current_account),
+    db: Session = Depends(get_db),
+) -> Account:
     """Organizer/admin guard.
 
     Issue #9 (admin RBAC) owns hardening this -- admin session policy, scopes, step-up
@@ -68,6 +72,15 @@ def get_current_admin(account: Account = Depends(get_current_account)) -> Accoun
     free to change.
     """
     if account.role != AccountRole.ADMIN.value:
+        db.add(
+            AuditLog(
+                actor_account_id=account.id,
+                action="admin.access_denied",
+                target_type="admin_route",
+                metadata_json={"reason": "wrong_role", "role": account.role},
+            )
+        )
+        db.commit()
         raise APIError(403, FORBIDDEN, "Administrator access is required.")
     return account
 
