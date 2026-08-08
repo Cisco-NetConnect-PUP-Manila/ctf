@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Reveal from "../components/Reveal";
 import Window from "../components/Window";
 import ParticipantSessionGuard from "../components/auth/ParticipantSessionGuard";
@@ -33,9 +34,9 @@ export default function CompetitionPlatformPage() {
             </p>
             <div className="portal-actions">
               <ParticipantAccountControls />
-              <a className="btn btn--primary" href="/">
+              <Link className="btn btn--primary" href="/">
                 Back to public site
-              </a>
+              </Link>
             </div>
           </Reveal>
 
@@ -224,16 +225,16 @@ export default function CompetitionPlatformPage() {
               <h4>Portal</h4>
               <ul>
                 <li>
-                  <a href="/platform#dashboard">Dashboard</a>
+                  <Link href="/platform#dashboard">Dashboard</Link>
                 </li>
                 <li>
-                  <a href="/platform#storyline">Storyline</a>
+                  <Link href="/platform#storyline">Storyline</Link>
                 </li>
                 <li>
-                  <a href="/platform#modules">Modules</a>
+                  <Link href="/platform#modules">Modules</Link>
                 </li>
                 <li>
-                  <a href="/platform#challenges">Challenges</a>
+                  <Link href="/platform#challenges">Challenges</Link>
                 </li>
               </ul>
             </div>
@@ -249,17 +250,17 @@ export default function CompetitionPlatformPage() {
               <h4>Switch</h4>
               <ul>
                 <li>
-                  <a href="/">Main Site</a>
+                  <Link href="/">Main Site</Link>
                 </li>
                 <li>
-                  <a href="/admin">Admin</a>
+                  <Link href="/admin">Admin</Link>
                 </li>
               </ul>
             </div>
           </div>
           <div className="footer__base">
             <span>Competition Platform - frontend shell</span>
-            <span>// TEAM CHANNEL</span>
+            <span>{"// TEAM CHANNEL"}</span>
           </div>
         </div>
       </footer>

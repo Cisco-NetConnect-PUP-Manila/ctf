@@ -10,7 +10,7 @@ export default function Marquee() {
           return (
             <span className="marquee__item" key={i}>
               <b>{tag}</b> {rest.join(" ")}
-              <span className="marquee__sep"> // </span>
+              <span className="marquee__sep">{" // "}</span>
             </span>
           );
         })}

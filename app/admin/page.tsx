@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Reveal from "../components/Reveal";
 import Window from "../components/Window";
 import { adminModules } from "../data";
@@ -19,9 +20,9 @@ export default function AdminPanelPage() {
               <span className="btn btn--primary btn--disabled">
                 Organizer access only
               </span>
-              <a className="btn" href="/">
+              <Link className="btn" href="/">
                 Back to public site
-              </a>
+              </Link>
             </div>
           </Reveal>
 
@@ -173,16 +174,16 @@ export default function AdminPanelPage() {
               <h4>Admin</h4>
               <ul>
                 <li>
-                  <a href="/admin#overview">Overview</a>
+                  <Link href="/admin#overview">Overview</Link>
                 </li>
                 <li>
-                  <a href="/admin#modules">Modules</a>
+                  <Link href="/admin#modules">Modules</Link>
                 </li>
                 <li>
-                  <a href="/admin#authority">Authority</a>
+                  <Link href="/admin#authority">Authority</Link>
                 </li>
                 <li>
-                  <a href="/admin#admin-status">Status</a>
+                  <Link href="/admin#admin-status">Status</Link>
                 </li>
               </ul>
             </div>
@@ -198,17 +199,17 @@ export default function AdminPanelPage() {
               <h4>Switch</h4>
               <ul>
                 <li>
-                  <a href="/">Main Site</a>
+                  <Link href="/">Main Site</Link>
                 </li>
                 <li>
-                  <a href="/platform">Competition Platform</a>
+                  <Link href="/platform">Competition Platform</Link>
                 </li>
               </ul>
             </div>
           </div>
           <div className="footer__base">
             <span>Administrative Panel - restricted frontend shell</span>
-            <span>// ADMIN CHANNEL</span>
+            <span>{"// ADMIN CHANNEL"}</span>
           </div>
         </div>
       </footer>
