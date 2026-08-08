@@ -9,6 +9,13 @@ Governing specs: `docs/packet-capture-developer-guide.md` (handoff) and
 `docs/database-normalization.md` (DB spec). Where they conflict, this document names the
 conflict rather than silently picking a side — see [Open decisions](#open-decisions).
 
+> **Status:** this is the Wave 1 design deliverable. It was written before
+> `docs/api-contract.md` was frozen, and the two disagree on error codes and statuses.
+> **The frozen contract wins.** See
+> [Contract reconciliation](#contract-reconciliation-required) for the exact deltas and
+> the follow-up work they imply — the implementation described here has not yet been
+> aligned.
+
 ---
 
 ## 1. Scope
@@ -490,6 +497,38 @@ raw nor normalized flag after correct and incorrect submissions; non-admin → 4
 `/admin/*`.
 
 ---
+
+## Contract reconciliation required
+
+`docs/api-contract.md` was frozen after this design was written. It is the declared
+single source of truth, so **every disagreement below resolves in the contract's
+favour** and the code must change, not the contract.
+
+| Situation | This design / current code | Frozen contract | Action |
+|---|---|---|---|
+| Challenge locked for team | 403 `CHALLENGE_LOCKED` | **422 `LOCKED_CHALLENGE`** | rename + restatus |
+| Already solved | 409 `ALREADY_SOLVED` | **422 `ALREADY_SOLVED`** | restatus |
+| Unknown/unpublished challenge | 404 `CHALLENGE_NOT_FOUND` | **404 `NOT_FOUND`** | rename |
+| Submissions disabled | 403 `COMPETITION_CLOSED` | **403 `SUBMISSIONS_CLOSED`** | rename |
+| Non-admin on `/admin/*` | 403 `ADMIN_REQUIRED` | **403 `FORBIDDEN`** | rename |
+| Request validation failure | 422 `VALIDATION_ERROR` | **400 `VALIDATION_ERROR`** | restatus |
+| Unauthenticated | `{"detail": "..."}` | **401 `AUTH_REQUIRED` / `SESSION_EXPIRED`** | owned by auth (#9) |
+
+Two codes in this design have no contract equivalent because they are admin-only and the
+contract does not cover admin error cases: `CHALLENGE_HAS_SOLVES` (delete blocked by a
+recorded solve) and `CHALLENGE_HAS_NO_VALIDATOR` (publish blocked with no active flag).
+They should be added to the contract rather than dropped.
+
+One point to raise rather than implement silently: the contract specifies **422** for
+`ALREADY_SOLVED`. 409 Conflict is the conventional status for "this already exists", and
+422 normally means the request body was unprocessable — which is not what happened. The
+contract's own preamble says to stop and ask the website lead on conflicts, so this needs
+a ruling before the rename lands. The rename itself is not in dispute; only the status.
+
+Note also that the contract records the backend as "currently returning plain `detail`
+strings" with the envelope as a target. That is now out of date: the `{code, message}`
+envelope described in §9 is implemented, and existing auth routes were deliberately left
+on the old shape so the frontend could not regress.
 
 ## Open decisions
 
