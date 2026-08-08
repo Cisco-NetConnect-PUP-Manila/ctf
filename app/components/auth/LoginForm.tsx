@@ -14,10 +14,18 @@ export default function LoginForm() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [error, setError] = useState("");
   const [registered, setRegistered] = useState(false);
+  const [sessionMessage, setSessionMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    setRegistered(new URLSearchParams(window.location.search).get("registered") === "1");
+    const search = new URLSearchParams(window.location.search);
+    setRegistered(search.get("registered") === "1");
+    const reason = search.get("reason");
+    if (reason === "session") {
+      setSessionMessage("Your session is missing or expired. Sign in again to continue.");
+    } else if (reason === "access") {
+      setSessionMessage("A participant team account is required to open that page.");
+    }
   }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -51,6 +59,7 @@ export default function LoginForm() {
           Team registration received. Sign in with the team email to continue.
         </AuthNotice>
       )}
+      {sessionMessage && <AuthNotice tone="info">{sessionMessage}</AuthNotice>}
       {error && <AuthNotice tone="error">{error}</AuthNotice>}
 
       <label className="auth-field">

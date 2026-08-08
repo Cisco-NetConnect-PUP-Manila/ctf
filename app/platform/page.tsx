@@ -1,5 +1,6 @@
 import Reveal from "../components/Reveal";
 import Window from "../components/Window";
+import ParticipantSessionGuard from "../components/auth/ParticipantSessionGuard";
 import {
   acts,
   competition,
@@ -9,7 +10,8 @@ import {
 
 export default function CompetitionPlatformPage() {
   return (
-    <main className="portal-page" id="platform-top">
+    <ParticipantSessionGuard>
+      <main className="portal-page" id="platform-top">
       <section className="portal-hero">
         <div className="shell portal-hero__grid">
           <Reveal>
@@ -254,6 +256,7 @@ export default function CompetitionPlatformPage() {
           </div>
         </div>
       </footer>
-    </main>
+      </main>
+    </ParticipantSessionGuard>
   );
 }
