@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 /**
  * Fake "the signal is breaking up" horror effect: brief glitch pulses
@@ -8,7 +9,14 @@ import { useEffect } from "react";
  * itself stays smooth and the site never actually lags.
  */
 export default function ScrollGlitch() {
+  const pathname = usePathname();
+
   useEffect(() => {
+    if (pathname.startsWith("/platform") || pathname.startsWith("/admin")) {
+      document.documentElement.removeAttribute("data-glitch");
+      return;
+    }
+
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
 
@@ -104,7 +112,7 @@ export default function ScrollGlitch() {
       clearTimeout(off);
       root.removeAttribute("data-glitch");
     };
-  }, []);
+  }, [pathname]);
 
   return <div className="glitch-fx" aria-hidden="true" />;
 }

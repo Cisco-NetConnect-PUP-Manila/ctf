@@ -188,7 +188,11 @@ export default function RegistrationForm() {
         </div>
       </fieldset>
 
-      <button className="btn btn--primary auth-submit" disabled={submitting} type="submit">
+      <button
+        className="btn btn--primary auth-submit registration-submit"
+        disabled={submitting}
+        type="submit"
+      >
         {submitting ? "Transmitting registration..." : "Register team"}
       </button>
 

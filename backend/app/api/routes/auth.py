@@ -235,6 +235,7 @@ def logout(
         )
     )
     db.commit()
+    response.status_code = status.HTTP_204_NO_CONTENT
     response.delete_cookie(key=settings.session_cookie_name, samesite="lax")
     return response
 

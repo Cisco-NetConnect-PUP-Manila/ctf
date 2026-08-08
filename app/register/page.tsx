@@ -13,7 +13,9 @@ export default function RegisterPage() {
             <br />
             The
             <br />
-            Response
+            <span className="glitch" data-text="Response">
+              Response
+            </span>
             <br />
             <span className="glitch" data-text="Team">
               Team
