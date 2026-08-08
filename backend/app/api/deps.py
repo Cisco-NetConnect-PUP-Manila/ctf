@@ -1,11 +1,19 @@
 from datetime import UTC, datetime
 
-from fastapi import Cookie, Depends, HTTPException, status
+from fastapi import Cookie, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.config import settings
-from app.core.errors import APIError
+from app.core.errors import (
+    ACCOUNT_DISABLED,
+    APIError,
+    AUTH_REQUIRED,
+    FORBIDDEN,
+    SESSION_EXPIRED,
+    TEAM_NOT_APPROVED,
+    TEAM_REQUIRED,
+)
 from app.core.security import hash_session_token
 from app.db.session import get_db
 from app.models.account import Account, AccountRole, AccountSession, AccountStatus
@@ -18,7 +26,7 @@ def get_current_account(
     db: Session = Depends(get_db),
 ) -> Account:
     if not session_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
+        raise APIError(401, AUTH_REQUIRED, "Authentication required.")
 
     token_hash = hash_session_token(session_token)
     stmt = (
@@ -33,16 +41,17 @@ def get_current_account(
     account_session = db.scalar(stmt)
 
     now = datetime.now(UTC)
-    if (
-        account_session is None
-        or account_session.revoked_at is not None
-        or account_session.expires_at <= now
-    ):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session expired.")
+    if account_session is None or account_session.revoked_at is not None:
+        raise APIError(401, AUTH_REQUIRED, "Authentication required.")
+
+    if account_session.expires_at <= now:
+        account_session.revoked_at = now
+        db.commit()
+        raise APIError(401, SESSION_EXPIRED, "Your session has expired. Please log in again.")
 
     account = account_session.account
-    if account.status != AccountStatus.ACTIVE:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled.")
+    if account.status != AccountStatus.ACTIVE.value:
+        raise APIError(403, ACCOUNT_DISABLED, "Account is disabled.")
 
     account_session.last_seen_at = now
     db.commit()
@@ -55,15 +64,11 @@ def get_current_admin(account: Account = Depends(get_current_account)) -> Accoun
 
     Issue #9 (admin RBAC) owns hardening this -- admin session policy, scopes, step-up
     auth. The contract callers depend on is the NAME and this signature:
-    ``Depends(get_current_admin) -> Account``, raising 403 ADMIN_REQUIRED. Internals are
+    ``Depends(get_current_admin) -> Account``, raising 403 FORBIDDEN. Internals are
     free to change.
     """
     if account.role != AccountRole.ADMIN.value:
-        raise APIError(
-            status.HTTP_403_FORBIDDEN,
-            "ADMIN_REQUIRED",
-            "Administrator access is required.",
-        )
+        raise APIError(403, FORBIDDEN, "Administrator access is required.")
     return account
 
 
@@ -79,24 +84,14 @@ def get_current_team(
     """
     team = account.team
     if team is None:
-        raise APIError(
-            status.HTTP_403_FORBIDDEN,
-            "TEAM_REQUIRED",
-            "This account is not linked to a team.",
-        )
+        raise APIError(403, TEAM_REQUIRED, "This account is not linked to a team.")
 
     if team.status == TeamStatus.DISABLED.value:
-        raise APIError(
-            status.HTTP_403_FORBIDDEN,
-            "TEAM_NOT_APPROVED",
-            "This team has been disabled.",
-        )
+        raise APIError(403, TEAM_NOT_APPROVED, "This team has been disabled.")
 
     if team_approval_required(db) and team.status != TeamStatus.APPROVED.value:
         raise APIError(
-            status.HTTP_403_FORBIDDEN,
-            "TEAM_NOT_APPROVED",
-            "Your team is not approved for the competition yet.",
+            403, TEAM_NOT_APPROVED, "Your team is not approved for the competition yet."
         )
 
     return team

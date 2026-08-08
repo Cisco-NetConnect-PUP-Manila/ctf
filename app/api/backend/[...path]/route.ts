@@ -21,13 +21,15 @@ async function forward(
   if (cookie) headers.set("cookie", cookie);
 
   try {
+    const requestBody =
+      request.method === "GET" || request.method === "HEAD"
+        ? undefined
+        : await request.arrayBuffer();
+
     const upstream = await fetch(target, {
       method: request.method,
       headers,
-      body:
-        request.method === "GET" || request.method === "HEAD"
-          ? undefined
-          : await request.arrayBuffer(),
+      body: requestBody?.byteLength ? requestBody : undefined,
       cache: "no-store",
     });
 

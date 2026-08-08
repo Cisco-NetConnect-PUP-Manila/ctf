@@ -1,10 +1,11 @@
 from fastapi import Depends, FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.deps import get_current_admin
 from app.api.routes import admin_acts, admin_challenges, auth, health
 from app.core.config import settings
-from app.core.errors import register_error_handlers
+from app.core.errors import APIError, api_error_handler, validation_error_handler
 
 
 def create_app() -> FastAPI:
@@ -24,9 +25,8 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Renders the documented {code, message} envelope for routes that raise APIError.
-    # Routes raising a plain HTTPException keep the existing {"detail": "..."} shape.
-    register_error_handlers(app)
+    app.add_exception_handler(APIError, api_error_handler)
+    app.add_exception_handler(RequestValidationError, validation_error_handler)
 
     app.include_router(health.router)
     app.include_router(auth.router, prefix="/auth", tags=["auth"])

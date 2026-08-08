@@ -1,15 +1,13 @@
-"""Idempotent reference-data seed: Acts, categories, difficulties.
+"""Seed initial platform settings and reference data for local development.
 
-Run with:  python -m app.db.seed
-
-Deliberately does NOT seed challenges or flags. Real flags must never live in the
-repository -- challenge makers enter them through the admin panel.
+Idempotent: safe to re-run. Deliberately seeds no challenges and no flags -- real flags
+must never live in the repository, so challenge makers enter them through the admin panel.
 
 Act unlock thresholds
 ---------------------
 The handoff prose says "20 percent of the total points of the current challenge set", but
 the flags table gives explicit per-Act minimums (500/700/700/700) that work out to
-62-70 percent. Both are in the same document and they cannot be reconciled by any formula.
+62-70 percent. Both are in the same document and no formula reconciles them.
 
 Per the website lead's decision the explicit table is seeded into
 ``unlock_threshold_points``, which overrides ``unlock_threshold_percent``. Organizers can
@@ -19,12 +17,11 @@ migration needed. See backend/docs/core-loop-design.md section 6.
 
 from dataclasses import dataclass
 
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
+import app.models  # noqa: F401  -- registers every mapper before any query runs
 from app.db.session import SessionLocal
 from app.models.act import Act
 from app.models.challenge import ChallengeCategory, ChallengeDifficulty
+from app.models.platform_setting import PlatformSetting
 
 
 @dataclass(frozen=True)
@@ -84,11 +81,39 @@ DIFFICULTIES: tuple[tuple[str, str], ...] = (
 )
 
 
-def seed_acts(db: Session) -> int:
-    created = 0
+def seed():
+    db = SessionLocal()
+    try:
+        _seed_platform_settings(db)
+        _seed_acts(db)
+        _seed_categories(db)
+        _seed_difficulties(db)
+        db.commit()
+        print("Seed completed.")
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
+def _seed_platform_settings(db):
+    defaults = {
+        "registration_open": True,
+    }
+    for key, value in defaults.items():
+        existing = db.query(PlatformSetting).filter_by(key=key).first()
+        if existing is None:
+            db.add(PlatformSetting(key=key, value_json=value))
+            print(f"  Created platform_setting: {key} = {value}")
+        else:
+            print(f"  Already exists: {key}")
+
+
+def _seed_acts(db):
     for item in ACTS:
-        existing = db.scalar(select(Act).where(Act.act_number == item.act_number))
-        if existing is not None:
+        if db.query(Act).filter_by(act_number=item.act_number).first() is not None:
+            print(f"  Already exists: act {item.act_number}")
             continue
         db.add(
             Act(
@@ -102,52 +127,24 @@ def seed_acts(db: Session) -> int:
                 is_active=True,
             )
         )
-        created += 1
-    return created
+        print(f"  Created act: {item.act_number} = {item.title}")
 
 
-def seed_categories(db: Session) -> int:
-    created = 0
+def _seed_categories(db):
     for index, (name, slug) in enumerate(CATEGORIES):
-        if db.scalar(select(ChallengeCategory).where(ChallengeCategory.slug == slug)) is not None:
+        if db.query(ChallengeCategory).filter_by(slug=slug).first() is not None:
             continue
         db.add(ChallengeCategory(name=name, slug=slug, sort_order=index, is_active=True))
-        created += 1
-    return created
+        print(f"  Created challenge_category: {name}")
 
 
-def seed_difficulties(db: Session) -> int:
-    created = 0
+def _seed_difficulties(db):
     for index, (name, slug) in enumerate(DIFFICULTIES):
-        if db.scalar(select(ChallengeDifficulty).where(ChallengeDifficulty.slug == slug)) is not None:
+        if db.query(ChallengeDifficulty).filter_by(slug=slug).first() is not None:
             continue
         db.add(ChallengeDifficulty(name=name, slug=slug, sort_order=index, is_active=True))
-        created += 1
-    return created
-
-
-def run_seed(db: Session) -> dict[str, int]:
-    counts = {
-        "acts": seed_acts(db),
-        "categories": seed_categories(db),
-        "difficulties": seed_difficulties(db),
-    }
-    db.commit()
-    return counts
-
-
-def main() -> None:
-    db = SessionLocal()
-    try:
-        counts = run_seed(db)
-    finally:
-        db.close()
-    print(
-        "Seed complete. Created "
-        f"{counts['acts']} acts, {counts['categories']} categories, "
-        f"{counts['difficulties']} difficulties."
-    )
+        print(f"  Created challenge_difficulty: {name}")
 
 
 if __name__ == "__main__":
-    main()
+    seed()

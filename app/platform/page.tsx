@@ -1,5 +1,9 @@
 import Reveal from "../components/Reveal";
 import Window from "../components/Window";
+import ParticipantSessionGuard from "../components/auth/ParticipantSessionGuard";
+import ParticipantAccountControls, {
+  ParticipantTeamName,
+} from "../components/auth/ParticipantAccountControls";
 import {
   acts,
   competition,
@@ -9,35 +13,40 @@ import {
 
 export default function CompetitionPlatformPage() {
   return (
-    <main className="portal-page" id="platform-top">
+    <ParticipantSessionGuard>
+      <main className="portal-page" id="platform-top">
       <section className="portal-hero">
         <div className="shell portal-hero__grid">
           <Reveal>
             <span className="eyebrow">TEAM PORTAL.EXE</span>
-            <h1>Competition Platform</h1>
+            <h1>
+              Competition
+              <br />
+              <span className="glitch" data-text="Platform">
+                Platform
+              </span>
+            </h1>
             <p>
               Participant workspace for story progression, challenge access,
               Investigation Score tracking, recovered evidence, leaderboard
               position, announcements, and team profile.
             </p>
             <div className="portal-actions">
-              <span className="btn btn--primary btn--disabled">
-                Login required
-              </span>
-              <a className="btn" href="/">
+              <ParticipantAccountControls />
+              <a className="btn btn--primary" href="/">
                 Back to public site
               </a>
             </div>
           </Reveal>
 
           <Reveal>
-            <Window title="ACCESS.STATE" meta="frontend shell // no backend">
+            <Window title="ACCESS.STATE" meta="authenticated frontend shell">
               <div className="portal-lock">
-                <b>Participant access is not live yet.</b>
+                <b>Team channel authenticated.</b>
                 <span>
-                  Authentication, score calculation, unlock logic, Intel
-                  penalties, flag validation, and final-answer verification must
-                  be handled by backend services before launch.
+                  Protected participant access is active. Score calculation,
+                  unlock logic, Intel penalties, flag validation, and final-answer
+                  verification remain controlled by backend services.
                 </span>
               </div>
             </Window>
@@ -60,7 +69,7 @@ export default function CompetitionPlatformPage() {
               <div className="metric-grid">
                 <div className="metric">
                   <span>Team</span>
-                  <b>Awaiting Registration</b>
+                  <ParticipantTeamName />
                 </div>
                 <div className="metric">
                   <span>Investigation Score</span>
@@ -254,6 +263,7 @@ export default function CompetitionPlatformPage() {
           </div>
         </div>
       </footer>
-    </main>
+      </main>
+    </ParticipantSessionGuard>
   );
 }

@@ -2153,7 +2153,8 @@ body { text-shadow: none; }
   line-height: 1.04;
   margin: 12px 0 18px;
   text-transform: uppercase;
-  text-shadow: var(--glow);
+  text-shadow: 0 0 8px rgba(255, 176, 0, 0.5),
+    0 0 24px rgba(255, 120, 0, 0.3), 3px 3px 0 #1a0e00;
 }
 
 .portal-hero p {
@@ -2773,6 +2774,11 @@ main p,
   min-width: 210px;
 }
 
+.registration-submit {
+  justify-content: center;
+  text-align: center;
+}
+
 .auth-submit:disabled {
   cursor: wait;
   opacity: 0.58;
@@ -2825,6 +2831,92 @@ main p,
 .auth-notice--success {
   background: rgba(255, 176, 0, 0.07);
   border-color: var(--amber-dim);
+}
+
+.auth-state-page {
+  align-content: center;
+  display: grid;
+  justify-items: center;
+  min-height: calc(100vh - 190px);
+  padding: 50px 20px;
+  text-align: center;
+}
+
+.auth-state-page h1 {
+  color: var(--amber-2);
+  font-family: "OffBit Dot", var(--vga);
+  font-size: clamp(1.7rem, 5vw, 3.5rem);
+  line-height: 1.08;
+  margin: 15px 0 20px;
+  text-transform: uppercase;
+}
+
+.auth-state-page p {
+  color: var(--ink-dim);
+  font-family: var(--rodin);
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 22px;
+  max-width: 50ch;
+}
+
+.auth-state-page__pulse {
+  animation: authPulse 1.1s steps(4) infinite;
+  background: var(--amber);
+  box-shadow: var(--glow);
+  height: 6px;
+  margin-top: 10px;
+  width: min(280px, 70vw);
+}
+
+@keyframes authPulse {
+  0% { transform: scaleX(0.12); transform-origin: left; }
+  50% { transform: scaleX(1); transform-origin: left; }
+  51% { transform-origin: right; }
+  100% { transform: scaleX(0.12); transform-origin: right; }
+}
+
+.portal-account {
+  align-items: stretch;
+  display: grid;
+  gap: 8px;
+  min-width: min(100%, 280px);
+}
+
+.portal-account__identity {
+  border: 1px solid var(--wire-2);
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+}
+
+.portal-account__identity span,
+.portal-account__identity small {
+  color: var(--ink-dim);
+  font-family: var(--rodin);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.portal-account__identity strong {
+  color: var(--amber-2);
+  font-family: var(--vga);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.portal-account .btn {
+  justify-content: center;
+  width: 100%;
+}
+
+.portal-account__error {
+  color: var(--alert);
+  font-family: var(--rodin);
+  font-size: 0.62rem;
+  font-weight: 700;
 }
 
 @media (max-width: 900px) {
