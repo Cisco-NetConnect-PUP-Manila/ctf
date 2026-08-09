@@ -74,3 +74,43 @@ export type AnnouncementInput = {
   body: string;
 };
 
+export type ParticipantAct = {
+  id: string;
+  act_number: number;
+  slug: string;
+  title: string;
+  description: string | null;
+  unlocked: boolean;
+  total_points: number;
+  earned_points: number;
+  required_points: number;
+};
+
+export type ParticipantChallenge = {
+  id: string;
+  act_id: string;
+  act_number: number;
+  title: string;
+  slug: string;
+  category: string | null;
+  difficulty: string | null;
+  points: number;
+  mission_brief: string;
+  story_context: string | null;
+  objectives: string[];
+  locked: boolean;
+  solved: boolean;
+  awarded_points: number | null;
+};
+
+export type ActChallengeGroup = {
+  act: ParticipantAct;
+  challenges: ParticipantChallenge[];
+};
+
+export type ParticipantChallengeList = {
+  acts: ActChallengeGroup[];
+  current_act: number;
+  current_score: number;
+};
+
