@@ -336,7 +336,6 @@ export default function AdminChallengeManager() {
               <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void toggleFlags(item)}>Flags</button>
               {item.status !== "published" && <button className="btn btn--primary" type="button" disabled={busyId === item.id} onClick={() => void handleStatus(item, "published")}>Publish</button>}
               {item.status === "published" && <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void handleStatus(item, "draft")}>Unpublish</button>}
-              {item.status !== "archived" && <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void handleStatus(item, "archived")}>Archive</button>}
               <button className="btn challenge-admin-row__delete" type="button" disabled={busyId === item.id} onClick={() => void handleDelete(item)}>Delete</button>
             </div>
 
