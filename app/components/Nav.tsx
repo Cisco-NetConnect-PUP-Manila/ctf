@@ -20,6 +20,7 @@ const NAVS = {
     brandHref: "/platform#platform-top",
     links: [
       { label: "Dashboard", href: "/platform#dashboard" },
+      { label: "Announcements", href: "/platform#announcements-feed" },
       { label: "Storyline", href: "/platform#storyline" },
       { label: "Modules", href: "/platform#modules" },
       { label: "Challenges", href: "/platform#challenges" },
@@ -31,6 +32,7 @@ const NAVS = {
     links: [
       { label: "Overview", href: "/admin#overview" },
       { label: "Modules", href: "/admin#modules" },
+      { label: "Announcements", href: "/admin#announcements" },
       { label: "Authority", href: "/admin#authority" },
       { label: "Status", href: "/admin#admin-status" },
     ],

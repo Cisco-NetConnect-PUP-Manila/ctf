@@ -5,6 +5,7 @@ import ParticipantSessionGuard from "../components/auth/ParticipantSessionGuard"
 import ParticipantAccountControls, {
   ParticipantTeamName,
 } from "../components/auth/ParticipantAccountControls";
+import AnnouncementsFeed from "../components/announcements/AnnouncementsFeed";
 import {
   acts,
   competition,
@@ -62,7 +63,7 @@ export default function CompetitionPlatformPage() {
               <span className="eyebrow">(01) Team Dashboard</span>
               <h2>Standby Snapshot</h2>
             </div>
-            <span className="section-index">01 / 05</span>
+            <span className="section-index">01 / 06</span>
           </Reveal>
 
           <Reveal className="portal-dashboard">
@@ -98,14 +99,30 @@ export default function CompetitionPlatformPage() {
         </div>
       </section>
 
+      <section className="sec" id="announcements-feed">
+        <div className="shell">
+          <Reveal className="sec__head">
+            <div>
+              <span className="eyebrow">(02) Announcements</span>
+              <h2>Event Transmissions</h2>
+            </div>
+            <span className="section-index">02 / 06</span>
+          </Reveal>
+
+          <Reveal>
+            <AnnouncementsFeed />
+          </Reveal>
+        </div>
+      </section>
+
       <section className="sec" id="storyline">
         <div className="shell">
           <Reveal className="sec__head">
             <div>
-              <span className="eyebrow">(02) Storyline</span>
+              <span className="eyebrow">(03) Storyline</span>
               <h2>Act Progression</h2>
             </div>
-            <span className="section-index">02 / 05</span>
+            <span className="section-index">03 / 06</span>
           </Reveal>
 
           <div className="portal-act-grid">
@@ -140,10 +157,10 @@ export default function CompetitionPlatformPage() {
         <div className="shell">
           <Reveal className="sec__head">
             <div>
-              <span className="eyebrow">(03) Participant Modules</span>
+              <span className="eyebrow">(04) Participant Modules</span>
               <h2>Platform Modules</h2>
             </div>
-            <span className="section-index">03 / 05</span>
+            <span className="section-index">04 / 06</span>
           </Reveal>
 
           <div className="module-grid">
@@ -169,10 +186,10 @@ export default function CompetitionPlatformPage() {
         <div className="shell">
           <Reveal className="sec__head">
             <div>
-              <span className="eyebrow">(04) Challenge Workspace</span>
+              <span className="eyebrow">(05) Challenge Workspace</span>
               <h2>Submission Policy</h2>
             </div>
-            <span className="section-index">04 / 05</span>
+            <span className="section-index">05 / 06</span>
           </Reveal>
 
           <Reveal className="brief-grid">
