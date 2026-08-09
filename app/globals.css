@@ -3395,6 +3395,15 @@ main p,
   font-family: var(--vga);
   text-transform: uppercase;
 }
+
+.module-card__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 18px;
+  text-align: center;
+}
 .announcement-toast small { margin-top: 6px; color: var(--ink-dim); }
 .announcement-toast__signal {
   flex: 0 0 9px;

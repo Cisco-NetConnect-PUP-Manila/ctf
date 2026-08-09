@@ -7,6 +7,12 @@ import AnnouncementsManager from "../components/announcements/AnnouncementsManag
 import AdminChallengeManager from "../components/challenges/AdminChallengeManager";
 import { adminModules } from "../data";
 
+const moduleActions: Record<string, { href: string; label: string }> = {
+  "Admin Dashboard": { href: "/admin#overview", label: "View overview" },
+  "Challenge Management": { href: "/admin#challenges", label: "Open challenge console" },
+  "Announcement Management": { href: "/admin#announcements", label: "Open announcement console" },
+};
+
 export default function AdminPanelPage() {
   return (
     <AdminSessionGuard>
@@ -112,6 +118,11 @@ export default function AdminPanelPage() {
                     <li key={detail}>{detail}</li>
                   ))}
                 </ul>
+                {moduleActions[module.title] && (
+                  <Link className="btn btn--primary module-card__action" href={moduleActions[module.title].href}>
+                    {moduleActions[module.title].label}
+                  </Link>
+                )}
               </Reveal>
             ))}
           </div>

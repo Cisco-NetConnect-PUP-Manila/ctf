@@ -447,17 +447,15 @@ export const adminModules: PortalModule[] = [
   },
   {
     title: "Challenge Management",
-    body: "Organizer tools for creating, editing, locking, and configuring challenges.",
-    status: "Backend required",
+    body: "Organizer tools for creating, editing, publishing, and configuring challenges.",
+    status: "Live console",
     details: [
       "Create challenges",
       "Edit challenges",
       "Delete challenges",
-      "Lock or unlock challenges",
-      "Upload challenge files",
+      "Publish or unpublish challenges",
       "Configure flags",
       "Configure story fragments",
-      "Configure Intel Requests",
       "Configure point values",
     ],
   },
@@ -489,12 +487,12 @@ export const adminModules: PortalModule[] = [
   {
     title: "Announcement Management",
     body: "Organizer publishing tools for participant-facing announcements.",
-    status: "Backend required",
+    status: "Live console",
     details: [
       "Create announcements",
       "Edit announcements",
-      "Schedule announcements",
-      "Archive announcements",
+      "Publish announcements",
+      "Delete announcements",
     ],
   },
   {
