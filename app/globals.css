@@ -130,6 +130,7 @@ select { cursor: url("/images/cursor-hand.svg") 9 3, pointer; }
   z-index: 1;
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   padding: calc(var(--tv-frame) + 66px) var(--tv-x) calc(var(--tv-frame) + 62px);
@@ -2122,6 +2123,16 @@ body { text-shadow: none; }
    ============================================================ */
 .portal-page {
   min-height: 100vh;
+  /* Live announcements and challenges can change section heights after the
+     initial render. Do not let browser scroll anchoring move the whole portal
+     while those sections update. */
+  overflow-anchor: none;
+  width: 100%;
+}
+
+.portal-page .sec,
+.portal-page .portal-hero {
+  overflow-anchor: none;
 }
 
 .portal-page--admin {
@@ -2316,6 +2327,11 @@ body { text-shadow: none; }
   .portal-dashboard,
   .metric-grid {
     grid-template-columns: 1fr;
+  }
+
+  .portal-hero__grid > *,
+  .portal-actions > * {
+    min-width: 0;
   }
 }
 
