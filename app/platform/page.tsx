@@ -254,9 +254,6 @@ export default function CompetitionPlatformPage() {
                 <li>
                   <Link href="/">Main Site</Link>
                 </li>
-                <li>
-                  <Link href="/admin">Admin</Link>
-                </li>
               </ul>
             </div>
           </div>
