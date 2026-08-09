@@ -114,3 +114,67 @@ export type ParticipantChallengeList = {
   current_score: number;
 };
 
+export type AdminAct = {
+  id: string;
+  act_number: number;
+  slug: string;
+  title: string;
+  description: string | null;
+  unlock_threshold_points: number | null;
+  unlock_threshold_percent: number;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type ChallengeLookup = {
+  id: string;
+  name: string;
+  slug: string;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type ChallengeStatus = "draft" | "published" | "archived";
+
+export type AdminChallenge = {
+  id: string;
+  act_id: string;
+  act_number: number;
+  title: string;
+  slug: string;
+  mission_brief: string;
+  story_context: string | null;
+  objectives: string[];
+  points: number;
+  status: ChallengeStatus;
+  is_visible: boolean;
+  story_fragment: string | null;
+  sort_order: number;
+  category: ChallengeLookup | null;
+  difficulty: ChallengeLookup | null;
+  active_flag_count: number;
+};
+
+export type AdminChallengeInput = {
+  act_id: string;
+  title: string;
+  slug: string;
+  mission_brief: string;
+  story_context: string | null;
+  objectives: string[];
+  points: number;
+  category_id: string | null;
+  difficulty_id: string | null;
+  story_fragment: string | null;
+  sort_order: number;
+  is_visible: boolean;
+};
+
+export type ChallengeFlag = {
+  id: string;
+  challenge_id: string;
+  label: string | null;
+  validator_type: string;
+  is_active: boolean;
+};
+
