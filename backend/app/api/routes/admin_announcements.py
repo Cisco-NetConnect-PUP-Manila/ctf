@@ -8,7 +8,7 @@ matching the challenge/act admin modules.
 from datetime import UTC, datetime
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -161,3 +161,29 @@ def set_announcement_status(
     db.commit()
     db.refresh(row)
     return _to_admin_response(row)
+
+
+@router.delete(
+    "/announcements/{announcement_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_announcement(
+    announcement_id: UUID,
+    current_admin: Account = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+) -> Response:
+    """Permanently delete an announcement while preserving an audit record."""
+    row = _load(db, announcement_id)
+
+    db.add(
+        AuditLog(
+            actor_account_id=current_admin.id,
+            action="announcement.deleted",
+            target_type="announcement",
+            target_id=row.id,
+            metadata_json={"title": row.title, "status": row.status},
+        )
+    )
+    db.delete(row)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

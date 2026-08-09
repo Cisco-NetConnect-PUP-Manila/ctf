@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { getCurrentAccount } from "../lib/api/auth";
 
 const PUBLIC_MENU = [
   { label: "Incident Brief", href: "/#about" },
@@ -69,7 +70,22 @@ export default function Taskbar() {
   const [gli, setGli] = useState(false);
   const [open, setOpen] = useState(false);
   const [tzOpen, setTzOpen] = useState(false);
+  const [accountRole, setAccountRole] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    getCurrentAccount()
+      .then((current) => {
+        if (active) setAccountRole(current.account.role);
+      })
+      .catch(() => {
+        if (active) setAccountRole(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [pathname]);
 
   useEffect(() => {
     setMounted(true);
@@ -193,22 +209,26 @@ export default function Taskbar() {
           >
             Main
           </Link>
-          <Link
-            className={`taskbar__task ${
-              activeRoute === "platform" ? "taskbar__task--active" : ""
-            }`}
-            href="/platform"
-          >
-            Competition Platform
-          </Link>
-          <Link
-            className={`taskbar__task ${
-              activeRoute === "admin" ? "taskbar__task--active" : ""
-            }`}
-            href="/admin"
-          >
-            Admin
-          </Link>
+          {accountRole === "participant" && (
+            <Link
+              className={`taskbar__task ${
+                activeRoute === "platform" ? "taskbar__task--active" : ""
+              }`}
+              href="/platform"
+            >
+              Competition Platform
+            </Link>
+          )}
+          {accountRole === "admin" && (
+            <Link
+              className={`taskbar__task ${
+                activeRoute === "admin" ? "taskbar__task--active" : ""
+              }`}
+              href="/admin"
+            >
+              Admin
+            </Link>
+          )}
         </div>
 
         <div className="taskbar__tray tzdd">

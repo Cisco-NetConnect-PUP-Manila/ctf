@@ -10,6 +10,7 @@ from app.api.routes import (
     admin_settings,
     announcements,
     auth,
+    challenges,
     health,
     submissions,
 )
@@ -40,6 +41,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(auth.router, prefix="/auth", tags=["auth"])
     app.include_router(announcements.router, tags=["announcements"])
+    app.include_router(challenges.router, prefix="/challenges", tags=["challenges"])
     app.include_router(submissions.router, prefix="/challenges", tags=["challenges"])
 
     # Admin guard is attached at the router level so no individual endpoint can omit it.

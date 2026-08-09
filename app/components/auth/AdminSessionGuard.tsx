@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useState,
   type ReactNode,
@@ -9,10 +11,21 @@ import {
 import { useRouter } from "next/navigation";
 import { getCurrentAccount } from "../../lib/api/auth";
 import { ApiError } from "../../lib/api/client";
+import type { CurrentAccount } from "../../lib/api/types";
+
+const AdminSessionContext = createContext<CurrentAccount | null>(null);
+
+export function useAdminSession() {
+  const session = useContext(AdminSessionContext);
+  if (!session) {
+    throw new Error("useAdminSession must be used inside AdminSessionGuard.");
+  }
+  return session;
+}
 
 export default function AdminSessionGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const [authorized, setAuthorized] = useState(false);
+  const [session, setSession] = useState<CurrentAccount | null>(null);
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState("");
 
@@ -26,7 +39,7 @@ export default function AdminSessionGuard({ children }: { children: ReactNode })
         router.replace("/login?reason=admin");
         return;
       }
-      setAuthorized(true);
+      setSession(current);
     } catch (caught) {
       if (caught instanceof ApiError && (caught.status === 401 || caught.status === 403)) {
         router.replace("/login?reason=session");
@@ -46,7 +59,7 @@ export default function AdminSessionGuard({ children }: { children: ReactNode })
     void checkAdmin();
   }, [checkAdmin]);
 
-  if (checking || (!authorized && !error)) {
+  if (checking || (!session && !error)) {
     return (
       <main className="auth-state-page" aria-live="polite">
         <span className="eyebrow">ADMIN.AUTH</span>
@@ -69,5 +82,9 @@ export default function AdminSessionGuard({ children }: { children: ReactNode })
     );
   }
 
-  return <>{children}</>;
+  return (
+    <AdminSessionContext.Provider value={session}>
+      {children}
+    </AdminSessionContext.Provider>
+  );
 }

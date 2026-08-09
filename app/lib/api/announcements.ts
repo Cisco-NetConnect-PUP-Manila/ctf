@@ -17,6 +17,18 @@ export function listPublishedAnnouncements(page = 1, pageSize = 20) {
   });
 }
 
+export async function listAllPublishedAnnouncements() {
+  const items: Announcement[] = [];
+  let pageNumber = 1;
+
+  while (true) {
+    const page = await listPublishedAnnouncements(pageNumber, 100);
+    items.push(...page.items);
+    if (!page.has_more) return items;
+    pageNumber += 1;
+  }
+}
+
 // ---- Admin ----------------------------------------------------------------
 
 export function listAllAnnouncements() {
@@ -44,5 +56,11 @@ export function setAnnouncementStatus(id: string, status: AnnouncementStatus) {
   return apiRequest<AdminAnnouncement>(`/admin/announcements/${id}/status`, {
     method: "PATCH",
     body: JSON.stringify({ status }),
+  });
+}
+
+export function deleteAnnouncement(id: string) {
+  return apiRequest<void>(`/admin/announcements/${id}`, {
+    method: "DELETE",
   });
 }

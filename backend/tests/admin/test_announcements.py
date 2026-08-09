@@ -112,6 +112,26 @@ class TestAdminAnnouncementCrud:
         assert resp.status_code == 404
         assert resp.json()["code"] == "NOT_FOUND"
 
+    def test_delete_removes_announcement(self, client, db_session):
+        _, cookies = _login_admin(client, db_session)
+        created = _create(client, cookies, title="Delete Me").json()
+
+        resp = client.delete(f"/admin/announcements/{created['id']}", cookies=cookies)
+
+        assert resp.status_code == 204
+        assert db_session.get(Announcement, created["id"]) is None
+        listed = client.get("/admin/announcements", cookies=cookies)
+        assert all(row["id"] != created["id"] for row in listed.json())
+
+    def test_delete_missing_announcement_is_404(self, client, db_session):
+        _, cookies = _login_admin(client, db_session)
+        resp = client.delete(
+            "/admin/announcements/00000000-0000-0000-0000-000000000000",
+            cookies=cookies,
+        )
+        assert resp.status_code == 404
+        assert resp.json()["code"] == "NOT_FOUND"
+
 
 class TestAdminAnnouncementValidation:
     def test_blank_title_rejected(self, client, db_session):
@@ -159,6 +179,23 @@ class TestAdminAnnouncementRbac:
         assert resp.status_code == 401
         assert resp.json()["code"] == "AUTH_REQUIRED"
 
+    def test_participant_denied_delete(self, client, db_session):
+        _, admin_cookies = _login_admin(client, db_session)
+        created = _create(client, admin_cookies).json()
+        create_test_account(db_session, email="delete-user@test.com")
+        login = client.post(
+            "/auth/login",
+            json={"email": "delete-user@test.com", "password": TEST_PASSWORD},
+        )
+
+        resp = client.delete(
+            f"/admin/announcements/{created['id']}",
+            cookies=login.cookies,
+        )
+
+        assert resp.status_code == 403
+        assert resp.json()["code"] == "FORBIDDEN"
+
 
 class TestAdminAnnouncementAudit:
     def test_create_and_publish_are_audit_logged(self, client, db_session):
@@ -178,6 +215,25 @@ class TestAdminAnnouncementAudit:
         }
         assert "announcement.created" in actions
         assert "announcement.published" in actions
+
+    def test_delete_is_audit_logged(self, client, db_session):
+        admin, cookies = _login_admin(client, db_session)
+        created = _create(client, cookies, title="Temporary Bulletin").json()
+
+        resp = client.delete(f"/admin/announcements/{created['id']}", cookies=cookies)
+
+        assert resp.status_code == 204
+        audit = (
+            db_session.query(AuditLog)
+            .filter(AuditLog.action == "announcement.deleted")
+            .one()
+        )
+        assert audit.actor_account_id == admin.id
+        assert str(audit.target_id) == created["id"]
+        assert audit.metadata_json == {
+            "title": "Temporary Bulletin",
+            "status": "draft",
+        }
 
     def test_body_check_constraint_holds(self, client, db_session):
         # Sanity: only the three known statuses exist in the enum.
