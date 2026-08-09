@@ -2,6 +2,7 @@ import Link from "next/link";
 import Reveal from "../components/Reveal";
 import Window from "../components/Window";
 import AdminSessionGuard from "../components/auth/AdminSessionGuard";
+import AdminAccountControls from "../components/auth/AdminAccountControls";
 import AnnouncementsManager from "../components/announcements/AnnouncementsManager";
 import { adminModules } from "../data";
 
@@ -20,10 +21,8 @@ export default function AdminPanelPage() {
               and platform settings.
             </p>
             <div className="portal-actions">
-              <span className="btn btn--primary btn--disabled">
-                Organizer access only
-              </span>
-              <Link className="btn" href="/">
+              <AdminAccountControls />
+              <Link className="btn btn--primary" href="/">
                 Back to public site
               </Link>
             </div>
