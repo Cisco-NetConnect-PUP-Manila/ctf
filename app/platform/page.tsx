@@ -14,6 +14,11 @@ import {
   rankingCriteria,
 } from "../data";
 
+const moduleActions: Record<string, { href: string; label: string }> = {
+  Challenges: { href: "/platform#challenges", label: "Open challenge directory" },
+  Announcements: { href: "/platform#announcements-feed", label: "Open announcements" },
+};
+
 export default function CompetitionPlatformPage() {
   return (
     <ParticipantSessionGuard>
@@ -177,6 +182,11 @@ export default function CompetitionPlatformPage() {
                     <li key={detail}>{detail}</li>
                   ))}
                 </ul>
+                {moduleActions[module.title] && (
+                  <Link className="btn btn--primary module-card__action" href={moduleActions[module.title].href}>
+                    {moduleActions[module.title].label}
+                  </Link>
+                )}
               </Reveal>
             ))}
           </div>
