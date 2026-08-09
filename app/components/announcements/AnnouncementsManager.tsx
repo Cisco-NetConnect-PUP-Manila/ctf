@@ -17,7 +17,6 @@ import type {
 
 const STATUS_ACTIONS: { status: AnnouncementStatus; label: string }[] = [
   { status: "published", label: "Publish" },
-  { status: "archived", label: "Archive" },
   { status: "draft", label: "Unpublish" },
 ];
 
