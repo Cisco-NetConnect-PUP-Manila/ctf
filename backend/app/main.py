@@ -7,6 +7,7 @@ from app.api.routes import (
     admin_acts,
     admin_announcements,
     admin_challenges,
+    admin_settings,
     announcements,
     auth,
     health,
@@ -57,6 +58,12 @@ def create_app() -> FastAPI:
     )
     app.include_router(
         admin_announcements.router,
+        prefix="/admin",
+        tags=["admin"],
+        dependencies=admin_dependencies,
+    )
+    app.include_router(
+        admin_settings.router,
         prefix="/admin",
         tags=["admin"],
         dependencies=admin_dependencies,
