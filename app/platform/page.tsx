@@ -6,6 +6,7 @@ import ParticipantAccountControls, {
   ParticipantTeamName,
 } from "../components/auth/ParticipantAccountControls";
 import AnnouncementsFeed from "../components/announcements/AnnouncementsFeed";
+import ParticipantChallengeList from "../components/challenges/ParticipantChallengeList";
 import {
   acts,
   competition,
@@ -187,29 +188,13 @@ export default function CompetitionPlatformPage() {
           <Reveal className="sec__head">
             <div>
               <span className="eyebrow">(05) Challenge Workspace</span>
-              <h2>Submission Policy</h2>
+              <h2>Challenge Directory</h2>
             </div>
             <span className="section-index">05 / 06</span>
           </Reveal>
 
-          <Reveal className="brief-grid">
-            <Window title="challenge.fields" meta="required page content">
-              <ul className="terminal-list">
-                <li>Challenge title, category, difficulty, and score</li>
-                <li>Mission brief, story context, description, and objectives</li>
-                <li>Downloadable files where applicable</li>
-                <li>Intel Requests with penalty confirmation</li>
-                <li>Flag submission form with backend validation</li>
-              </ul>
-            </Window>
-            <Window title="final.warning" meta="do not expose answers">
-              <p>
-                Correct flags and the final reconstructed phrase must never be
-                shipped in frontend source. The UI can submit attempts, but the
-                backend must decide whether they are correct.
-              </p>
-              <span className="flag-format">{competition.format}</span>
-            </Window>
+          <Reveal>
+            <ParticipantChallengeList />
           </Reveal>
         </div>
       </section>
