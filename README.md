@@ -101,6 +101,18 @@ Backend docs: http://localhost:8001/docs
 PostgreSQL:   localhost:5433
 ```
 
+Shared local admin login:
+
+```txt
+Email:    admin@example.com
+Password: AdminPassword123!
+```
+
+When `BACKEND_ENV=local`, Docker automatically applies migrations, seeds the Acts and
+challenge lookups, and creates or resets this development-only admin before FastAPI
+starts. Override `DEV_ADMIN_EMAIL` and `DEV_ADMIN_PASSWORD` in `.env` when needed.
+These defaults must never be used in a deployed environment.
+
 Check the current Docker URLs anytime:
 
 ```bash
