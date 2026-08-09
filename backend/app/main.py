@@ -1,17 +1,21 @@
 from fastapi import Depends, FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.deps import get_current_admin
 from app.api.routes import (
     admin_acts,
+    admin_announcements,
     admin_challenges,
+    admin_settings,
+    announcements,
     auth,
     challenges,
     health,
     submissions,
 )
 from app.core.config import settings
-from app.core.errors import register_error_handlers
+from app.core.errors import APIError, api_error_handler, validation_error_handler
 
 
 def create_app() -> FastAPI:
@@ -31,12 +35,12 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Renders the documented {code, message} envelope for routes that raise APIError.
-    # Routes raising a plain HTTPException keep the existing {"detail": "..."} shape.
-    register_error_handlers(app)
+    app.add_exception_handler(APIError, api_error_handler)
+    app.add_exception_handler(RequestValidationError, validation_error_handler)
 
     app.include_router(health.router)
     app.include_router(auth.router, prefix="/auth", tags=["auth"])
+    app.include_router(announcements.router, tags=["announcements"])
     app.include_router(challenges.router, prefix="/challenges", tags=["challenges"])
     app.include_router(submissions.router, prefix="/challenges", tags=["challenges"])
 
@@ -50,6 +54,18 @@ def create_app() -> FastAPI:
     )
     app.include_router(
         admin_challenges.router,
+        prefix="/admin",
+        tags=["admin"],
+        dependencies=admin_dependencies,
+    )
+    app.include_router(
+        admin_announcements.router,
+        prefix="/admin",
+        tags=["admin"],
+        dependencies=admin_dependencies,
+    )
+    app.include_router(
+        admin_settings.router,
         prefix="/admin",
         tags=["admin"],
         dependencies=admin_dependencies,

@@ -1,5 +1,12 @@
+import Link from "next/link";
 import Reveal from "../components/Reveal";
 import Window from "../components/Window";
+import ParticipantSessionGuard from "../components/auth/ParticipantSessionGuard";
+import ParticipantAccountControls, {
+  ParticipantTeamName,
+} from "../components/auth/ParticipantAccountControls";
+import AnnouncementsFeed from "../components/announcements/AnnouncementsFeed";
+import ParticipantChallengeList from "../components/challenges/ParticipantChallengeList";
 import {
   acts,
   competition,
@@ -7,37 +14,47 @@ import {
   rankingCriteria,
 } from "../data";
 
+const moduleActions: Record<string, { href: string; label: string }> = {
+  Challenges: { href: "/platform#challenges", label: "Open challenge directory" },
+  Announcements: { href: "/platform#announcements-feed", label: "Open announcements" },
+};
+
 export default function CompetitionPlatformPage() {
   return (
-    <main className="portal-page" id="platform-top">
+    <ParticipantSessionGuard>
+      <main className="portal-page" id="platform-top">
       <section className="portal-hero">
         <div className="shell portal-hero__grid">
           <Reveal>
             <span className="eyebrow">TEAM PORTAL.EXE</span>
-            <h1>Competition Platform</h1>
+            <h1>
+              Competition
+              <br />
+              <span className="glitch" data-text="Platform">
+                Platform
+              </span>
+            </h1>
             <p>
               Participant workspace for story progression, challenge access,
               Investigation Score tracking, recovered evidence, leaderboard
               position, announcements, and team profile.
             </p>
             <div className="portal-actions">
-              <span className="btn btn--primary btn--disabled">
-                Login required
-              </span>
-              <a className="btn" href="/">
+              <ParticipantAccountControls />
+              <Link className="btn btn--primary" href="/">
                 Back to public site
-              </a>
+              </Link>
             </div>
           </Reveal>
 
           <Reveal>
-            <Window title="ACCESS.STATE" meta="frontend shell // no backend">
+            <Window title="ACCESS.STATE" meta="authenticated frontend shell">
               <div className="portal-lock">
-                <b>Participant access is not live yet.</b>
+                <b>Team channel authenticated.</b>
                 <span>
-                  Authentication, score calculation, unlock logic, Intel
-                  penalties, flag validation, and final-answer verification must
-                  be handled by backend services before launch.
+                  Protected participant access is active. Score calculation,
+                  unlock logic, Intel penalties, flag validation, and final-answer
+                  verification remain controlled by backend services.
                 </span>
               </div>
             </Window>
@@ -52,7 +69,7 @@ export default function CompetitionPlatformPage() {
               <span className="eyebrow">(01) Team Dashboard</span>
               <h2>Standby Snapshot</h2>
             </div>
-            <span className="section-index">01 / 05</span>
+            <span className="section-index">01 / 06</span>
           </Reveal>
 
           <Reveal className="portal-dashboard">
@@ -60,7 +77,7 @@ export default function CompetitionPlatformPage() {
               <div className="metric-grid">
                 <div className="metric">
                   <span>Team</span>
-                  <b>Awaiting Registration</b>
+                  <ParticipantTeamName />
                 </div>
                 <div className="metric">
                   <span>Investigation Score</span>
@@ -88,14 +105,30 @@ export default function CompetitionPlatformPage() {
         </div>
       </section>
 
+      <section className="sec" id="announcements-feed">
+        <div className="shell">
+          <Reveal className="sec__head">
+            <div>
+              <span className="eyebrow">(02) Announcements</span>
+              <h2>Event Transmissions</h2>
+            </div>
+            <span className="section-index">02 / 06</span>
+          </Reveal>
+
+          <Reveal>
+            <AnnouncementsFeed />
+          </Reveal>
+        </div>
+      </section>
+
       <section className="sec" id="storyline">
         <div className="shell">
           <Reveal className="sec__head">
             <div>
-              <span className="eyebrow">(02) Storyline</span>
+              <span className="eyebrow">(03) Storyline</span>
               <h2>Act Progression</h2>
             </div>
-            <span className="section-index">02 / 05</span>
+            <span className="section-index">03 / 06</span>
           </Reveal>
 
           <div className="portal-act-grid">
@@ -130,10 +163,10 @@ export default function CompetitionPlatformPage() {
         <div className="shell">
           <Reveal className="sec__head">
             <div>
-              <span className="eyebrow">(03) Participant Modules</span>
+              <span className="eyebrow">(04) Participant Modules</span>
               <h2>Platform Modules</h2>
             </div>
-            <span className="section-index">03 / 05</span>
+            <span className="section-index">04 / 06</span>
           </Reveal>
 
           <div className="module-grid">
@@ -149,6 +182,11 @@ export default function CompetitionPlatformPage() {
                     <li key={detail}>{detail}</li>
                   ))}
                 </ul>
+                {moduleActions[module.title] && (
+                  <Link className="btn btn--primary module-card__action" href={moduleActions[module.title].href}>
+                    {moduleActions[module.title].label}
+                  </Link>
+                )}
               </Reveal>
             ))}
           </div>
@@ -159,30 +197,14 @@ export default function CompetitionPlatformPage() {
         <div className="shell">
           <Reveal className="sec__head">
             <div>
-              <span className="eyebrow">(04) Challenge Workspace</span>
-              <h2>Submission Policy</h2>
+              <span className="eyebrow">(05) Challenge Workspace</span>
+              <h2>Challenge Directory</h2>
             </div>
-            <span className="section-index">04 / 05</span>
+            <span className="section-index">05 / 06</span>
           </Reveal>
 
-          <Reveal className="brief-grid">
-            <Window title="challenge.fields" meta="required page content">
-              <ul className="terminal-list">
-                <li>Challenge title, category, difficulty, and score</li>
-                <li>Mission brief, story context, description, and objectives</li>
-                <li>Downloadable files where applicable</li>
-                <li>Intel Requests with penalty confirmation</li>
-                <li>Flag submission form with backend validation</li>
-              </ul>
-            </Window>
-            <Window title="final.warning" meta="do not expose answers">
-              <p>
-                Correct flags and the final reconstructed phrase must never be
-                shipped in frontend source. The UI can submit attempts, but the
-                backend must decide whether they are correct.
-              </p>
-              <span className="flag-format">{competition.format}</span>
-            </Window>
+          <Reveal>
+            <ParticipantChallengeList />
           </Reveal>
         </div>
       </section>
@@ -215,16 +237,16 @@ export default function CompetitionPlatformPage() {
               <h4>Portal</h4>
               <ul>
                 <li>
-                  <a href="/platform#dashboard">Dashboard</a>
+                  <Link href="/platform#dashboard">Dashboard</Link>
                 </li>
                 <li>
-                  <a href="/platform#storyline">Storyline</a>
+                  <Link href="/platform#storyline">Storyline</Link>
                 </li>
                 <li>
-                  <a href="/platform#modules">Modules</a>
+                  <Link href="/platform#modules">Modules</Link>
                 </li>
                 <li>
-                  <a href="/platform#challenges">Challenges</a>
+                  <Link href="/platform#challenges">Challenges</Link>
                 </li>
               </ul>
             </div>
@@ -240,20 +262,18 @@ export default function CompetitionPlatformPage() {
               <h4>Switch</h4>
               <ul>
                 <li>
-                  <a href="/">Main Site</a>
-                </li>
-                <li>
-                  <a href="/admin">Admin</a>
+                  <Link href="/">Main Site</Link>
                 </li>
               </ul>
             </div>
           </div>
           <div className="footer__base">
             <span>Competition Platform - frontend shell</span>
-            <span>// TEAM CHANNEL</span>
+            <span>{"// TEAM CHANNEL"}</span>
           </div>
         </div>
       </footer>
-    </main>
+      </main>
+    </ParticipantSessionGuard>
   );
 }

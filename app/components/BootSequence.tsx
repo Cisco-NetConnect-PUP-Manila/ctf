@@ -1,12 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export default function BootSequence() {
   const [progress, setProgress] = useState(0);
   const [gone, setGone] = useState(false);
   const [skip, setSkip] = useState(false);
   const doneRef = useRef(false);
+
+  const finish = useCallback(() => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    try {
+      sessionStorage.setItem("pc_booted", "1");
+    } catch {}
+    setGone(true);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined" && sessionStorage.getItem("pc_booted")) {
@@ -30,17 +39,7 @@ export default function BootSequence() {
     };
     raf = setTimeout(tick, 200);
     return () => clearTimeout(raf);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const finish = () => {
-    if (doneRef.current) return;
-    doneRef.current = true;
-    try {
-      sessionStorage.setItem("pc_booted", "1");
-    } catch {}
-    setGone(true);
-  };
+  }, [finish]);
 
   if (skip) return null;
 

@@ -9,6 +9,9 @@ Governing specs: `docs/packet-capture-developer-guide.md` (handoff) and
 `docs/database-normalization.md` (DB spec). Where they conflict, this document names the
 conflict rather than silently picking a side — see [Open decisions](#open-decisions).
 
+> **Status:** written before `docs/api-contract.md` was frozen. Where they disagree, the
+> contract wins — see [Contract reconciliation](#contract-reconciliation-required).
+
 ---
 
 ## 1. Scope
@@ -490,6 +493,45 @@ raw nor normalized flag after correct and incorrect submissions; non-admin → 4
 `/admin/*`.
 
 ---
+
+## Contract reconciliation required
+
+`docs/api-contract.md` was frozen after this design was written. It is the declared
+single source of truth, so **every disagreement below resolves in the contract's
+favour** and the code must change, not the contract.
+
+§9 of this document is superseded. Error handling uses `app/core/errors.py` — `APIError`
+plus the named code constants. #11 is aligned with it.
+
+Codes #11 uses: `FORBIDDEN`, `NOT_FOUND`, `VALIDATION_ERROR`, `SLUG_TAKEN`, `FLAG_TAKEN`,
+`CHALLENGE_HAS_SOLVES`, `CHALLENGE_HAS_NO_VALIDATOR`, `TEAM_REQUIRED`,
+`TEAM_NOT_APPROVED`.
+
+All codes are now aligned: `LOCKED_CHALLENGE` and `ALREADY_SOLVED` at 422,
+`SUBMISSIONS_CLOSED`, `NOT_FOUND`, `FORBIDDEN`, `VALIDATION_ERROR` at 400.
+
+Two things still worth a decision:
+
+- `ALREADY_SOLVED` is 422 because the contract says so; 409 is the conventional status
+  for "this already exists".
+- `APIError` takes no `headers`, so the rate limiter returns `retry_after_seconds` in
+  `field_errors` rather than a `Retry-After` header.
+
+Two codes in this design have no contract equivalent because they are admin-only and the
+contract does not cover admin error cases: `CHALLENGE_HAS_SOLVES` (delete blocked by a
+recorded solve) and `CHALLENGE_HAS_NO_VALIDATOR` (publish blocked with no active flag).
+They should be added to the contract rather than dropped.
+
+One point to raise rather than implement silently: the contract specifies **422** for
+`ALREADY_SOLVED`. 409 Conflict is the conventional status for "this already exists", and
+422 normally means the request body was unprocessable — which is not what happened. The
+contract's own preamble says to stop and ask the website lead on conflicts, so this needs
+a ruling before the rename lands. The rename itself is not in dispute; only the status.
+
+Note also that the contract records the backend as "currently returning plain `detail`
+strings" with the envelope as a target. That is now out of date: the `{code, message}`
+envelope described in §9 is implemented, and existing auth routes were deliberately left
+on the old shape so the frontend could not regress.
 
 ## Open decisions
 

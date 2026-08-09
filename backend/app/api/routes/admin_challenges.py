@@ -16,7 +16,15 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.deps import get_current_admin
-from app.core.errors import APIError
+from app.core.errors import (
+    APIError,
+    CHALLENGE_HAS_NO_VALIDATOR,
+    CHALLENGE_HAS_SOLVES,
+    FLAG_TAKEN,
+    NOT_FOUND,
+    SLUG_TAKEN,
+    VALIDATION_ERROR,
+)
 from app.core.flags import hash_flag
 from app.db.session import get_db
 from app.models.account import Account
@@ -117,7 +125,7 @@ def _load_challenge(db: Session, challenge_id: UUID) -> Challenge:
         .where(Challenge.id == challenge_id)
     )
     if challenge is None:
-        raise APIError(status.HTTP_404_NOT_FOUND, "CHALLENGE_NOT_FOUND", "Challenge not found.")
+        raise APIError(status.HTTP_404_NOT_FOUND, NOT_FOUND, "Challenge not found.")
     return challenge
 
 
@@ -125,8 +133,8 @@ def _require_act(db: Session, act_id: UUID) -> Act:
     act = db.get(Act, act_id)
     if act is None:
         raise APIError(
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
-            "VALIDATION_ERROR",
+            status.HTTP_400_BAD_REQUEST,
+            VALIDATION_ERROR,
             "The referenced Act does not exist.",
             field_errors={"act_id": "Unknown Act."},
         )
@@ -138,8 +146,8 @@ def _require_lookup(db: Session, model: type, row_id: UUID | None, field: str) -
         return
     if db.get(model, row_id) is None:
         raise APIError(
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
-            "VALIDATION_ERROR",
+            status.HTTP_400_BAD_REQUEST,
+            VALIDATION_ERROR,
             f"The referenced {field} does not exist.",
             field_errors={field: "Unknown value."},
         )
@@ -152,7 +160,7 @@ def _require_unique_slug(db: Session, slug: str, exclude_id: UUID | None = None)
     if db.scalar(stmt) is not None:
         raise APIError(
             status.HTTP_409_CONFLICT,
-            "VALIDATION_ERROR",
+            SLUG_TAKEN,
             "A challenge with this slug already exists.",
             field_errors={"slug": "Already in use."},
         )
@@ -323,7 +331,7 @@ def set_challenge_status(
     if new_status is ChallengeStatus.PUBLISHED and _active_flag_count(db, challenge.id) == 0:
         raise APIError(
             status.HTTP_422_UNPROCESSABLE_ENTITY,
-            "CHALLENGE_HAS_NO_VALIDATOR",
+            CHALLENGE_HAS_NO_VALIDATOR,
             "Add at least one active flag validator before publishing this challenge.",
         )
 
@@ -376,7 +384,7 @@ def delete_challenge(
         db.rollback()
         raise APIError(
             status.HTTP_409_CONFLICT,
-            "CHALLENGE_HAS_SOLVES",
+            CHALLENGE_HAS_SOLVES,
             "This challenge has recorded solves and cannot be deleted. Archive it instead.",
         ) from exc
 
@@ -429,7 +437,7 @@ def add_challenge_flag(
         db.rollback()
         raise APIError(
             status.HTTP_409_CONFLICT,
-            "VALIDATION_ERROR",
+            FLAG_TAKEN,
             "This flag is already registered for this challenge.",
             field_errors={"value": "Duplicate flag."},
         ) from exc
@@ -466,7 +474,7 @@ def deactivate_challenge_flag(
         )
     )
     if flag is None:
-        raise APIError(status.HTTP_404_NOT_FOUND, "FLAG_NOT_FOUND", "Flag validator not found.")
+        raise APIError(status.HTTP_404_NOT_FOUND, NOT_FOUND, "Flag validator not found.")
 
     # Deactivated rather than deleted: the row is the only record that this validator ever
     # existed, and submissions may already reference the challenge.

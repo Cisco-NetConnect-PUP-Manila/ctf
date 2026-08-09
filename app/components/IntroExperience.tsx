@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 type Phase = "landing" | "glitch" | "popup" | "done";
@@ -31,7 +32,15 @@ const TRANSMISSIONS: Record<string, Transmission> = {
 function Frame({ cls }: { cls?: string }) {
   return (
     <div className={`fakeland__frame ${cls ?? ""}`.trim()}>
-      <img className="fakeland__logo" src="/images/packet-capture.png" alt="" />
+      <Image
+        alt=""
+        className="fakeland__logo"
+        height={5464}
+        priority
+        sizes="74vw"
+        src="/images/packet-capture.png"
+        width={9716}
+      />
     </div>
   );
 }

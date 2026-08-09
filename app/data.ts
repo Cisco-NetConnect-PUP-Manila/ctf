@@ -338,8 +338,8 @@ export const competitionModules: PortalModule[] = [
   },
   {
     title: "Challenges",
-    body: "Challenge workspace organized by Act. Actual flag validation and score awards must be handled by backend services.",
-    status: "Backend required",
+    body: "Backend-driven published challenge directory organized by Act with team-specific access states.",
+    status: "Directory live",
     details: [
       "Challenge title",
       "Category",
@@ -348,8 +348,7 @@ export const competitionModules: PortalModule[] = [
       "Mission brief",
       "Story context",
       "Objectives",
-      "Intel Requests",
-      "Flag submission form",
+      "Locked or unlocked state",
     ],
   },
   {
@@ -397,7 +396,7 @@ export const competitionModules: PortalModule[] = [
   {
     title: "Announcements",
     body: "Official communication channel for event updates, schedule changes, challenge notices, and platform maintenance.",
-    status: "Backend required",
+    status: "Live feed",
     details: [
       "Event updates",
       "Schedule changes",
@@ -447,17 +446,15 @@ export const adminModules: PortalModule[] = [
   },
   {
     title: "Challenge Management",
-    body: "Organizer tools for creating, editing, locking, and configuring challenges.",
-    status: "Backend required",
+    body: "Organizer tools for creating, editing, publishing, and configuring challenges.",
+    status: "Live console",
     details: [
       "Create challenges",
       "Edit challenges",
       "Delete challenges",
-      "Lock or unlock challenges",
-      "Upload challenge files",
+      "Publish or unpublish challenges",
       "Configure flags",
       "Configure story fragments",
-      "Configure Intel Requests",
       "Configure point values",
     ],
   },
@@ -489,12 +486,12 @@ export const adminModules: PortalModule[] = [
   {
     title: "Announcement Management",
     body: "Organizer publishing tools for participant-facing announcements.",
-    status: "Backend required",
+    status: "Live console",
     details: [
       "Create announcements",
       "Edit announcements",
-      "Schedule announcements",
-      "Archive announcements",
+      "Publish announcements",
+      "Delete announcements",
     ],
   },
   {

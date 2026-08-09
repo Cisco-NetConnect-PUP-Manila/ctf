@@ -1,10 +1,22 @@
+import Link from "next/link";
 import Reveal from "../components/Reveal";
 import Window from "../components/Window";
+import AdminSessionGuard from "../components/auth/AdminSessionGuard";
+import AdminAccountControls from "../components/auth/AdminAccountControls";
+import AnnouncementsManager from "../components/announcements/AnnouncementsManager";
+import AdminChallengeManager from "../components/challenges/AdminChallengeManager";
 import { adminModules } from "../data";
+
+const moduleActions: Record<string, { href: string; label: string }> = {
+  "Admin Dashboard": { href: "/admin#overview", label: "View overview" },
+  "Challenge Management": { href: "/admin#challenges", label: "Open challenge console" },
+  "Announcement Management": { href: "/admin#announcements", label: "Open announcement console" },
+};
 
 export default function AdminPanelPage() {
   return (
-    <main className="portal-page portal-page--admin" id="admin-top">
+    <AdminSessionGuard>
+      <main className="portal-page portal-page--admin" id="admin-top">
       <section className="portal-hero">
         <div className="shell portal-hero__grid">
           <Reveal>
@@ -16,23 +28,21 @@ export default function AdminPanelPage() {
               and platform settings.
             </p>
             <div className="portal-actions">
-              <span className="btn btn--primary btn--disabled">
-                Organizer access only
-              </span>
-              <a className="btn" href="/">
+              <AdminAccountControls />
+              <Link className="btn btn--primary" href="/">
                 Back to public site
-              </a>
+              </Link>
             </div>
           </Reveal>
 
           <Reveal>
             <Window title="RESTRICTED.ACCESS" meta="admin auth required" tone="alert">
               <div className="portal-lock portal-lock--alert">
-                <b>Administrative actions are disabled.</b>
+                <b>Administrative channel authenticated.</b>
                 <span>
-                  Admin role validation, challenge writes, score overrides,
-                  penalties, disqualification, and platform settings must be
-                  protected by authenticated backend services.
+                  Challenge and announcement writes are protected by backend
+                  role checks. Score overrides, penalties, disqualification,
+                  and platform settings remain unavailable until implemented.
                 </span>
               </div>
             </Window>
@@ -47,7 +57,7 @@ export default function AdminPanelPage() {
               <span className="eyebrow">(01) Admin Overview</span>
               <h2>Control Room</h2>
             </div>
-            <span className="section-index">01 / 04</span>
+            <span className="section-index">01 / 06</span>
           </Reveal>
 
           <Reveal className="portal-dashboard">
@@ -92,7 +102,7 @@ export default function AdminPanelPage() {
               <span className="eyebrow">(02) Organizer Modules</span>
               <h2>Admin Modules</h2>
             </div>
-            <span className="section-index">02 / 04</span>
+            <span className="section-index">02 / 06</span>
           </Reveal>
 
           <div className="module-grid module-grid--admin">
@@ -108,9 +118,50 @@ export default function AdminPanelPage() {
                     <li key={detail}>{detail}</li>
                   ))}
                 </ul>
+                {moduleActions[module.title] && (
+                  <Link className="btn btn--primary module-card__action" href={moduleActions[module.title].href}>
+                    {moduleActions[module.title].label}
+                  </Link>
+                )}
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="sec" id="challenges">
+        <div className="shell">
+          <Reveal className="sec__head">
+            <div>
+              <span className="eyebrow">(03) Challenge Management</span>
+              <h2>Challenge Control Console</h2>
+            </div>
+            <span className="section-index">03 / 06</span>
+          </Reveal>
+
+          <Reveal>
+            <Window title="challenge.console" meta="backend-enforced admin CRUD">
+              <AdminChallengeManager />
+            </Window>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="sec" id="announcements">
+        <div className="shell">
+          <Reveal className="sec__head">
+            <div>
+              <span className="eyebrow">(04) Announcements</span>
+              <h2>Publish Event Updates</h2>
+            </div>
+            <span className="section-index">04 / 06</span>
+          </Reveal>
+
+          <Reveal>
+            <Window title="announcement.console" meta="admin publish / archive">
+              <AnnouncementsManager />
+            </Window>
+          </Reveal>
         </div>
       </section>
 
@@ -118,10 +169,10 @@ export default function AdminPanelPage() {
         <div className="shell">
           <Reveal className="sec__head">
             <div>
-              <span className="eyebrow">(03) Safety Boundary</span>
+              <span className="eyebrow">(05) Safety Boundary</span>
               <h2>Backend Authority</h2>
             </div>
-            <span className="section-index">03 / 04</span>
+            <span className="section-index">05 / 06</span>
           </Reveal>
 
           <Reveal className="brief-grid">
@@ -173,16 +224,19 @@ export default function AdminPanelPage() {
               <h4>Admin</h4>
               <ul>
                 <li>
-                  <a href="/admin#overview">Overview</a>
+                  <Link href="/admin#overview">Overview</Link>
                 </li>
                 <li>
-                  <a href="/admin#modules">Modules</a>
+                  <Link href="/admin#modules">Modules</Link>
                 </li>
                 <li>
-                  <a href="/admin#authority">Authority</a>
+                  <Link href="/admin#challenges">Challenges</Link>
                 </li>
                 <li>
-                  <a href="/admin#admin-status">Status</a>
+                  <Link href="/admin#authority">Authority</Link>
+                </li>
+                <li>
+                  <Link href="/admin#admin-status">Status</Link>
                 </li>
               </ul>
             </div>
@@ -198,20 +252,21 @@ export default function AdminPanelPage() {
               <h4>Switch</h4>
               <ul>
                 <li>
-                  <a href="/">Main Site</a>
+                  <Link href="/">Main Site</Link>
                 </li>
                 <li>
-                  <a href="/platform">Competition Platform</a>
+                  <Link href="/platform">Competition Platform</Link>
                 </li>
               </ul>
             </div>
           </div>
           <div className="footer__base">
             <span>Administrative Panel - restricted frontend shell</span>
-            <span>// ADMIN CHANNEL</span>
+            <span>{"// ADMIN CHANNEL"}</span>
           </div>
         </div>
       </footer>
     </main>
+    </AdminSessionGuard>
   );
 }

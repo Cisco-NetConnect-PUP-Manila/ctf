@@ -1,25 +1,13 @@
-"""Participant challenge reads (#14).
-
-Provides the backend side of the participant challenge list; issue #12 owns the frontend
-that consumes it.
-
-``_challenge_to_participant_response`` is the single chokepoint through which challenge
-data reaches a participant, so "no flag material ever leaves the database" is enforced in
-exactly one place and asserted by a test that sweeps every response body.
-
-These are GET endpoints and therefore must not write. They call
-``ensure_initial_act_unlock`` -- the one exception, which is idempotent and needed because
-team registration belongs to another developer's route.
-"""
+"""Participant-safe challenge reads for Issue #12."""
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.deps import get_current_team
-from app.core.errors import APIError
+from app.core.errors import APIError, LOCKED_CHALLENGE, NOT_FOUND
 from app.db.session import get_db
 from app.models.act import Act
 from app.models.challenge import Challenge, ChallengeStatus
@@ -36,31 +24,12 @@ from app.services import scoring
 router = APIRouter()
 
 
-def _act_progress_to_response(
-    act: Act,
-    unlocked: bool,
-    total: int,
-    earned: int,
-    required: int,
-) -> ActProgressResponse:
-    return ActProgressResponse(
-        id=act.id,
-        act_number=act.act_number,
-        slug=act.slug,
-        title=act.title,
-        description=act.description,
-        unlocked=unlocked,
-        total_points=total,
-        earned_points=earned,
-        required_points=required,
-    )
-
-
-def _challenge_to_participant_response(
+def _challenge_response(
     challenge: Challenge,
+    *,
     locked: bool,
-    solved: bool,
-    awarded_points: int | None,
+    solved_ids: set[UUID],
+    awarded_points: dict[UUID, int],
 ) -> ChallengeParticipantResponse:
     return ChallengeParticipantResponse(
         id=challenge.id,
@@ -71,14 +40,27 @@ def _challenge_to_participant_response(
         category=challenge.category.name if challenge.category else None,
         difficulty=challenge.difficulty.name if challenge.difficulty else None,
         points=challenge.points,
-        # Locked challenges expose their existence and point value (so a team can see what
-        # they are working toward) but never their brief, context, or objectives.
-        mission_brief="" if locked else challenge.mission_brief,
-        story_context=None if locked else challenge.story_context,
-        objectives=[] if locked else list(challenge.objectives_json or []),
+        mission_brief=challenge.mission_brief,
+        story_context=challenge.story_context,
+        objectives=list(challenge.objectives_json or []),
         locked=locked,
-        solved=solved,
-        awarded_points=awarded_points,
+        solved=challenge.id in solved_ids,
+        awarded_points=awarded_points.get(challenge.id),
+    )
+
+
+def _published_challenges_query():
+    return (
+        select(Challenge)
+        .options(
+            joinedload(Challenge.act),
+            joinedload(Challenge.category),
+            joinedload(Challenge.difficulty),
+        )
+        .where(
+            Challenge.status == ChallengeStatus.PUBLISHED.value,
+            Challenge.is_visible.is_(True),
+        )
     )
 
 
@@ -90,47 +72,49 @@ def list_challenges(
     scoring.ensure_initial_act_unlock(db, team.id)
     db.commit()
 
-    acts = db.scalars(select(Act).where(Act.is_active.is_(True)).order_by(Act.act_number)).all()
-    unlocked_ids = scoring.unlocked_act_ids(db, team.id)
-
-    solves = {
-        row.challenge_id: row.points_awarded
-        for row in db.scalars(select(Solve).where(Solve.team_id == team.id)).all()
-    }
-
+    acts = db.scalars(select(Act).order_by(Act.sort_order, Act.act_number)).all()
     challenges = db.scalars(
-        select(Challenge)
-        .options(
-            joinedload(Challenge.act),
-            joinedload(Challenge.category),
-            joinedload(Challenge.difficulty),
-        )
-        .where(
-            Challenge.status == ChallengeStatus.PUBLISHED.value,
-            Challenge.is_visible.is_(True),
-        )
-        .order_by(Challenge.sort_order, Challenge.title)
-    ).all()
-
-    by_act: dict[UUID, list[Challenge]] = {}
+        _published_challenges_query().order_by(Challenge.act_id, Challenge.sort_order, Challenge.title)
+    ).unique().all()
+    challenges_by_act: dict[UUID, list[Challenge]] = {}
     for challenge in challenges:
-        by_act.setdefault(challenge.act_id, []).append(challenge)
+        challenges_by_act.setdefault(challenge.act_id, []).append(challenge)
+
+    solved_ids = scoring.solved_challenge_ids(db, team.id)
+    awarded_points = {
+        challenge_id: points
+        for challenge_id, points in db.execute(
+            select(Solve.challenge_id, Solve.points_awarded).where(Solve.team_id == team.id)
+        ).all()
+    }
+    unlocked_ids = scoring.unlocked_act_ids(db, team.id)
 
     groups: list[ActChallengeGroupResponse] = []
     for act in acts:
-        unlocked = act.id in unlocked_ids
-        total, earned, required = scoring.act_progress(db, team.id, act)
+        total_points = scoring.act_total_points(db, act.id)
+        earned_points = scoring.act_earned_points(db, team.id, act.id)
+        unlocked = act.is_active and act.id in unlocked_ids
         groups.append(
             ActChallengeGroupResponse(
-                act=_act_progress_to_response(act, unlocked, total, earned, required),
+                act=ActProgressResponse(
+                    id=act.id,
+                    act_number=act.act_number,
+                    slug=act.slug,
+                    title=act.title,
+                    description=act.description,
+                    unlocked=unlocked,
+                    total_points=total_points,
+                    earned_points=earned_points,
+                    required_points=scoring.resolve_threshold(act, total_points),
+                ),
                 challenges=[
-                    _challenge_to_participant_response(
+                    _challenge_response(
                         challenge,
                         locked=not unlocked,
-                        solved=challenge.id in solves,
-                        awarded_points=solves.get(challenge.id),
+                        solved_ids=solved_ids,
+                        awarded_points=awarded_points,
                     )
-                    for challenge in by_act.get(act.id, [])
+                    for challenge in challenges_by_act.get(act.id, [])
                 ],
             )
         )
@@ -148,35 +132,25 @@ def get_challenge(
     team: Team = Depends(get_current_team),
     db: Session = Depends(get_db),
 ) -> ChallengeParticipantResponse:
-    challenge = db.scalar(
-        select(Challenge)
-        .options(
-            joinedload(Challenge.act),
-            joinedload(Challenge.category),
-            joinedload(Challenge.difficulty),
-        )
-        .where(Challenge.id == challenge_id)
-    )
-    if (
-        challenge is None
-        or challenge.status != ChallengeStatus.PUBLISHED.value
-        or not challenge.is_visible
-    ):
-        # Same indistinguishability rule as the submission path: never reveal that a
-        # draft or archived challenge exists.
-        raise APIError(status.HTTP_404_NOT_FOUND, "CHALLENGE_NOT_FOUND", "Challenge not found.")
-
     scoring.ensure_initial_act_unlock(db, team.id)
     db.commit()
 
-    locked = not scoring.team_can_access_act(db, team.id, challenge.act)
-    solve = db.scalar(
-        select(Solve).where(Solve.team_id == team.id, Solve.challenge_id == challenge.id)
-    )
+    challenge = db.scalar(_published_challenges_query().where(Challenge.id == challenge_id))
+    if challenge is None:
+        raise APIError(404, NOT_FOUND, "Challenge not found.")
+    if not scoring.team_can_access_act(db, team.id, challenge.act):
+        raise APIError(422, LOCKED_CHALLENGE, "This challenge is not available yet.")
 
-    return _challenge_to_participant_response(
+    solved_ids = scoring.solved_challenge_ids(db, team.id)
+    points_awarded = db.scalar(
+        select(Solve.points_awarded).where(
+            Solve.team_id == team.id,
+            Solve.challenge_id == challenge.id,
+        )
+    )
+    return _challenge_response(
         challenge,
-        locked=locked,
-        solved=solve is not None,
-        awarded_points=solve.points_awarded if solve else None,
+        locked=False,
+        solved_ids=solved_ids,
+        awarded_points={challenge.id: points_awarded} if points_awarded is not None else {},
     )

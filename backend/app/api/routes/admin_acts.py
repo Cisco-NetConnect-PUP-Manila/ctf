@@ -11,7 +11,10 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_admin
-from app.core.errors import APIError
+from app.core.errors import (
+    APIError,
+    NOT_FOUND,
+)
 from app.db.session import get_db
 from app.models.account import Account
 from app.models.act import Act
@@ -40,7 +43,7 @@ def _act_to_response(act: Act) -> ActResponse:
 def _get_act_or_404(db: Session, act_id: UUID) -> Act:
     act = db.get(Act, act_id)
     if act is None:
-        raise APIError(status.HTTP_404_NOT_FOUND, "ACT_NOT_FOUND", "Act not found.")
+        raise APIError(status.HTTP_404_NOT_FOUND, NOT_FOUND, "Act not found.")
     return act
 
 

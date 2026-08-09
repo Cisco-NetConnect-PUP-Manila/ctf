@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { getCurrentAccount } from "../lib/api/auth";
 
 const PUBLIC_MENU = [
   { label: "Incident Brief", href: "/#about" },
@@ -68,7 +70,22 @@ export default function Taskbar() {
   const [gli, setGli] = useState(false);
   const [open, setOpen] = useState(false);
   const [tzOpen, setTzOpen] = useState(false);
+  const [accountRole, setAccountRole] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    getCurrentAccount()
+      .then((current) => {
+        if (active) setAccountRole(current.account.role);
+      })
+      .catch(() => {
+        if (active) setAccountRole(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [pathname]);
 
   useEffect(() => {
     setMounted(true);
@@ -142,32 +159,32 @@ export default function Taskbar() {
           <div className="startmenu__side">{startSide}</div>
           <div className="startmenu__items">
             {menu.map((m) => (
-              <a
+              <Link
                 key={m.label}
                 href={m.href}
                 className="startmenu__item"
                 onClick={() => setOpen(false)}
               >
                 {m.label}
-              </a>
+              </Link>
             ))}
             <div className="startmenu__sep" />
             {activeRoute === "main" ? (
-              <a
+              <Link
                 href="/#register"
                 className="startmenu__item"
                 onClick={() => setOpen(false)}
               >
                 Registration Status
-              </a>
+              </Link>
             ) : (
-              <a
+              <Link
                 href="/"
                 className="startmenu__item"
                 onClick={() => setOpen(false)}
               >
                 Return To Main Site
-              </a>
+              </Link>
             )}
           </div>
         </div>
@@ -184,30 +201,34 @@ export default function Taskbar() {
         </button>
 
         <div className="taskbar__tasks">
-          <a
+          <Link
             className={`taskbar__task ${
               activeRoute === "main" ? "taskbar__task--active" : ""
             }`}
             href="/"
           >
             Main
-          </a>
-          <a
-            className={`taskbar__task ${
-              activeRoute === "platform" ? "taskbar__task--active" : ""
-            }`}
-            href="/platform"
-          >
-            Competition Platform
-          </a>
-          <a
-            className={`taskbar__task ${
-              activeRoute === "admin" ? "taskbar__task--active" : ""
-            }`}
-            href="/admin"
-          >
-            Admin
-          </a>
+          </Link>
+          {accountRole === "participant" && (
+            <Link
+              className={`taskbar__task ${
+                activeRoute === "platform" ? "taskbar__task--active" : ""
+              }`}
+              href="/platform"
+            >
+              Competition Platform
+            </Link>
+          )}
+          {accountRole === "admin" && (
+            <Link
+              className={`taskbar__task ${
+                activeRoute === "admin" ? "taskbar__task--active" : ""
+              }`}
+              href="/admin"
+            >
+              Admin
+            </Link>
+          )}
         </div>
 
         <div className="taskbar__tray tzdd">

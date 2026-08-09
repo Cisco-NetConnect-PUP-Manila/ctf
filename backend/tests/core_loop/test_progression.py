@@ -10,7 +10,7 @@ from app.models.act import ActUnlock
 from app.models.challenge import ChallengeStatus
 from app.services import scoring
 from app.services.submissions import SubmissionError, submit_flag
-from tests.factories import get_act, make_challenge, make_team, set_rate_limit
+from tests.core_loop.factories import get_act, make_challenge, make_team, set_rate_limit
 
 FLAG = "PacketCapture{TEST_FLAG}"
 
@@ -94,7 +94,7 @@ def test_unlocking_act_two_makes_its_challenges_submittable(db, team_fixture):
 
     with pytest.raises(SubmissionError) as excinfo:
         submit_flag(db, team_fixture.team, act2_challenge.id, FLAG)
-    assert excinfo.value.code == "CHALLENGE_LOCKED"
+    assert excinfo.value.code == "LOCKED_CHALLENGE"
 
     submit_flag(db, team_fixture.team, gate.id, FLAG)
 
@@ -177,7 +177,7 @@ def test_inactive_act_is_inaccessible_even_when_unlocked(db, team_fixture):
 
     with pytest.raises(SubmissionError) as excinfo:
         submit_flag(db, team_fixture.team, challenge.id, FLAG)
-    assert excinfo.value.code == "CHALLENGE_LOCKED"
+    assert excinfo.value.code == "LOCKED_CHALLENGE"
 
 
 # --------------------------------------------------------------------------- score

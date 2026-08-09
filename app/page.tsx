@@ -1,4 +1,5 @@
 import Marquee from "./components/Marquee";
+import Link from "next/link";
 import FaqAccordion from "./components/FaqAccordion";
 import TimelineWave from "./components/TimelineWave";
 import Window from "./components/Window";
@@ -45,9 +46,14 @@ export default function Home() {
               </h1>
               <p className="hero__lead">{competition.hero}</p>
               <div className="btn-row hero__actions">
-                <span className="btn btn--primary btn--disabled btn--terminal" aria-disabled="true">
-                  Registration opening soon
-                </span>
+                <div className="hero__auth-actions">
+                  <Link className="btn btn--primary btn--terminal" href="/register">
+                    Register team
+                  </Link>
+                  <Link className="btn btn--ghost btn--terminal hero__sign-in" href="/login">
+                    Sign in
+                  </Link>
+                </div>
                 <a href="#rules" className="btn btn--ghost btn--terminal">
                   Read official rules
                 </a>
@@ -426,7 +432,14 @@ export default function Home() {
                 rules, prepare your tools, and wait for the official
                 registration window.
               </p>
-              <div className="reg-status">REGISTRATION OPENING SOON</div>
+              <div className="btn-row">
+                <Link className="btn btn--primary" href="/register">
+                  Register team
+                </Link>
+                <Link className="btn" href="/login">
+                  Team login
+                </Link>
+              </div>
             </Reveal>
           </div>
         </section>
@@ -478,7 +491,7 @@ export default function Home() {
           </div>
           <div className="footer__base">
             <span>2026 Packet Capture CTF - Beneath the Network</span>
-            <span>// CHANNEL CLOSED</span>
+            <span>{"// CHANNEL CLOSED"}</span>
           </div>
         </div>
       </footer>

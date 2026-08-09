@@ -16,7 +16,7 @@ from app.models.submission import Solve, Submission
 from app.models.team import TeamStatus
 from app.services import scoring
 from app.services.submissions import SubmissionError, submit_flag
-from tests.factories import get_act, make_challenge, make_team, set_rate_limit
+from tests.core_loop.factories import get_act, make_challenge, make_team, set_rate_limit
 
 CORRECT_FLAG = "PacketCapture{TEST_FLAG}"
 WRONG_FLAG = "PacketCapture{NOT_THE_FLAG}"
@@ -122,7 +122,7 @@ def test_locked_act_is_rejected_without_recording_an_attempt(db, setup):
     with pytest.raises(SubmissionError) as excinfo:
         submit_flag(db, fixture.team, locked_challenge.id, CORRECT_FLAG)
 
-    assert excinfo.value.code == "CHALLENGE_LOCKED"
+    assert excinfo.value.code == "LOCKED_CHALLENGE"
     # Rejected before step 5, so no attempt row.
     assert db.scalar(select(func.count()).select_from(Submission)) == 0
 
@@ -135,7 +135,7 @@ def test_draft_challenge_is_not_found_rather_than_forbidden(db, setup):
     with pytest.raises(SubmissionError) as excinfo:
         submit_flag(db, fixture.team, draft.id, CORRECT_FLAG)
 
-    assert excinfo.value.code == "CHALLENGE_NOT_FOUND"
+    assert excinfo.value.code == "NOT_FOUND"
 
 
 def test_invisible_challenge_is_not_found(db, setup):
@@ -145,7 +145,7 @@ def test_invisible_challenge_is_not_found(db, setup):
     with pytest.raises(SubmissionError) as excinfo:
         submit_flag(db, fixture.team, hidden.id, CORRECT_FLAG)
 
-    assert excinfo.value.code == "CHALLENGE_NOT_FOUND"
+    assert excinfo.value.code == "NOT_FOUND"
 
 
 def test_disabled_team_is_rejected(db, seed_reference_data):
