@@ -3318,6 +3318,17 @@ main p,
   gap: 8px;
   margin-top: 2px;
 }
+.announce-row__delete {
+  border-color: #e6452f;
+  color: #ff6a4d;
+}
+.announce-row__delete:hover:not(:disabled),
+.announce-row__delete:focus-visible {
+  color: #fff7eb;
+  background: #b7261d;
+  border-color: #ff6a4d;
+  box-shadow: 0 0 14px rgba(255, 73, 47, 0.35);
+}
 
 /* Status pill: amber phosphor variants. */
 .announce-status {

@@ -58,3 +58,9 @@ export function setAnnouncementStatus(id: string, status: AnnouncementStatus) {
     body: JSON.stringify({ status }),
   });
 }
+
+export function deleteAnnouncement(id: string) {
+  return apiRequest<void>(`/admin/announcements/${id}`, {
+    method: "DELETE",
+  });
+}

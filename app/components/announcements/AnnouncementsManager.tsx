@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   createAnnouncement,
+  deleteAnnouncement,
   listAllAnnouncements,
   setAnnouncementStatus,
   updateAnnouncement,
@@ -121,6 +122,27 @@ export default function AnnouncementsManager() {
       setItems((prev) => prev.map((it) => (it.id === id ? updated : it)));
     } catch (caught) {
       setRowError(caught instanceof ApiError ? caught.message : "Could not update status.");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function handleDelete(item: AdminAnnouncement) {
+    const confirmed = window.confirm(
+      `Permanently delete "${item.title}"? This cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setBusyId(item.id);
+    setRowError("");
+    try {
+      await deleteAnnouncement(item.id);
+      setItems((prev) => prev.filter((candidate) => candidate.id !== item.id));
+      if (editingId === item.id) setEditingId(null);
+    } catch (caught) {
+      setRowError(
+        caught instanceof ApiError ? caught.message : "Could not delete the announcement."
+      );
     } finally {
       setBusyId(null);
     }
@@ -263,6 +285,14 @@ export default function AnnouncementsManager() {
                         </button>
                       )
                     )}
+                    <button
+                      className="btn announce-row__delete"
+                      type="button"
+                      disabled={busyId === item.id}
+                      onClick={() => void handleDelete(item)}
+                    >
+                      {busyId === item.id ? "Workingâ€¦" : "Delete"}
+                    </button>
                   </div>
                 </>
               )}
