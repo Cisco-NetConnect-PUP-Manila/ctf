@@ -12,7 +12,10 @@ export default function ScrollGlitch() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (pathname.startsWith("/platform") || pathname.startsWith("/admin")) {
+    // Keep admin work surfaces calm, but let the participant portal share the
+    // same signal-tear/CRT feedback as the public site. Readable page content
+    // itself remains stable through the CSS override in globals.css.
+    if (pathname.startsWith("/admin")) {
       document.documentElement.removeAttribute("data-glitch");
       return;
     }
