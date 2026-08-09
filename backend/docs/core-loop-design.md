@@ -507,17 +507,15 @@ Codes #11 uses: `FORBIDDEN`, `NOT_FOUND`, `VALIDATION_ERROR`, `SLUG_TAKEN`, `FLA
 `CHALLENGE_HAS_SOLVES`, `CHALLENGE_HAS_NO_VALIDATOR`, `TEAM_REQUIRED`,
 `TEAM_NOT_APPROVED`.
 
-Still to align in #13 and #14:
+All codes are now aligned: `LOCKED_CHALLENGE` and `ALREADY_SOLVED` at 422,
+`SUBMISSIONS_CLOSED`, `NOT_FOUND`, `FORBIDDEN`, `VALIDATION_ERROR` at 400.
 
-| Situation | Current | Contract |
-|---|---|---|
-| Challenge locked | 403 `CHALLENGE_LOCKED` | 422 `LOCKED_CHALLENGE` |
-| Already solved | 409 `ALREADY_SOLVED` | 422 `ALREADY_SOLVED` |
-| Submissions disabled | 403 `COMPETITION_CLOSED` | 403 `SUBMISSIONS_CLOSED` |
+Two things still worth a decision:
 
-`ALREADY_SOLVED` at 422 needs a lead ruling — 409 is the conventional status. Also
-`APIError` takes no `headers`, so #13's rate limiter needs another way to send
-`Retry-After`.
+- `ALREADY_SOLVED` is 422 because the contract says so; 409 is the conventional status
+  for "this already exists".
+- `APIError` takes no `headers`, so the rate limiter returns `retry_after_seconds` in
+  `field_errors` rather than a `Retry-After` header.
 
 Two codes in this design have no contract equivalent because they are admin-only and the
 contract does not cover admin error cases: `CHALLENGE_HAS_SOLVES` (delete blocked by a

@@ -19,7 +19,9 @@ from app.db.session import get_db
 from app.models.account import Account
 from app.models.act import Act
 from app.models.audit_log import AuditLog
+from app.models.team import Team
 from app.schemas.challenge import ActResponse, ActUpdateRequest
+from app.services import scoring
 
 router = APIRouter()
 
@@ -97,3 +99,41 @@ def update_act(
     db.commit()
     db.refresh(act)
     return _act_to_response(act)
+
+
+@router.post("/teams/{team_id}/recompute-progression", response_model=list[ActResponse])
+def recompute_team_progression(
+    team_id: UUID,
+    current_admin: Account = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+) -> list[ActResponse]:
+    """Re-evaluate a team's Act unlocks after editing points or thresholds.
+
+    Exists because unlock evaluation otherwise only runs inside the submission
+    transaction, and a GET must never write. Without this, an organizer lowering a
+    threshold mid-event would leave already-qualified teams locked until they happen to
+    submit again.
+
+    Takes the same team lock as the submission path so it cannot race a live submission.
+    """
+    team = db.get(Team, team_id)
+    if team is None:
+        raise APIError(status.HTTP_404_NOT_FOUND, "TEAM_NOT_FOUND", "Team not found.")
+
+    db.execute(select(Team.id).where(Team.id == team.id).with_for_update()).scalar_one()
+    scoring.ensure_initial_act_unlock(db, team.id)
+    newly_unlocked = scoring.evaluate_act_unlocks(db, team.id)
+
+    for act in newly_unlocked:
+        db.add(
+            AuditLog(
+                actor_account_id=current_admin.id,
+                action="act.unlocked",
+                target_type="act",
+                target_id=act.id,
+                metadata_json={"team_id": str(team.id), "reason": "admin_recompute"},
+            )
+        )
+    db.commit()
+
+    return [_act_to_response(act) for act in newly_unlocked]

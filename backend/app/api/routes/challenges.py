@@ -1,6 +1,5 @@
 """Participant-safe challenge reads for Issue #12."""
 
-from math import ceil
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -23,12 +22,6 @@ from app.schemas.challenge import (
 from app.services import scoring
 
 router = APIRouter()
-
-
-def _required_points(act: Act, total_points: int) -> int:
-    if act.unlock_threshold_points is not None:
-        return act.unlock_threshold_points
-    return ceil(total_points * act.unlock_threshold_percent / 100)
 
 
 def _challenge_response(
@@ -112,7 +105,7 @@ def list_challenges(
                     unlocked=unlocked,
                     total_points=total_points,
                     earned_points=earned_points,
-                    required_points=_required_points(act, total_points),
+                    required_points=scoring.resolve_threshold(act, total_points),
                 ),
                 challenges=[
                     _challenge_response(
