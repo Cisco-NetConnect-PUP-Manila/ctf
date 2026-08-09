@@ -158,6 +158,7 @@ export default function AdminChallengeManager() {
     setSaving(true);
     setError("");
     try {
+      const wasEditing = editingId !== null;
       const saved = editingId
         ? await updateAdminChallenge(editingId, toPayload(form))
         : await createAdminChallenge(toPayload(form));
@@ -167,6 +168,16 @@ export default function AdminChallengeManager() {
           : [...current, saved].sort((a, b) => a.act_number - b.act_number || a.sort_order - b.sort_order)
       );
       resetForm();
+      if (!wasEditing) {
+        setOpenFlagsId(saved.id);
+        setFlagsByChallenge((current) => ({ ...current, [saved.id]: [] }));
+        setFlagValue("");
+        setFlagLabel("");
+        window.setTimeout(
+          () => document.getElementById(`challenge-${saved.id}`)?.scrollIntoView({ behavior: "smooth" }),
+          0
+        );
+      }
     } catch (caught) {
       setError(errorMessage(caught, "Could not save this challenge."));
     } finally {
@@ -277,6 +288,12 @@ export default function AdminChallengeManager() {
           {editingId && <button className="btn" type="button" onClick={resetForm}>Cancel edit</button>}
         </header>
 
+        {acts.length === 0 && (
+          <div className="challenge-admin__error" role="alert">
+            No Acts are configured. Run the backend reference-data seed before creating challenges.
+          </div>
+        )}
+
         <div className="challenge-editor__grid">
           <label>Act<select required value={form.act_id} onChange={(e) => setForm({ ...form, act_id: e.target.value })}>
             <option value="">Select Act</option>
@@ -307,7 +324,7 @@ export default function AdminChallengeManager() {
         <header><span className="eyebrow">CHALLENGE.MANIFEST</span><b>{items.length} total</b></header>
         {items.length === 0 && <p className="challenge-admin__note">No challenges yet. Create the first draft above.</p>}
         {items.map((item) => (
-          <article className="challenge-admin-row" key={item.id}>
+          <article className="challenge-admin-row" id={`challenge-${item.id}`} key={item.id}>
             <div className="challenge-admin-row__head">
               <div><span className={`announce-status announce-status--${item.status}`}>{item.status}</span><h4>{item.title}</h4></div>
               <b>{item.points} pts</b>
@@ -326,6 +343,7 @@ export default function AdminChallengeManager() {
             {openFlagsId === item.id && (
               <div className="challenge-flags">
                 <h5>Flag validators</h5>
+                <p>Add at least one active flag here before publishing this draft.</p>
                 {(flagsByChallenge[item.id] ?? []).map((flag) => (
                   <div className="challenge-flag" key={flag.id}>
                     <span>{flag.label || "Exact-match flag"} · {flag.is_active ? "active" : "inactive"}</span>
