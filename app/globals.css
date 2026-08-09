@@ -3343,29 +3343,55 @@ main p,
   opacity: 0.8;
 }
 
-.announce-live-alert {
+.announcement-toast {
+  position: fixed;
+  right: 22px;
+  bottom: 72px;
+  z-index: 100001;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  margin-bottom: 16px;
-  padding: 14px;
+  width: min(430px, calc(100vw - 44px));
+  padding: 16px;
   border: 1px solid var(--amber);
-  background: rgba(255, 132, 25, 0.12);
-  box-shadow: 0 0 18px rgba(255, 132, 25, 0.16);
+  background: #140a03;
+  box-shadow: 0 0 24px rgba(255, 132, 25, 0.32), inset 0 0 22px rgba(255, 132, 25, 0.08);
+  animation: announcementToastIn 180ms steps(3, end) both;
 }
-.announce-live-alert b {
+.announcement-toast b,
+.announcement-toast small { display: block; }
+.announcement-toast b {
   display: block;
   margin-top: 6px;
   color: var(--amber-2);
   font-family: var(--vga);
   text-transform: uppercase;
 }
+.announcement-toast small { margin-top: 6px; color: var(--ink-dim); }
+.announcement-toast__signal {
+  flex: 0 0 9px;
+  width: 9px;
+  height: 9px;
+  background: var(--amber);
+  box-shadow: 0 0 10px var(--amber);
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes announcementToastIn {
+  from { opacity: 0; transform: translate(18px, 6px); }
+  to { opacity: 1; transform: translate(0, 0); }
+}
 
 @media (max-width: 640px) {
   .announce-field label { font-size: 0.6rem; }
   .announce-row__actions .btn { flex: 1 1 auto; }
-  .announce-live-alert { align-items: stretch; flex-direction: column; }
+  .announcement-toast {
+    right: 14px;
+    bottom: 68px;
+    align-items: stretch;
+    flex-direction: column;
+    width: calc(100vw - 28px);
+  }
 }
 
 /* Participant challenge directory (Issue #12) */

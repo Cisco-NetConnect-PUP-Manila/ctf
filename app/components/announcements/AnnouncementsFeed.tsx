@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { listAllPublishedAnnouncements } from "../../lib/api/announcements";
 import { ApiError } from "../../lib/api/client";
 import type { Announcement } from "../../lib/api/types";
@@ -64,23 +65,10 @@ export default function AnnouncementsFeed() {
   }, [load]);
 
   return (
-    <Window title="announcements.log" meta="live published event updates">
-      <div className="announce-feed" aria-live="polite" aria-busy={loading}>
-        {loading && <p className="announce-feed__note">Loading transmissions…</p>}
-
-        {newCount > 0 && (
-          <div className="announce-live-alert" role="status">
-            <div>
-              <span className="eyebrow">NEW.TRANSMISSION</span>
-              <b>
-                {newCount} new announcement{newCount === 1 ? "" : "s"} received
-              </b>
-            </div>
-            <button className="btn" type="button" onClick={() => setNewCount(0)}>
-              Acknowledge
-            </button>
-          </div>
-        )}
+    <>
+      <Window title="announcements.log" meta="live published event updates">
+        <div className="announce-feed" aria-live="polite" aria-busy={loading}>
+          {loading && <p className="announce-feed__note">Loading transmissions…</p>}
 
         {!loading && error && (
           <div className="announce-feed__error" role="alert">
@@ -112,7 +100,26 @@ export default function AnnouncementsFeed() {
             ))}
           </ul>
         )}
-      </div>
-    </Window>
+        </div>
+      </Window>
+
+      {newCount > 0 && typeof document !== "undefined" &&
+        createPortal(
+          <aside className="announcement-toast" role="status" aria-live="assertive">
+            <span className="announcement-toast__signal" aria-hidden="true" />
+            <div>
+              <span className="eyebrow">NEW.TRANSMISSION</span>
+              <b>
+                {newCount} new announcement{newCount === 1 ? "" : "s"} published
+              </b>
+              <small>Open Event Transmissions to review the latest update.</small>
+            </div>
+            <button className="btn" type="button" onClick={() => setNewCount(0)}>
+              Acknowledge
+            </button>
+          </aside>,
+          document.body
+        )}
+    </>
   );
 }
