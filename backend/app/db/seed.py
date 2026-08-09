@@ -81,13 +81,18 @@ DIFFICULTIES: tuple[tuple[str, str], ...] = (
 )
 
 
+def run_seed(db):
+    """Seed into a caller-provided session. Does not commit."""
+    _seed_platform_settings(db)
+    _seed_acts(db)
+    _seed_categories(db)
+    _seed_difficulties(db)
+
+
 def seed():
     db = SessionLocal()
     try:
-        _seed_platform_settings(db)
-        _seed_acts(db)
-        _seed_categories(db)
-        _seed_difficulties(db)
+        run_seed(db)
         db.commit()
         print("Seed completed.")
     except Exception:
