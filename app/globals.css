@@ -3151,3 +3151,199 @@ main p,
   .taskbar__tray .tz-zone { display: none; }
   .startmenu { width: min(260px, calc(100vw - 2 * var(--tv-frame) - 24px)); }
 }
+
+/* ============================================================
+   ANNOUNCEMENTS  (issue #19)
+   Participant feed + admin console. Reuses the amber/terminal
+   palette, Win95 chrome, and existing .btn styles.
+   ============================================================ */
+
+.announce-feed__note {
+  font-family: var(--mono);
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+  padding: 6px 0;
+}
+
+.announce-feed__error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.announce-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.announce-item {
+  border-left: 2px solid var(--orange);
+  padding: 4px 0 10px 14px;
+  border-bottom: 1px solid var(--line-dim);
+}
+.announce-item:last-child { border-bottom: 0; }
+
+.announce-item__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.announce-item__head h4 {
+  font-family: "OffBit", var(--vga), var(--display);
+  font-size: 1.02rem;
+  color: var(--amber-2);
+  letter-spacing: 0.02em;
+  text-shadow: var(--glow);
+}
+.announce-item__head time {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+.announce-item__body {
+  margin-top: 6px;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+
+/* ---- Admin console ---- */
+.announce-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.announce-admin__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: var(--bevel-thin-in);
+}
+
+.announce-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.announce-field label {
+  font-family: var(--pixel);
+  font-size: 0.56rem;
+  letter-spacing: 0.06em;
+  color: var(--amber-2);
+  text-transform: uppercase;
+}
+.announce-field input,
+.announce-field textarea,
+.announce-row__edit input,
+.announce-row__edit textarea {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: #0b0602;
+  border: 1px solid var(--line);
+  padding: 9px 11px;
+  width: 100%;
+  resize: vertical;
+}
+.announce-field input:focus,
+.announce-field textarea:focus,
+.announce-row__edit input:focus,
+.announce-row__edit textarea:focus {
+  outline: none;
+  border-color: var(--orange);
+  box-shadow: var(--glow);
+}
+.announce-field__error {
+  color: #ff8a5c;
+  font-size: 0.78rem;
+  font-family: var(--mono);
+}
+
+.announce-admin__list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.announce-row {
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: var(--bevel-thin-in);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.announce-row__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.announce-row__meta {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-dim);
+}
+.announce-row__title {
+  font-family: "OffBit", var(--vga), var(--display);
+  font-size: 1rem;
+  color: var(--amber-2);
+}
+.announce-row__body {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+.announce-row__edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.announce-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+/* Status pill: amber phosphor variants. */
+.announce-status {
+  font-family: var(--pixel);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+}
+.announce-status--published {
+  color: #0b0602;
+  background: linear-gradient(180deg, #ffb340, var(--orange));
+  border-color: var(--orange);
+}
+.announce-status--draft {
+  color: var(--amber-2);
+  border-color: var(--amber-2);
+}
+.announce-status--archived {
+  color: var(--ink-dim);
+  opacity: 0.8;
+}
+
+@media (max-width: 640px) {
+  .announce-field label { font-size: 0.6rem; }
+  .announce-row__actions .btn { flex: 1 1 auto; }
+}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import Reveal from "../components/Reveal";
 import Window from "../components/Window";
 import AdminSessionGuard from "../components/auth/AdminSessionGuard";
+import AnnouncementsManager from "../components/announcements/AnnouncementsManager";
 import { adminModules } from "../data";
 
 export default function AdminPanelPage() {
@@ -50,7 +51,7 @@ export default function AdminPanelPage() {
               <span className="eyebrow">(01) Admin Overview</span>
               <h2>Control Room</h2>
             </div>
-            <span className="section-index">01 / 04</span>
+            <span className="section-index">01 / 05</span>
           </Reveal>
 
           <Reveal className="portal-dashboard">
@@ -95,7 +96,7 @@ export default function AdminPanelPage() {
               <span className="eyebrow">(02) Organizer Modules</span>
               <h2>Admin Modules</h2>
             </div>
-            <span className="section-index">02 / 04</span>
+            <span className="section-index">02 / 05</span>
           </Reveal>
 
           <div className="module-grid module-grid--admin">
@@ -117,14 +118,32 @@ export default function AdminPanelPage() {
         </div>
       </section>
 
+      <section className="sec" id="announcements">
+        <div className="shell">
+          <Reveal className="sec__head">
+            <div>
+              <span className="eyebrow">(03) Announcements</span>
+              <h2>Publish Event Updates</h2>
+            </div>
+            <span className="section-index">03 / 05</span>
+          </Reveal>
+
+          <Reveal>
+            <Window title="announcement.console" meta="admin publish / archive">
+              <AnnouncementsManager />
+            </Window>
+          </Reveal>
+        </div>
+      </section>
+
       <section className="sec" id="authority">
         <div className="shell">
           <Reveal className="sec__head">
             <div>
-              <span className="eyebrow">(03) Safety Boundary</span>
+              <span className="eyebrow">(04) Safety Boundary</span>
               <h2>Backend Authority</h2>
             </div>
-            <span className="section-index">03 / 04</span>
+            <span className="section-index">04 / 05</span>
           </Reveal>
 
           <Reveal className="brief-grid">
