@@ -1,8 +1,9 @@
-import LoginForm from "../components/auth/LoginForm";
-import Reveal from "../components/Reveal";
-import Window from "../components/Window";
+import Link from "next/link";
+import LoginForm from "../../components/auth/LoginForm";
+import Reveal from "../../components/Reveal";
+import Window from "../../components/Window";
 
-export default function LoginPage() {
+export default function ParticipantLoginPage() {
   return (
     <main className="auth-page">
       <div className="shell auth-page__shell">
@@ -17,14 +18,15 @@ export default function LoginPage() {
               Investigation
             </span>
           </h1>
-          <p>
-            Sign in with the shared team account to enter the competition platform.
+          <p>Sign in with the shared team account after organizer approval.</p>
+          <p className="auth-switch">
+            Organizer? <Link href="/admin/login">Open admin login</Link>
           </p>
         </Reveal>
 
         <Reveal>
-          <Window title="SESSION.LOGIN" meta="secure team channel">
-            <LoginForm portal="auto" />
+          <Window title="TEAM.LOGIN" meta="participant channel">
+            <LoginForm portal="participant" />
           </Window>
         </Reveal>
       </div>

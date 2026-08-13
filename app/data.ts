@@ -311,7 +311,7 @@ export const competitionModules: PortalModule[] = [
   {
     title: "Dashboard",
     body: "The team's command center for score, rank, current Act, challenge progress, recent activity, announcements, and quick navigation.",
-    status: "Backend required",
+    status: "Snapshot live",
     details: [
       "Team name",
       "Current Investigation Score",
@@ -354,7 +354,7 @@ export const competitionModules: PortalModule[] = [
   {
     title: "Progress",
     body: "A live view of unlock progress, remaining points, completed work, unfinished challenges, story fragments, and Intel penalties.",
-    status: "Mockable",
+    status: "Partially live",
     details: [
       "Current score",
       "Overall progress",
@@ -408,7 +408,7 @@ export const competitionModules: PortalModule[] = [
   {
     title: "Team Profile",
     body: "Team information and competition statistics for registered participants.",
-    status: "Backend required",
+    status: "Session live",
     details: [
       "Team name",
       "Team members",
@@ -461,7 +461,7 @@ export const adminModules: PortalModule[] = [
   {
     title: "Team Management",
     body: "Administrative control for participant accounts and competition eligibility.",
-    status: "Backend required",
+    status: "Approval live",
     details: [
       "View teams",
       "Edit team information",

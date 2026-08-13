@@ -3,12 +3,15 @@ import Reveal from "../components/Reveal";
 import Window from "../components/Window";
 import AdminSessionGuard from "../components/auth/AdminSessionGuard";
 import AdminAccountControls from "../components/auth/AdminAccountControls";
+import AdminOverviewSnapshot from "../components/admin/AdminOverviewSnapshot";
+import AdminTeamManager from "../components/admin/AdminTeamManager";
 import AnnouncementsManager from "../components/announcements/AnnouncementsManager";
 import AdminChallengeManager from "../components/challenges/AdminChallengeManager";
 import { adminModules } from "../data";
 
 const moduleActions: Record<string, { href: string; label: string }> = {
   "Admin Dashboard": { href: "/admin#overview", label: "View overview" },
+  "Team Management": { href: "/admin#teams", label: "Open team queue" },
   "Challenge Management": { href: "/admin#challenges", label: "Open challenge console" },
   "Announcement Management": { href: "/admin#announcements", label: "Open announcement console" },
 };
@@ -61,25 +64,8 @@ export default function AdminPanelPage() {
           </Reveal>
 
           <Reveal className="portal-dashboard">
-            <Window title="platform.status" meta="mock display only">
-              <div className="metric-grid">
-                <div className="metric">
-                  <span>Registered Teams</span>
-                  <b>--</b>
-                </div>
-                <div className="metric">
-                  <span>Active Participants</span>
-                  <b>--</b>
-                </div>
-                <div className="metric">
-                  <span>Challenge Solves</span>
-                  <b>--</b>
-                </div>
-                <div className="metric">
-                  <span>Platform Status</span>
-                  <b>Offline</b>
-                </div>
-              </div>
+            <Window title="platform.status" meta="backend live">
+              <AdminOverviewSnapshot />
             </Window>
 
             <Window title="audit.scope" meta="required logs">
@@ -147,14 +133,32 @@ export default function AdminPanelPage() {
         </div>
       </section>
 
+      <section className="sec" id="teams">
+        <div className="shell">
+          <Reveal className="sec__head">
+            <div>
+              <span className="eyebrow">(04) Team Management</span>
+              <h2>Registration Approval Queue</h2>
+            </div>
+            <span className="section-index">04 / 06</span>
+          </Reveal>
+
+          <Reveal>
+            <Window title="team.approval" meta="admin approve / reject / disable">
+              <AdminTeamManager />
+            </Window>
+          </Reveal>
+        </div>
+      </section>
+
       <section className="sec" id="announcements">
         <div className="shell">
           <Reveal className="sec__head">
             <div>
-              <span className="eyebrow">(04) Announcements</span>
+              <span className="eyebrow">(05) Announcements</span>
               <h2>Publish Event Updates</h2>
             </div>
-            <span className="section-index">04 / 06</span>
+            <span className="section-index">05 / 06</span>
           </Reveal>
 
           <Reveal>
@@ -169,10 +173,10 @@ export default function AdminPanelPage() {
         <div className="shell">
           <Reveal className="sec__head">
             <div>
-              <span className="eyebrow">(05) Safety Boundary</span>
+              <span className="eyebrow">(06) Safety Boundary</span>
               <h2>Backend Authority</h2>
             </div>
-            <span className="section-index">05 / 06</span>
+            <span className="section-index">06 / 06</span>
           </Reveal>
 
           <Reveal className="brief-grid">
@@ -233,6 +237,9 @@ export default function AdminPanelPage() {
                   <Link href="/admin#challenges">Challenges</Link>
                 </li>
                 <li>
+                  <Link href="/admin#teams">Teams</Link>
+                </li>
+                <li>
                   <Link href="/admin#authority">Authority</Link>
                 </li>
                 <li>
@@ -243,7 +250,7 @@ export default function AdminPanelPage() {
             <div>
               <h4>Protected</h4>
               <ul>
-                <li>Roles <span className="footer__soon">(backend)</span></li>
+                <li>Roles <span className="footer__soon">(live)</span></li>
                 <li>Overrides <span className="footer__soon">(backend)</span></li>
                 <li>Audit Logs <span className="footer__soon">(backend)</span></li>
               </ul>
@@ -261,7 +268,7 @@ export default function AdminPanelPage() {
             </div>
           </div>
           <div className="footer__base">
-            <span>Administrative Panel - restricted frontend shell</span>
+            <span>Administrative Panel - backend-connected control room</span>
             <span>{"// ADMIN CHANNEL"}</span>
           </div>
         </div>

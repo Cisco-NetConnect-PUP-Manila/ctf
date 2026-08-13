@@ -34,6 +34,21 @@ export type Team = {
   members: TeamMember[];
 };
 
+export type AdminTeamMember = TeamMember;
+
+export type AdminTeam = {
+  id: string;
+  group_name: string;
+  status: string;
+  email: string;
+  member_count: number;
+  members: AdminTeamMember[];
+  approved_at: string | null;
+  rejected_at: string | null;
+  rejection_reason: string | null;
+  created_at: string;
+};
+
 export type CurrentAccount = {
   account: Account;
   team: Team | null;
