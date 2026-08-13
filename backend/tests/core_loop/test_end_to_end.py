@@ -103,10 +103,9 @@ def test_full_core_loop(db, admin_client, seed_reference_data):
     locked_entry = next(c for c in acts_by_number[2]["challenges"] if c["id"] == locked)
     assert locked_entry["locked"] is True
     assert locked_entry["points"] == 200
-    # NOTE: the list currently returns mission_brief/story_context/objectives even for
-    # locked challenges, so a team can read future Acts' briefs before unlocking them.
-    # That is #12's behaviour and is asserted here as-is rather than silently changed.
-    # Raised for the owner to confirm it is intended.
+    assert locked_entry["mission_brief"] == ""
+    assert locked_entry["story_context"] is None
+    assert locked_entry["objectives"] == []
 
     # Wrong flag -> clear response, no points.
     response = client.post(f"/challenges/{first}/submissions", json={"flag": "PacketCapture{NOPE}"})

@@ -7,16 +7,6 @@ import ParticipantAccountControls, {
 import AnnouncementsFeed from "../components/announcements/AnnouncementsFeed";
 import ParticipantDashboardSnapshot from "../components/challenges/ParticipantDashboardSnapshot";
 import ParticipantChallengeList from "../components/challenges/ParticipantChallengeList";
-import {
-  acts,
-  competitionModules,
-  rankingCriteria,
-} from "../data";
-
-const moduleActions: Record<string, { href: string; label: string }> = {
-  Challenges: { href: "/platform#challenges", label: "Open challenge directory" },
-  Announcements: { href: "/platform#announcements-feed", label: "Open announcements" },
-};
 
 export default function CompetitionPlatformPage() {
   return (
@@ -34,9 +24,9 @@ export default function CompetitionPlatformPage() {
               </span>
             </h1>
             <p>
-              Participant workspace for story progression, challenge access,
-              Investigation Score tracking, recovered evidence, leaderboard
-              position, announcements, and team profile.
+              Participant workspace for approved teams. Open available
+              challenges, download evidence files, submit flags, and track
+              current progress.
             </p>
             <div className="portal-actions">
               <ParticipantAccountControls />
@@ -46,18 +36,8 @@ export default function CompetitionPlatformPage() {
             </div>
           </Reveal>
 
-          <Reveal>
-            <Window title="ACCESS.STATE" meta="authenticated team session">
-              <div className="portal-lock">
-                <b>Team channel authenticated.</b>
-                <span>
-                  Protected participant access is active. Score calculation,
-                  unlock logic, Intel penalties, flag validation, and final-answer
-                  verification remain controlled by backend services.
-                </span>
-              </div>
-            </Window>
-          </Reveal>
+          {/* Temporarily hidden: static access explainer. The dashboard and challenge
+              directory below now show the useful backend-backed state directly. */}
         </div>
       </section>
 
@@ -68,7 +48,7 @@ export default function CompetitionPlatformPage() {
               <span className="eyebrow">(01) Team Dashboard</span>
               <h2>Standby Snapshot</h2>
             </div>
-            <span className="section-index">01 / 06</span>
+            <span className="section-index">01 / 03</span>
           </Reveal>
 
           <Reveal className="portal-dashboard">
@@ -76,13 +56,7 @@ export default function CompetitionPlatformPage() {
               <ParticipantDashboardSnapshot />
             </Window>
 
-            <Window title="ranking.priority" meta="official order">
-              <ol className="ranking-list">
-                {rankingCriteria.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ol>
-            </Window>
+            {/* Temporarily hidden until leaderboard/ranking is backend-backed. */}
           </Reveal>
         </div>
       </section>
@@ -94,7 +68,7 @@ export default function CompetitionPlatformPage() {
               <span className="eyebrow">(02) Announcements</span>
               <h2>Event Transmissions</h2>
             </div>
-            <span className="section-index">02 / 06</span>
+            <span className="section-index">02 / 03</span>
           </Reveal>
 
           <Reveal>
@@ -103,6 +77,8 @@ export default function CompetitionPlatformPage() {
         </div>
       </section>
 
+      {/* Temporarily hidden: static storyline/modules/status sections were making the
+          participant page read like documentation instead of a working CTF portal.
       <section className="sec" id="storyline">
         <div className="shell">
           <Reveal className="sec__head">
@@ -174,6 +150,7 @@ export default function CompetitionPlatformPage() {
           </div>
         </div>
       </section>
+      */}
 
       <section className="sec" id="challenges">
         <div className="shell">
@@ -182,7 +159,7 @@ export default function CompetitionPlatformPage() {
               <span className="eyebrow">(05) Challenge Workspace</span>
               <h2>Challenge Directory</h2>
             </div>
-            <span className="section-index">05 / 06</span>
+            <span className="section-index">03 / 03</span>
           </Reveal>
 
           <Reveal>
@@ -191,6 +168,7 @@ export default function CompetitionPlatformPage() {
         </div>
       </section>
 
+      {/* Temporarily hidden: redundant backend status banner.
       <section className="register" id="portal-status">
         <div className="shell">
           <Reveal>
@@ -204,7 +182,9 @@ export default function CompetitionPlatformPage() {
           </Reveal>
         </div>
       </section>
+      */}
 
+      {/* Temporarily hidden: footer repeated the same links/status text as the page.
       <footer className="footer footer--portal">
         <div className="shell">
           <div className="footer__grid">
@@ -255,6 +235,7 @@ export default function CompetitionPlatformPage() {
           </div>
         </div>
       </footer>
+      */}
       </main>
     </ParticipantSessionGuard>
   );

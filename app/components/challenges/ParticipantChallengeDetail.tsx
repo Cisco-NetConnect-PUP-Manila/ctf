@@ -124,25 +124,120 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
     );
   }
 
+  async function handleFileDownload(file: ChallengeFile) {
+    setError("");
+    const url = participantChallengeFileDownloadUrl(challengeId, file.id);
+
+    try {
+      const response = await fetch(url, { credentials: "include" });
+      if (!response.ok) {
+        let message = "Unable to download this file.";
+        try {
+          const body = (await response.json()) as { message?: string; detail?: string };
+          message = body.message ?? body.detail ?? message;
+        } catch {}
+        setError(message);
+        return;
+      }
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = file.original_filename;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      setError("Cannot reach the competition server. Try again in a moment.");
+    }
+  }
+
   return (
     <div className="challenge-detail">
-      <div className="challenge-detail__nav">
-        <Link href="/platform#challenges">Back to directory</Link>
-      </div>
-
       <section className="challenge-detail__hero">
-        <div>
-          <span className="eyebrow">ACT {String(challenge.act_number).padStart(2, "0")}</span>
-          <h1>{challenge.title}</h1>
-          <div className="challenge-card__tags">
-            <span>{challenge.category ?? "Uncategorized"}</span>
-            <span>{challenge.difficulty ?? "Unrated"}</span>
-            <span>{challenge.points} pts</span>
-          </div>
+        <div className="challenge-detail__nav">
+          <Link href="/platform#challenges">Back to directory</Link>
         </div>
-        <span className={`status-pill ${challenge.solved ? "" : "status-pill--locked"}`}>
-          {challenge.solved ? "Solved" : "Available"}
-        </span>
+        <div className="challenge-detail__hero-main">
+          <div>
+            <span className="eyebrow">ACT {String(challenge.act_number).padStart(2, "0")}</span>
+            <h1>{challenge.title}</h1>
+          </div>
+          <span className={`status-pill ${challenge.solved ? "" : "status-pill--locked"}`}>
+            {challenge.solved ? "Solved" : "Available"}
+          </span>
+        </div>
+        <div className="challenge-card__tags">
+          <span>{challenge.category ?? "Uncategorized"}</span>
+          <span>{challenge.difficulty ?? "Unrated"}</span>
+          <span>{challenge.points} pts</span>
+        </div>
+      </section>
+
+      {error && (
+        <p className="challenge-detail__error challenge-detail__banner" role="alert">
+          {error}
+        </p>
+      )}
+
+      <section className="challenge-detail__primary-grid">
+        <aside className="challenge-detail__panel challenge-detail__panel--files">
+          <span className="eyebrow">ACTIVE.PROBLEM</span>
+          <h2>Download evidence</h2>
+          <p>
+            Start here. Download the attached challenge file, solve it with the
+            required tool, then submit the recovered flag below.
+          </p>
+          <div className="challenge-card__file-list challenge-card__file-list--detail">
+            {files.length === 0 && <small>No attached files for this challenge.</small>}
+            {files.map((file) => (
+              <button
+                className="challenge-detail__file-button"
+                key={file.id}
+                onClick={() => void handleFileDownload(file)}
+                type="button"
+              >
+                <span>{file.display_name}</span>
+                <small>{file.extension} - {formatBytes(file.size_bytes)}</small>
+              </button>
+            ))}
+          </div>
+        </aside>
+
+        <section className="challenge-detail__submit" aria-live="polite">
+          <form onSubmit={handleSubmit}>
+            <label htmlFor="challenge-flag">Recovered flag</label>
+            <div>
+              <input
+                autoComplete="off"
+                id="challenge-flag"
+                maxLength={256}
+                onChange={(event) => setFlag(event.target.value)}
+                placeholder="PacketCapture{...}"
+                type="text"
+                value={flag}
+              />
+              <button className="btn btn--primary" disabled={submitting} type="submit">
+                {submitting ? "Submitting..." : "Submit flag"}
+              </button>
+            </div>
+          </form>
+
+          {submitError && <p className="challenge-detail__error">{submitError}</p>}
+          {submission && (
+            <p className={submission.correct ? "challenge-detail__success" : "challenge-detail__error"}>
+              {submission.message}
+            </p>
+          )}
+          {teamFragment && (
+            <div className="challenge-detail__fragment">
+              <span>Team solve fragment</span>
+              <b>{teamFragment}</b>
+            </div>
+          )}
+        </section>
       </section>
 
       <section className="challenge-detail__grid">
@@ -166,55 +261,6 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
             </>
           )}
         </article>
-
-        <aside className="challenge-detail__panel">
-          <span className="eyebrow">EVIDENCE.FILES</span>
-          <div className="challenge-card__file-list">
-            {files.length === 0 && <small>No attached files for this challenge.</small>}
-            {files.map((file) => (
-              <a
-                href={participantChallengeFileDownloadUrl(challenge.id, file.id)}
-                key={file.id}
-              >
-                <span>{file.display_name}</span>
-                <small>{file.extension} - {formatBytes(file.size_bytes)}</small>
-              </a>
-            ))}
-          </div>
-        </aside>
-      </section>
-
-      <section className="challenge-detail__submit" aria-live="polite">
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="challenge-flag">Recovered flag</label>
-          <div>
-            <input
-              autoComplete="off"
-              id="challenge-flag"
-              maxLength={256}
-              onChange={(event) => setFlag(event.target.value)}
-              placeholder="PacketCapture{...}"
-              type="text"
-              value={flag}
-            />
-            <button className="btn btn--primary" disabled={submitting} type="submit">
-              {submitting ? "Submitting..." : "Submit flag"}
-            </button>
-          </div>
-        </form>
-
-        {submitError && <p className="challenge-detail__error">{submitError}</p>}
-        {submission && (
-          <p className={submission.correct ? "challenge-detail__success" : "challenge-detail__error"}>
-            {submission.message}
-          </p>
-        )}
-        {teamFragment && (
-          <div className="challenge-detail__fragment">
-            <span>Team solve fragment</span>
-            <b>{teamFragment}</b>
-          </div>
-        )}
       </section>
     </div>
   );
