@@ -1,4 +1,4 @@
-"""Start FastAPI, bootstrapping reproducible local-development data first."""
+"""Start FastAPI with migrations and reference data in place."""
 
 import os
 from pathlib import Path
@@ -11,13 +11,17 @@ from app.db.seed import seed
 from app.scripts.create_admin import create_admin
 
 
-def bootstrap_local() -> None:
-    if os.getenv("BACKEND_ENV", "local").lower() != "local":
-        return
-
+def run_migrations() -> None:
     alembic_config = Config(str(Path(__file__).resolve().parents[2] / "alembic.ini"))
     command.upgrade(alembic_config, "head")
+
+
+def bootstrap() -> None:
+    run_migrations()
     seed()
+
+    if os.getenv("BACKEND_ENV", "local").lower() != "local":
+        return
 
     email = os.getenv("DEV_ADMIN_EMAIL")
     password = os.getenv("DEV_ADMIN_PASSWORD")
@@ -28,8 +32,9 @@ def bootstrap_local() -> None:
 
 
 def main() -> None:
-    bootstrap_local()
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000)
+    bootstrap()
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
 
 
 if __name__ == "__main__":

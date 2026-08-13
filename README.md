@@ -50,14 +50,87 @@ Backend stack:
 
 Deployment direction:
 
-- Frontend hosting provider is still TBD.
-- Backend should run as a containerized FastAPI service.
-- Production database should use managed PostgreSQL from the chosen provider.
-- Protected challenge files should use private object storage from the chosen provider.
+- Frontend can deploy on Vercel.
+- Backend can deploy on Render as a Docker web service.
+- Production database can use Render PostgreSQL for the first deployed test.
+- Protected challenge files can use a Render persistent disk for the first deployed test.
+- Long-term protected challenge files should use private object storage from the chosen provider.
 - Monitoring/logging should use the chosen provider's observability tools.
 - GitHub Actions for CI/CD
 
 Local development should continue even without a final cloud account. Keep auth, storage, and email logic behind service modules so they can be swapped to AWS, Azure, GCP, Oracle, or another provider later.
+
+## Render + Vercel Deployment
+
+Recommended first deployment split:
+
+- Vercel: Next.js frontend.
+- Render: FastAPI backend Docker web service.
+- Render PostgreSQL: production database.
+- Render persistent disk: temporary private challenge file storage.
+
+Important upload/download note: Vercel Functions have a 4.5 MB request/response body
+limit. Challenge file traffic uses `/api/backend/*` rewrites from Vercel to Render so
+large `.pka`, `.pcap`, `.raw`, `.dd`, `.png`, `.txt`, and `.pkz` files do not pass
+through a Vercel Function route handler.
+
+Render backend settings:
+
+```txt
+Service type: Web Service
+Runtime: Docker
+Root directory: backend
+Dockerfile path: backend/Dockerfile
+Health check path: /health
+```
+
+Render backend environment variables:
+
+```txt
+BACKEND_ENV=production
+DATABASE_URL=<Render PostgreSQL internal URL converted to postgresql+psycopg://...>
+FRONTEND_ORIGIN=https://<your-vercel-domain>
+SESSION_COOKIE_SECURE=true
+SESSION_COOKIE_NAME=packet_capture_session
+SESSION_EXPIRE_HOURS=12
+REGISTRATION_OPEN_BY_DEFAULT=true
+CHALLENGE_FILE_STORAGE_PROVIDER=local
+CHALLENGE_FILE_STORAGE_ROOT=/app/storage/challenge-files
+CHALLENGE_FILE_MAX_BYTES=104857600
+FLAG_HASH_SECRET=<unique random secret>
+TEAM_FRAGMENT_SECRET=<unique random secret>
+```
+
+Attach a Render persistent disk to the backend service:
+
+```txt
+Mount path: /app/storage
+```
+
+Only files written under the disk mount path survive Render restarts/redeploys.
+
+After the backend deploys, create the first admin from the Render shell:
+
+```bash
+python -m app.scripts.create_admin --email you@example.com --password "use-a-long-random-password"
+```
+
+Vercel frontend environment variables:
+
+```txt
+BACKEND_INTERNAL_URL=https://<your-render-backend>.onrender.com
+NEXT_PUBLIC_API_BASE_URL=https://<your-render-backend>.onrender.com
+```
+
+Then redeploy Vercel. Test in this order:
+
+1. Open `https://<render-backend>.onrender.com/health`.
+2. Open `https://<render-backend>.onrender.com/docs`.
+3. Open the Vercel site.
+4. Register/login a test participant team.
+5. Login as admin and create/publish a test challenge.
+6. Upload a small file first, then the `.pka` files.
+7. Open the challenge as a participant, download the file, submit a test flag.
 
 ## Local Setup
 
