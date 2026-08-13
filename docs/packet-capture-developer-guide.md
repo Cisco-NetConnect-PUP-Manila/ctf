@@ -320,6 +320,8 @@ This is a starting map only. Final request/response fields should be tracked in 
 | GET | `/auth/me` | Authenticated | Return current account |
 | GET | `/challenges` | Participant | Return accessible challenges |
 | GET | `/challenges/{id}` | Participant | Return challenge details |
+| GET | `/challenges/{id}/files` | Participant | Return active files for an unlocked challenge |
+| GET | `/challenges/{id}/files/{file_id}/download` | Participant | Download an active challenge file |
 | POST | `/challenges/{id}/submissions` | Participant | Submit a flag |
 | POST | `/challenges/{id}/intel-requests` | Participant | Request hint / Intel |
 | GET | `/leaderboard` | Participant | Return ranked teams |
@@ -327,6 +329,9 @@ This is a starting map only. Final request/response fields should be tracked in 
 | POST | `/admin/challenges` | Admin | Create challenge |
 | PATCH | `/admin/challenges/{id}` | Admin | Edit challenge |
 | PATCH | `/admin/challenges/{id}/publish` | Admin | Publish/archive challenge |
+| GET | `/admin/challenges/{id}/files` | Admin | List challenge file metadata |
+| POST | `/admin/challenges/{id}/files` | Admin | Upload `.raw`, `.pcap`, `.dd`, `.png`, `.txt`, `.pkz`, or `.pka` evidence |
+| DELETE | `/admin/challenges/{id}/files/{file_id}` | Admin | Soft-deactivate a challenge file |
 | GET | `/admin/submissions` | Admin | View submission logs |
 | GET | `/admin/audit-logs` | Admin | View audit logs |
 | PATCH | `/admin/platform-settings` | Admin | Update event settings |
@@ -338,6 +343,8 @@ This is a starting map only. Final request/response fields should be tracked in 
 - Add CSRF protection for state-changing cookie-authenticated requests.
 - Do not log plaintext passwords, session cookies, raw secrets, or full flags.
 - Private challenge files require authorization.
+- Private challenge files are max 100 MB each and must use backend storage, not frontend `public/`.
+- Locked challenges must not reveal file names, counts, sizes, or download links.
 - Duplicate correct submission awards zero additional points.
 - Locked challenge submission returns `CHALLENGE_LOCKED`.
 - Already solved challenge returns `ALREADY_SOLVED`.

@@ -10,7 +10,7 @@ checked in one place.
 from datetime import UTC, datetime
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, File, Form, Response, UploadFile, status
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
@@ -34,6 +34,7 @@ from app.models.challenge import (
     Challenge,
     ChallengeCategory,
     ChallengeDifficulty,
+    ChallengeFile,
     ChallengeFlag,
     ChallengeStatus,
     FlagValidatorType,
@@ -41,11 +42,18 @@ from app.models.challenge import (
 from app.schemas.challenge import (
     ChallengeAdminResponse,
     ChallengeCreateRequest,
+    ChallengeFileResponse,
     ChallengeFlagCreateRequest,
     ChallengeFlagResponse,
     ChallengePublishRequest,
     ChallengeUpdateRequest,
     LookupResponse,
+)
+from app.services.challenge_files import (
+    ChallengeFileTooLarge,
+    ChallengeFileStorageError,
+    UnsupportedChallengeFileType,
+    get_challenge_file_storage,
 )
 
 router = APIRouter()
@@ -80,6 +88,20 @@ def _active_flag_count(db: Session, challenge_id: UUID) -> int:
     )
 
 
+def _active_file_count(db: Session, challenge_id: UUID) -> int:
+    return int(
+        db.scalar(
+            select(func.count())
+            .select_from(ChallengeFile)
+            .where(
+                ChallengeFile.challenge_id == challenge_id,
+                ChallengeFile.is_active.is_(True),
+            )
+        )
+        or 0
+    )
+
+
 def _challenge_to_admin_response(db: Session, challenge: Challenge) -> ChallengeAdminResponse:
     return ChallengeAdminResponse(
         id=challenge.id,
@@ -98,6 +120,20 @@ def _challenge_to_admin_response(db: Session, challenge: Challenge) -> Challenge
         category=_lookup_to_response(challenge.category),
         difficulty=_lookup_to_response(challenge.difficulty),
         active_flag_count=_active_flag_count(db, challenge.id),
+        active_file_count=_active_file_count(db, challenge.id),
+    )
+
+
+def _file_to_response(file: ChallengeFile) -> ChallengeFileResponse:
+    return ChallengeFileResponse(
+        id=file.id,
+        challenge_id=file.challenge_id,
+        display_name=file.display_name,
+        original_filename=file.original_filename,
+        extension=file.extension,
+        content_type=file.content_type,
+        size_bytes=file.size_bytes,
+        is_active=file.is_active,
     )
 
 
@@ -389,6 +425,139 @@ def delete_challenge(
         ) from exc
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+# ---------------------------------------------------------------- challenge files
+
+
+@router.get("/challenges/{challenge_id}/files", response_model=list[ChallengeFileResponse])
+def list_challenge_files(
+    challenge_id: UUID,
+    db: Session = Depends(get_db),
+) -> list[ChallengeFileResponse]:
+    _load_challenge(db, challenge_id)
+    rows = db.scalars(
+        select(ChallengeFile)
+        .where(ChallengeFile.challenge_id == challenge_id)
+        .order_by(ChallengeFile.is_active.desc(), ChallengeFile.created_at)
+    ).all()
+    return [_file_to_response(row) for row in rows]
+
+
+@router.post(
+    "/challenges/{challenge_id}/files",
+    response_model=ChallengeFileResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def upload_challenge_file(
+    challenge_id: UUID,
+    upload: UploadFile = File(...),
+    display_name: str | None = Form(default=None),
+    current_admin: Account = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+) -> ChallengeFileResponse:
+    _load_challenge(db, challenge_id)
+    storage = get_challenge_file_storage()
+
+    try:
+        stored = await storage.save(upload, challenge_id=challenge_id, display_name=display_name)
+    except UnsupportedChallengeFileType as exc:
+        raise APIError(
+            status.HTTP_400_BAD_REQUEST,
+            VALIDATION_ERROR,
+            "Unsupported challenge file type.",
+            field_errors={
+                "upload": f"Allowed file types: .raw, .pcap, .dd, .png, .txt, .pkz, .pka. Got {exc}."
+            },
+        ) from exc
+    except ChallengeFileTooLarge as exc:
+        raise APIError(
+            status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            VALIDATION_ERROR,
+            "Challenge file is too large.",
+            field_errors={"upload": "Maximum file size is 100 MB."},
+        ) from exc
+    except ChallengeFileStorageError as exc:
+        raise APIError(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            VALIDATION_ERROR,
+            "Challenge file storage is not configured correctly.",
+        ) from exc
+
+    row = ChallengeFile(
+        challenge_id=challenge_id,
+        storage_provider=stored.storage_provider,
+        storage_key=stored.storage_key,
+        original_filename=stored.original_filename,
+        display_name=stored.display_name,
+        extension=stored.extension,
+        content_type=stored.content_type,
+        size_bytes=stored.size_bytes,
+        uploaded_by_account_id=current_admin.id,
+        is_active=True,
+    )
+    db.add(row)
+    try:
+        db.flush()
+    except Exception:
+        db.rollback()
+        storage.delete(stored.storage_key)
+        raise
+
+    db.add(
+        AuditLog(
+            actor_account_id=current_admin.id,
+            action="challenge_file.uploaded",
+            target_type="challenge",
+            target_id=challenge_id,
+            metadata_json={
+                "file_id": str(row.id),
+                "display_name": row.display_name,
+                "extension": row.extension,
+                "size_bytes": row.size_bytes,
+            },
+        )
+    )
+    db.commit()
+    db.refresh(row)
+    return _file_to_response(row)
+
+
+@router.delete(
+    "/challenges/{challenge_id}/files/{file_id}",
+    response_model=ChallengeFileResponse,
+)
+def deactivate_challenge_file(
+    challenge_id: UUID,
+    file_id: UUID,
+    current_admin: Account = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+) -> ChallengeFileResponse:
+    row = db.scalar(
+        select(ChallengeFile).where(
+            ChallengeFile.id == file_id,
+            ChallengeFile.challenge_id == challenge_id,
+        )
+    )
+    if row is None:
+        raise APIError(status.HTTP_404_NOT_FOUND, NOT_FOUND, "Challenge file not found.")
+
+    if row.is_active:
+        row.is_active = False
+        row.deactivated_at = datetime.now(UTC)
+
+    db.add(
+        AuditLog(
+            actor_account_id=current_admin.id,
+            action="challenge_file.deactivated",
+            target_type="challenge",
+            target_id=challenge_id,
+            metadata_json={"file_id": str(row.id), "display_name": row.display_name},
+        )
+    )
+    db.commit()
+    db.refresh(row)
+    return _file_to_response(row)
 
 
 # ----------------------------------------------------------------- flag validators

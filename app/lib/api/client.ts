@@ -46,13 +46,14 @@ export async function apiRequest<T>(
   init: RequestInit = {}
 ): Promise<T> {
   let response: Response;
+  const isFormData = init.body instanceof FormData;
 
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
       ...init,
       credentials: "include",
       headers: {
-        ...(init.body ? { "Content-Type": "application/json" } : {}),
+        ...(init.body && !isFormData ? { "Content-Type": "application/json" } : {}),
         ...init.headers,
       },
     });
@@ -92,4 +93,8 @@ export async function apiRequest<T>(
     code: body.code,
     fieldErrors,
   });
+}
+
+export function backendApiUrl(path: string) {
+  return `${API_BASE_URL}${path}`;
 }

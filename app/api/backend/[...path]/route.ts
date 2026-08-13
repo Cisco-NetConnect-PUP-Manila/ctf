@@ -34,9 +34,11 @@ async function forward(
     });
 
     const responseHeaders = new Headers();
-    const upstreamContentType = upstream.headers.get("content-type");
+    for (const header of ["content-type", "content-disposition", "content-length"]) {
+      const value = upstream.headers.get(header);
+      if (value) responseHeaders.set(header, value);
+    }
     const setCookie = upstream.headers.get("set-cookie");
-    if (upstreamContentType) responseHeaders.set("content-type", upstreamContentType);
     if (setCookie) responseHeaders.set("set-cookie", setCookie);
 
     return new Response(upstream.body, {

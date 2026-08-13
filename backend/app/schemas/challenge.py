@@ -164,6 +164,7 @@ class ChallengeAdminResponse(BaseModel):
     difficulty: LookupResponse | None
     # Count only. The hashes themselves never leave the database.
     active_flag_count: int
+    active_file_count: int
 
 
 class ChallengeParticipantResponse(BaseModel):
@@ -192,6 +193,20 @@ class ChallengeListResponse(BaseModel):
     acts: list[ActChallengeGroupResponse]
     current_act: int
     current_score: int
+
+
+# --------------------------------------------------------------------------- files
+
+
+class ChallengeFileResponse(BaseModel):
+    id: UUID
+    challenge_id: UUID
+    display_name: str
+    original_filename: str
+    extension: str
+    content_type: str | None
+    size_bytes: int
+    is_active: bool
 
 
 # --------------------------------------------------------------------------- flags

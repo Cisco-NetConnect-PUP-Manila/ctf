@@ -113,6 +113,10 @@ challenge lookups, and creates or resets this development-only admin before Fast
 starts. Override `DEV_ADMIN_EMAIL` and `DEV_ADMIN_PASSWORD` in `.env` when needed.
 These defaults must never be used in a deployed environment.
 
+Challenge evidence uploads are private backend-managed files. Local Docker stores them
+in the `challenge-files` Docker volume at `/app/storage/challenge-files`; production can
+replace that with private object storage while keeping the same API contract.
+
 Check the current Docker URLs anytime:
 
 ```bash

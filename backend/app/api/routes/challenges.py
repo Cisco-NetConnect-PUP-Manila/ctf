@@ -3,6 +3,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
@@ -10,18 +11,33 @@ from app.api.deps import get_current_team
 from app.core.errors import APIError, LOCKED_CHALLENGE, NOT_FOUND
 from app.db.session import get_db
 from app.models.act import Act
-from app.models.challenge import Challenge, ChallengeStatus
+from app.models.challenge import Challenge, ChallengeFile, ChallengeStatus
 from app.models.submission import Solve
 from app.models.team import Team
 from app.schemas.challenge import (
     ActChallengeGroupResponse,
     ActProgressResponse,
+    ChallengeFileResponse,
     ChallengeListResponse,
     ChallengeParticipantResponse,
 )
 from app.services import scoring
+from app.services.challenge_files import get_challenge_file_storage
 
 router = APIRouter()
+
+
+def _file_response(file: ChallengeFile) -> ChallengeFileResponse:
+    return ChallengeFileResponse(
+        id=file.id,
+        challenge_id=file.challenge_id,
+        display_name=file.display_name,
+        original_filename=file.original_filename,
+        extension=file.extension,
+        content_type=file.content_type,
+        size_bytes=file.size_bytes,
+        is_active=file.is_active,
+    )
 
 
 def _challenge_response(
@@ -62,6 +78,18 @@ def _published_challenges_query():
             Challenge.is_visible.is_(True),
         )
     )
+
+
+def _load_accessible_challenge(db: Session, team: Team, challenge_id: UUID) -> Challenge:
+    scoring.ensure_initial_act_unlock(db, team.id)
+    db.commit()
+
+    challenge = db.scalar(_published_challenges_query().where(Challenge.id == challenge_id))
+    if challenge is None:
+        raise APIError(404, NOT_FOUND, "Challenge not found.")
+    if not scoring.team_can_access_act(db, team.id, challenge.act):
+        raise APIError(422, LOCKED_CHALLENGE, "This challenge is not available yet.")
+    return challenge
 
 
 @router.get("", response_model=ChallengeListResponse)
@@ -132,14 +160,7 @@ def get_challenge(
     team: Team = Depends(get_current_team),
     db: Session = Depends(get_db),
 ) -> ChallengeParticipantResponse:
-    scoring.ensure_initial_act_unlock(db, team.id)
-    db.commit()
-
-    challenge = db.scalar(_published_challenges_query().where(Challenge.id == challenge_id))
-    if challenge is None:
-        raise APIError(404, NOT_FOUND, "Challenge not found.")
-    if not scoring.team_can_access_act(db, team.id, challenge.act):
-        raise APIError(422, LOCKED_CHALLENGE, "This challenge is not available yet.")
+    challenge = _load_accessible_challenge(db, team, challenge_id)
 
     solved_ids = scoring.solved_challenge_ids(db, team.id)
     points_awarded = db.scalar(
@@ -153,4 +174,52 @@ def get_challenge(
         locked=False,
         solved_ids=solved_ids,
         awarded_points={challenge.id: points_awarded} if points_awarded is not None else {},
+    )
+
+
+@router.get("/{challenge_id}/files", response_model=list[ChallengeFileResponse])
+def list_challenge_files(
+    challenge_id: UUID,
+    team: Team = Depends(get_current_team),
+    db: Session = Depends(get_db),
+) -> list[ChallengeFileResponse]:
+    _load_accessible_challenge(db, team, challenge_id)
+    rows = db.scalars(
+        select(ChallengeFile)
+        .where(
+            ChallengeFile.challenge_id == challenge_id,
+            ChallengeFile.is_active.is_(True),
+        )
+        .order_by(ChallengeFile.created_at)
+    ).all()
+    return [_file_response(row) for row in rows]
+
+
+@router.get("/{challenge_id}/files/{file_id}/download", response_class=FileResponse)
+def download_challenge_file(
+    challenge_id: UUID,
+    file_id: UUID,
+    team: Team = Depends(get_current_team),
+    db: Session = Depends(get_db),
+) -> FileResponse:
+    _load_accessible_challenge(db, team, challenge_id)
+    row = db.scalar(
+        select(ChallengeFile).where(
+            ChallengeFile.id == file_id,
+            ChallengeFile.challenge_id == challenge_id,
+            ChallengeFile.is_active.is_(True),
+        )
+    )
+    if row is None:
+        raise APIError(404, NOT_FOUND, "Challenge file not found.")
+
+    try:
+        path = get_challenge_file_storage().path_for_download(row.storage_key)
+    except FileNotFoundError as exc:
+        raise APIError(404, NOT_FOUND, "Challenge file not found.") from exc
+
+    return FileResponse(
+        path=path,
+        media_type=row.content_type or "application/octet-stream",
+        filename=row.original_filename,
     )

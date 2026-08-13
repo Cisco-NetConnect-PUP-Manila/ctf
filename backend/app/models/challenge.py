@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import (
     Boolean,
+    BigInteger,
     CheckConstraint,
     DateTime,
     ForeignKey,
@@ -152,6 +153,12 @@ class Challenge(Base):
         cascade="all, delete-orphan",
         foreign_keys="ChallengeFlag.challenge_id",
     )
+    files: Mapped[list["ChallengeFile"]] = relationship(
+        "ChallengeFile",
+        back_populates="challenge",
+        cascade="all, delete-orphan",
+        foreign_keys="ChallengeFile.challenge_id",
+    )
 
     __table_args__ = (
         CheckConstraint("points >= 0", name="ck_challenges_points_non_negative"),
@@ -161,6 +168,64 @@ class Challenge(Base):
         ),
         Index("ix_challenges_act_status", "act_id", "status"),
         Index("ix_challenges_act_sort", "act_id", "sort_order"),
+    )
+
+
+class ChallengeFile(Base):
+    """Private challenge artifact metadata.
+
+    The file bytes live behind the backend storage adapter. ``storage_key`` is generated
+    internally and never derived from ``original_filename``.
+    """
+
+    __tablename__ = "challenge_files"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    challenge_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("challenges.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    storage_provider: Mapped[str] = mapped_column(String(40), nullable=False, default="local")
+    storage_key: Mapped[str] = mapped_column(String(512), unique=True, nullable=False)
+    original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    display_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    extension: Mapped[str] = mapped_column(String(16), nullable=False)
+    content_type: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    size_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    uploaded_by_account_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("accounts.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+    deactivated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    challenge: Mapped[Challenge] = relationship(
+        "Challenge",
+        back_populates="files",
+        foreign_keys=[challenge_id],
+    )
+
+    __table_args__ = (
+        CheckConstraint("storage_provider in ('local')", name="ck_challenge_files_provider"),
+        CheckConstraint(
+            "extension in ('.raw', '.pcap', '.dd', '.png', '.txt', '.pkz', '.pka')",
+            name="ck_challenge_files_extension",
+        ),
+        CheckConstraint("size_bytes between 0 and 104857600", name="ck_challenge_files_size"),
+        Index(
+            "ix_challenge_files_challenge_active",
+            "challenge_id",
+            postgresql_where=text("is_active = true"),
+        ),
     )
 
 

@@ -9,7 +9,6 @@ import AnnouncementsFeed from "../components/announcements/AnnouncementsFeed";
 import ParticipantChallengeList from "../components/challenges/ParticipantChallengeList";
 import {
   acts,
-  competition,
   competitionModules,
   rankingCriteria,
 } from "../data";
