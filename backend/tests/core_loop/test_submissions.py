@@ -50,8 +50,14 @@ def test_correct_submission_awards_points_once(db, setup):
     assert result.solved is True
     assert result.awarded_points == 100
     assert result.current_score == 100
+    assert result.team_fragment is not None
+    assert result.team_fragment.startswith("PCFRAG-")
 
     assert db.scalar(select(func.count()).select_from(Solve)) == 1
+    solve = db.scalar(select(Solve))
+    assert solve.team_fragment_hash is not None
+    assert solve.team_fragment_preview is not None
+    assert solve.team_fragment_hash != result.team_fragment
     attempt = db.scalar(select(Submission))
     assert attempt.is_correct is True
     # A correct submission IS a real flag; never keep a preview of one.
@@ -109,6 +115,24 @@ def test_duplicate_correct_submission_awards_zero(db, setup):
     assert excinfo.value.code == "ALREADY_SOLVED"
     assert db.scalar(select(func.count()).select_from(Solve)) == 1
     assert scoring.compute_investigation_score(db, fixture.team.id) == 100
+
+
+def test_team_fragments_are_unique_per_team_for_same_challenge(db, seed_reference_data):
+    first_team = make_team(db, group_name="Fragment Team A")
+    second_team = make_team(db, group_name="Fragment Team B")
+    act1 = get_act(db, 1)
+    challenge = make_challenge(db, act1, points=100, flag=CORRECT_FLAG)
+    scoring.ensure_initial_act_unlock(db, first_team.team.id)
+    scoring.ensure_initial_act_unlock(db, second_team.team.id)
+    db.commit()
+    set_rate_limit(db)
+
+    first = submit_flag(db, first_team.team, challenge.id, CORRECT_FLAG)
+    second = submit_flag(db, second_team.team, challenge.id, CORRECT_FLAG)
+
+    assert first.team_fragment is not None
+    assert second.team_fragment is not None
+    assert first.team_fragment != second.team_fragment
 
 
 # ------------------------------------------------------------------ locked / not found

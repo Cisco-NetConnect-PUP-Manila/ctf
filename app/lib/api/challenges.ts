@@ -1,11 +1,13 @@
-import { apiRequest } from "./client";
+import { apiRequest, backendApiUrl } from "./client";
 import type {
   AdminAct,
   AdminChallenge,
   AdminChallengeInput,
+  ChallengeFile,
   ChallengeFlag,
   ChallengeLookup,
   ChallengeStatus,
+  FlagSubmissionResult,
   ParticipantChallenge,
   ParticipantChallengeList,
 } from "./types";
@@ -93,4 +95,51 @@ export function deactivateChallengeFlag(challengeId: string, flagId: string) {
     `/admin/challenges/${challengeId}/flags/${flagId}`,
     { method: "DELETE" }
   );
+}
+
+export function listAdminChallengeFiles(challengeId: string) {
+  return apiRequest<ChallengeFile[]>(`/admin/challenges/${challengeId}/files`, {
+    method: "GET",
+    cache: "no-store",
+  });
+}
+
+export function uploadAdminChallengeFile(
+  challengeId: string,
+  file: File,
+  displayName: string
+) {
+  const body = new FormData();
+  body.append("upload", file);
+  if (displayName.trim()) body.append("display_name", displayName.trim());
+
+  return apiRequest<ChallengeFile>(`/admin/challenges/${challengeId}/files`, {
+    method: "POST",
+    body,
+  });
+}
+
+export function deactivateAdminChallengeFile(challengeId: string, fileId: string) {
+  return apiRequest<ChallengeFile>(
+    `/admin/challenges/${challengeId}/files/${fileId}`,
+    { method: "DELETE" }
+  );
+}
+
+export function listParticipantChallengeFiles(challengeId: string) {
+  return apiRequest<ChallengeFile[]>(`/challenges/${challengeId}/files`, {
+    method: "GET",
+    cache: "no-store",
+  });
+}
+
+export function participantChallengeFileDownloadUrl(challengeId: string, fileId: string) {
+  return backendApiUrl(`/challenges/${challengeId}/files/${fileId}/download`);
+}
+
+export function submitChallengeFlag(challengeId: string, flag: string) {
+  return apiRequest<FlagSubmissionResult>(`/challenges/${challengeId}/submissions`, {
+    method: "POST",
+    body: JSON.stringify({ flag }),
+  });
 }

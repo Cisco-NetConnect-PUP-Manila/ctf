@@ -83,6 +83,7 @@ def _to_response(result: SubmissionResult) -> FlagSubmissionResponse:
         solved=result.solved,
         message=result.message,
         next_act_unlocked=unlocked,
+        team_fragment=result.team_fragment,
     )
 
 

@@ -1,5 +1,6 @@
 .next/
 node_modules/
+tsconfig.tsbuildinfo
 
 __pycache__/
 *.py[cod]
@@ -7,6 +8,7 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .venv/
+backend/storage/
 
 out/
 dist/

@@ -1,8 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { listParticipantChallenges } from "../../lib/api/challenges";
-import type { ParticipantChallengeList as ChallengeListData } from "../../lib/api/types";
+import {
+  listParticipantChallengeFiles,
+  listParticipantChallenges,
+  participantChallengeFileDownloadUrl,
+} from "../../lib/api/challenges";
+import type {
+  ChallengeFile,
+  ParticipantChallenge,
+  ParticipantChallengeList as ChallengeListData,
+} from "../../lib/api/types";
 import { ApiError } from "../../lib/api/client";
 
 function challengeStatus(locked: boolean, solved: boolean) {
@@ -10,10 +19,19 @@ function challengeStatus(locked: boolean, solved: boolean) {
   return locked ? "Locked" : "Available";
 }
 
+function formatBytes(bytes: number) {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${Math.ceil(bytes / 1024)} KB`;
+  return `${bytes} B`;
+}
+
 export default function ParticipantChallengeList() {
   const [data, setData] = useState<ChallengeListData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [filesByChallenge, setFilesByChallenge] = useState<Record<string, ChallengeFile[]>>({});
+  const [openFilesId, setOpenFilesId] = useState<string | null>(null);
+  const [loadingFilesId, setLoadingFilesId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -39,6 +57,31 @@ export default function ParticipantChallengeList() {
     () => data?.acts.reduce((total, group) => total + group.challenges.length, 0) ?? 0,
     [data]
   );
+
+  async function toggleFiles(challenge: ParticipantChallenge) {
+    if (challenge.locked) return;
+    if (openFilesId === challenge.id) {
+      setOpenFilesId(null);
+      return;
+    }
+    setOpenFilesId(challenge.id);
+    if (filesByChallenge[challenge.id]) return;
+
+    setLoadingFilesId(challenge.id);
+    setError("");
+    try {
+      const files = await listParticipantChallengeFiles(challenge.id);
+      setFilesByChallenge((current) => ({ ...current, [challenge.id]: files }));
+    } catch (caught) {
+      setError(
+        caught instanceof ApiError
+          ? caught.message
+          : "Unable to load the challenge files."
+      );
+    } finally {
+      setLoadingFilesId(null);
+    }
+  }
 
   if (loading) {
     return (
@@ -149,6 +192,33 @@ export default function ParticipantChallengeList() {
                     <small className="challenge-card__notice">
                       Complete the current Act requirements to unlock this challenge.
                     </small>
+                  )}
+                  {!challenge.locked && (
+                    <div className="challenge-card__files">
+                      <Link className="btn btn--primary" href={`/platform/challenges/${challenge.id}`}>
+                        Open challenge
+                      </Link>
+                      <button className="btn" type="button" onClick={() => void toggleFiles(challenge)}>
+                        Evidence files
+                      </button>
+                      {openFilesId === challenge.id && (
+                        <div className="challenge-card__file-list">
+                          {loadingFilesId === challenge.id && <small>Loading evidence manifest...</small>}
+                          {!loadingFilesId && (filesByChallenge[challenge.id] ?? []).length === 0 && (
+                            <small>No attached files for this challenge.</small>
+                          )}
+                          {(filesByChallenge[challenge.id] ?? []).map((file) => (
+                            <a
+                              href={participantChallengeFileDownloadUrl(challenge.id, file.id)}
+                              key={file.id}
+                            >
+                              <span>{file.display_name}</span>
+                              <small>{file.extension} - {formatBytes(file.size_bytes)}</small>
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   )}
                 </article>
               ))}

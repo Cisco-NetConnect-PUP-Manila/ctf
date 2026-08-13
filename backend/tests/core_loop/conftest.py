@@ -49,6 +49,7 @@ TABLES_TO_TRUNCATE = (
     "act_unlocks",
     "solves",
     "submissions",
+    "challenge_files",
     "challenge_flags",
     "challenges",
     "challenge_categories",

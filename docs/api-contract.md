@@ -267,6 +267,9 @@ Response: Challenge details including mission brief/story context/objectives (fi
 listed in §7 admin fields are not exposed to participants). Errors: `NOT_FOUND`,
 `LOCKED_CHALLENGE`.
 
+If the logged-in team already solved the challenge, `team_fragment` contains that
+team's derived solve fragment.
+
 ### 6.3 Submissions
 
 **POST /challenges/{id}/submissions** (Participant)
@@ -277,13 +280,29 @@ Request:
 { "flag": "PacketCapture{PHANTOM_TRACE}" }
 ```
 
-Response: SubmissionResult. Errors: `AUTH_REQUIRED`, `TEAM_NOT_APPROVED`,
+Response:
+
+```json
+{
+  "correct": true,
+  "awarded_points": 100,
+  "current_score": 220,
+  "solved": true,
+  "message": "Flag accepted.",
+  "next_act_unlocked": null,
+  "team_fragment": "PCFRAG-A1B2C3-D4E5F6"
+}
+```
+
+Errors: `AUTH_REQUIRED`, `TEAM_NOT_APPROVED`,
 `SUBMISSIONS_CLOSED`, `NOT_FOUND`, `LOCKED_CHALLENGE`, `ALREADY_SOLVED`,
 `RATE_LIMITED`.
 
 Rules: backend validates the flag; incorrect submissions award nothing; duplicate
 correct submissions award 0 (no double points); scoring and Act-unlock updates happen
-in one backend transaction.
+in one backend transaction. Correct submissions return a team-specific solve fragment
+derived from the team, challenge, and server secret. The fragment is not a validator and
+must not replace server-side flag checking.
 
 ### 6.4 Intel Requests
 
@@ -315,17 +334,41 @@ fastest completion, then lowest penalties, then earliest Final Investigation.
 
 Response: pagination envelope of published Announcement.
 
-### 6.6 Admin
+### 6.6 Challenge Files
+
+Protected challenge files are stored outside the frontend and served only through the
+backend after authorization.
+
+Allowed upload extensions: `.raw`, `.pcap`, `.dd`, `.png`, `.txt`, `.pkz`, `.pka`.
+Maximum file size: 100 MB.
+
+**GET /challenges/{id}/files** (Participant)
+
+Returns active file metadata only when the participant can access the challenge's Act.
+Locked challenges return `LOCKED_CHALLENGE` and reveal no file names, counts, sizes, or
+download links.
+
+**GET /challenges/{id}/files/{file_id}/download** (Participant)
+
+Streams the active file only when the participant can access the challenge.
+
+### 6.7 Admin
 
 All admin endpoints require role `admin`.
 
 **POST /admin/challenges** — create. **PATCH /admin/challenges/{id}** — edit.
 **PATCH /admin/challenges/{id}/publish** — body `{ "status": "published" | "archived" | "ready_for_review" | "draft" }`.
+**GET /admin/challenges/{id}/files** - list challenge file metadata.
+**POST /admin/challenges/{id}/files** - multipart upload field `upload`, optional
+`display_name`.
+**DELETE /admin/challenges/{id}/files/{file_id}** - soft-deactivate a challenge file.
 
 Admin challenge payload (create/edit) supports: `act_id`, `category_id`,
 `difficulty_id`, `title`, `mission_brief`, `story_context`, `objectives`, `points`,
-`status`, `flags` (protected, hashed), `hints`, `files`. Real flags are never
-returned by any participant-facing endpoint.
+`status`, `flags` (protected, hashed), `hints`, `files`. Real flags are never returned
+by any participant-facing endpoint. File bytes are not stored in the database; the
+database stores provider, internal storage key, original filename metadata, display
+name, extension, content type, active state, and byte size.
 
 **GET /admin/submissions** — submission log rows: `id`, `team_name`, `challenge_title`,
 `is_correct`, `submitted_at`.

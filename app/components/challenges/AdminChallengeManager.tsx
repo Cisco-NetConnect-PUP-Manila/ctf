@@ -4,8 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import {
   addChallengeFlag,
   createAdminChallenge,
+  deactivateAdminChallengeFile,
   deactivateChallengeFlag,
   deleteAdminChallenge,
+  listAdminChallengeFiles,
   listAdminActs,
   listAdminChallenges,
   listChallengeCategories,
@@ -13,12 +15,14 @@ import {
   listChallengeFlags,
   setAdminChallengeStatus,
   updateAdminChallenge,
+  uploadAdminChallengeFile,
 } from "../../lib/api/challenges";
 import { ApiError } from "../../lib/api/client";
 import type {
   AdminAct,
   AdminChallenge,
   AdminChallengeInput,
+  ChallengeFile,
   ChallengeFlag,
   ChallengeLookup,
   ChallengeStatus,
@@ -64,6 +68,12 @@ function slugify(value: string) {
 
 function errorMessage(caught: unknown, fallback: string) {
   return caught instanceof ApiError ? caught.message : fallback;
+}
+
+function formatBytes(bytes: number) {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${Math.ceil(bytes / 1024)} KB`;
+  return `${bytes} B`;
 }
 
 function toPayload(form: FormState): AdminChallengeInput {
@@ -112,9 +122,13 @@ export default function AdminChallengeManager() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [flagsByChallenge, setFlagsByChallenge] = useState<Record<string, ChallengeFlag[]>>({});
+  const [filesByChallenge, setFilesByChallenge] = useState<Record<string, ChallengeFile[]>>({});
   const [openFlagsId, setOpenFlagsId] = useState<string | null>(null);
+  const [openFilesId, setOpenFilesId] = useState<string | null>(null);
   const [flagValue, setFlagValue] = useState("");
   const [flagLabel, setFlagLabel] = useState("");
+  const [fileDisplayName, setFileDisplayName] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -170,9 +184,13 @@ export default function AdminChallengeManager() {
       resetForm();
       if (!wasEditing) {
         setOpenFlagsId(saved.id);
+        setOpenFilesId(saved.id);
         setFlagsByChallenge((current) => ({ ...current, [saved.id]: [] }));
+        setFilesByChallenge((current) => ({ ...current, [saved.id]: [] }));
         setFlagValue("");
         setFlagLabel("");
+        setFileDisplayName("");
+        setSelectedFile(null);
         window.setTimeout(
           () => document.getElementById(`challenge-${saved.id}`)?.scrollIntoView({ behavior: "smooth" }),
           0
@@ -229,6 +247,22 @@ export default function AdminChallengeManager() {
     }
   }
 
+  async function toggleFiles(item: AdminChallenge) {
+    if (openFilesId === item.id) {
+      setOpenFilesId(null);
+      return;
+    }
+    setOpenFilesId(item.id);
+    setFileDisplayName("");
+    setSelectedFile(null);
+    try {
+      const files = await listAdminChallengeFiles(item.id);
+      setFilesByChallenge((current) => ({ ...current, [item.id]: files }));
+    } catch (caught) {
+      setError(errorMessage(caught, "Could not load challenge files."));
+    }
+  }
+
   async function handleAddFlag(item: AdminChallenge) {
     setBusyId(item.id);
     setError("");
@@ -268,6 +302,53 @@ export default function AdminChallengeManager() {
       ));
     } catch (caught) {
       setError(errorMessage(caught, "Could not deactivate the flag validator."));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function handleUploadFile(item: AdminChallenge) {
+    if (!selectedFile) return;
+    setBusyId(item.id);
+    setError("");
+    try {
+      const uploaded = await uploadAdminChallengeFile(item.id, selectedFile, fileDisplayName);
+      setFilesByChallenge((current) => ({
+        ...current,
+        [item.id]: [...(current[item.id] ?? []), uploaded],
+      }));
+      setItems((current) => current.map((candidate) =>
+        candidate.id === item.id
+          ? { ...candidate, active_file_count: candidate.active_file_count + 1 }
+          : candidate
+      ));
+      setSelectedFile(null);
+      setFileDisplayName("");
+    } catch (caught) {
+      setError(errorMessage(caught, "Could not upload challenge file."));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function handleDeactivateFile(item: AdminChallenge, file: ChallengeFile) {
+    setBusyId(item.id);
+    setError("");
+    try {
+      const updated = await deactivateAdminChallengeFile(item.id, file.id);
+      setFilesByChallenge((current) => ({
+        ...current,
+        [item.id]: (current[item.id] ?? []).map((candidate) => candidate.id === file.id ? updated : candidate),
+      }));
+      if (file.is_active) {
+        setItems((current) => current.map((candidate) =>
+          candidate.id === item.id
+            ? { ...candidate, active_file_count: Math.max(0, candidate.active_file_count - 1) }
+            : candidate
+        ));
+      }
+    } catch (caught) {
+      setError(errorMessage(caught, "Could not deactivate challenge file."));
     } finally {
       setBusyId(null);
     }
@@ -330,10 +411,13 @@ export default function AdminChallengeManager() {
               <b>{item.points} pts</b>
             </div>
             <p>Act {item.act_number} · {item.category?.name ?? "Uncategorized"} · {item.difficulty?.name ?? "Unrated"}</p>
-            <small>{item.slug} · {item.is_visible ? "visible" : "hidden"} · {item.active_flag_count} active flag{item.active_flag_count === 1 ? "" : "s"}</small>
+            <small>
+              {item.slug} - {item.is_visible ? "visible" : "hidden"} - {item.active_flag_count} active flag{item.active_flag_count === 1 ? "" : "s"} - {item.active_file_count} active file{item.active_file_count === 1 ? "" : "s"}
+            </small>
             <div className="challenge-admin-row__actions">
               <button className="btn" type="button" disabled={busyId === item.id} onClick={() => beginEdit(item)}>Edit</button>
               <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void toggleFlags(item)}>Flags</button>
+              <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void toggleFiles(item)}>Files</button>
               {item.status !== "published" && <button className="btn btn--primary" type="button" disabled={busyId === item.id} onClick={() => void handleStatus(item, "published")}>Publish</button>}
               {item.status === "published" && <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void handleStatus(item, "draft")}>Unpublish</button>}
               <button className="btn challenge-admin-row__delete" type="button" disabled={busyId === item.id} onClick={() => void handleDelete(item)}>Delete</button>
@@ -355,6 +439,27 @@ export default function AdminChallengeManager() {
                   <button className="btn btn--primary" type="button" disabled={!flagValue || busyId === item.id} onClick={() => void handleAddFlag(item)}>Add validator</button>
                 </div>
                 <small>Flag values are hashed by the backend and are never returned to this interface.</small>
+              </div>
+            )}
+
+            {openFilesId === item.id && (
+              <div className="challenge-flags challenge-files">
+                <h5>Challenge files</h5>
+                <p>Attach private evidence files for unlocked participants only.</p>
+                {(filesByChallenge[item.id] ?? []).map((file) => (
+                  <div className="challenge-flag" key={file.id}>
+                    <span>
+                      {file.display_name} - {file.extension} - {formatBytes(file.size_bytes)} - {file.is_active ? "active" : "inactive"}
+                    </span>
+                    {file.is_active && <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void handleDeactivateFile(item, file)}>Deactivate</button>}
+                  </div>
+                ))}
+                <div className="challenge-flag__new challenge-file__new">
+                  <input aria-label="Challenge file" accept=".raw,.pcap,.dd,.png,.txt,.pkz,.pka" type="file" onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)} />
+                  <input aria-label="Display name" placeholder="Display name (optional)" value={fileDisplayName} onChange={(e) => setFileDisplayName(e.target.value)} />
+                  <button className="btn btn--primary" type="button" disabled={!selectedFile || busyId === item.id} onClick={() => void handleUploadFile(item)}>Upload file</button>
+                </div>
+                <small>Accepted: .raw, .pcap, .dd, .png, .txt, .pkz, .pka. Maximum size: 100 MB.</small>
               </div>
             )}
           </article>

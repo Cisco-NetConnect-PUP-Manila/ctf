@@ -34,7 +34,7 @@ export default function AdminAccountControls() {
       <div className="portal-account__identity">
         <span>Organizer account</span>
         <strong>Administrator</strong>
-        <small>{account.email} // {account.status}</small>
+        <small>{account.email} / {account.status}</small>
       </div>
       <button className="btn" disabled={signingOut} onClick={handleLogout} type="button">
         {signingOut ? "Closing console..." : "Logout"}

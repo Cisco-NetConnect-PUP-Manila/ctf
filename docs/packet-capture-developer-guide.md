@@ -232,7 +232,8 @@ Submission flow:
 8. If correct, prevent duplicate awards using a database constraint or transaction lock.
 9. Create the solve only if one does not already exist.
 10. Update team score, check the 20 percent threshold, create any new `act_unlock`, and commit once.
-11. Return awarded points, current score, solved state, and newly unlocked Act.
+11. Return awarded points, current score, solved state, newly unlocked Act, and the
+    team-specific solve fragment for correct submissions.
 
 Official ranking priority:
 
@@ -299,7 +300,7 @@ Database rule: use UTC timestamps in storage. Convert only for display. Add fore
 | Auth user | `id`, `email`, `role`, `team_id`, `registration_status`, `created_at` |
 | Team | `id`, `group_name`, `email`, `score`, `current_act`, `status` |
 | Challenge | `id`, `act_id`, `title`, `category`, `difficulty`, `points`, `visible`, `locked`, `solved`, `files`, `hints_available` |
-| Submission response | `correct`, `awarded_points`, `current_score`, `solved`, `message`, `next_act_unlocked` |
+| Submission response | `correct`, `awarded_points`, `current_score`, `solved`, `message`, `next_act_unlocked`, `team_fragment` |
 | Leaderboard row | `rank`, `team_name`, `score`, `solved_count`, `current_act`, `last_solve_time`, `penalties` |
 | Error response | `code`, `message`, optional `field_errors` |
 
@@ -320,6 +321,8 @@ This is a starting map only. Final request/response fields should be tracked in 
 | GET | `/auth/me` | Authenticated | Return current account |
 | GET | `/challenges` | Participant | Return accessible challenges |
 | GET | `/challenges/{id}` | Participant | Return challenge details |
+| GET | `/challenges/{id}/files` | Participant | Return active files for an unlocked challenge |
+| GET | `/challenges/{id}/files/{file_id}/download` | Participant | Download an active challenge file |
 | POST | `/challenges/{id}/submissions` | Participant | Submit a flag |
 | POST | `/challenges/{id}/intel-requests` | Participant | Request hint / Intel |
 | GET | `/leaderboard` | Participant | Return ranked teams |
@@ -327,6 +330,9 @@ This is a starting map only. Final request/response fields should be tracked in 
 | POST | `/admin/challenges` | Admin | Create challenge |
 | PATCH | `/admin/challenges/{id}` | Admin | Edit challenge |
 | PATCH | `/admin/challenges/{id}/publish` | Admin | Publish/archive challenge |
+| GET | `/admin/challenges/{id}/files` | Admin | List challenge file metadata |
+| POST | `/admin/challenges/{id}/files` | Admin | Upload `.raw`, `.pcap`, `.dd`, `.png`, `.txt`, `.pkz`, or `.pka` evidence |
+| DELETE | `/admin/challenges/{id}/files/{file_id}` | Admin | Soft-deactivate a challenge file |
 | GET | `/admin/submissions` | Admin | View submission logs |
 | GET | `/admin/audit-logs` | Admin | View audit logs |
 | PATCH | `/admin/platform-settings` | Admin | Update event settings |
@@ -338,6 +344,12 @@ This is a starting map only. Final request/response fields should be tracked in 
 - Add CSRF protection for state-changing cookie-authenticated requests.
 - Do not log plaintext passwords, session cookies, raw secrets, or full flags.
 - Private challenge files require authorization.
+- Private challenge files are max 100 MB each and must use backend storage, not frontend `public/`.
+- Locked challenges must not reveal file names, counts, sizes, or download links.
+- Challenge URLs may be shared, but every challenge read, file download, and flag
+  submission must be authorized by the backend for the logged-in team.
+- Correct submissions return a team-specific solve fragment. A fragment from Team A
+  must not be accepted as proof for Team B.
 - Duplicate correct submission awards zero additional points.
 - Locked challenge submission returns `CHALLENGE_LOCKED`.
 - Already solved challenge returns `ALREADY_SOLVED`.

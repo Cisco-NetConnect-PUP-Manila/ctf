@@ -339,28 +339,36 @@ challenge_id
 storage_provider
 storage_key
 original_filename
+display_name
+extension
 content_type
-file_size
-checksum
-visibility
+size_bytes
 uploaded_by_account_id
+is_active
 created_at
-deleted_at
+updated_at
+deactivated_at
 ```
 
 Recommended constraints:
 
 - `challenge_id` foreign key to `challenges.id`
-- `storage_provider` allowed values initially: `local`, `aws_s3`, `azure_blob`, `gcp_cloud_storage`, `oracle_object_storage`
-- `storage_key` required
-- `visibility` allowed values: `participant`, `admin_only`
+- `storage_provider` starts as `local`; keep the field provider-neutral for future object storage
+- `storage_key` required and unique
+- `extension` allowed values: `.raw`, `.pcap`, `.dd`, `.png`, `.txt`, `.pkz`, `.pka`
+- `size_bytes` must be between 0 and 104857600
+- `is_active` controls soft deactivation
 
 Rules:
 
 - Protected challenge files must never be stored in frontend `public/`.
-- Local development can use backend-controlled private storage.
-- Production can later use any chosen cloud object storage provider.
+- Store file bytes outside the database; store only metadata and the internal storage key.
+- Generate `storage_key` internally. Keep the original filename only as metadata.
+- Local development uses backend-controlled private storage.
+- Production can later use private cloud object storage through the same backend access checks.
 - Participants can download only when logged in, approved, and allowed to access the challenge's Act.
+- Locked challenges must not reveal file names, counts, sizes, or download links.
+- Admin removal means deactivating the file record, not immediate hard deletion.
 
 ## 9. Hints And Intel Requests
 
@@ -453,6 +461,8 @@ team_id
 challenge_id
 submission_id
 points_awarded
+team_fragment_hash
+team_fragment_preview
 solved_at
 ```
 
@@ -469,6 +479,9 @@ Rules:
 - A team can only solve a challenge once.
 - Duplicate correct submissions do not award points again.
 - `points_awarded` should snapshot the challenge value at solve time.
+- `team_fragment_hash` stores a keyed hash of the team-specific solve fragment.
+- `team_fragment_preview` is audit/debug metadata only; the API derives the full
+  displayed fragment from `team_id`, `challenge_id`, and `TEAM_FRAGMENT_SECRET`.
 
 ### score_adjustments
 

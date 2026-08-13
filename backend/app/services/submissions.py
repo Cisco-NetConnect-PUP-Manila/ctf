@@ -58,6 +58,11 @@ from app.core.flags import (
     incorrect_preview,
 )
 from app.core.rate_limit import RateLimited, enforce_submission_rate_limit
+from app.core.team_fragments import (
+    derive_team_fragment,
+    hash_team_fragment,
+    preview_team_fragment,
+)
 from app.models.act import Act
 from app.models.audit_log import AuditLog
 from app.models.challenge import Challenge, ChallengeFlag, ChallengeStatus
@@ -94,6 +99,7 @@ class SubmissionResult:
     solved: bool
     message: str
     next_act_unlocked: Act | None = None
+    team_fragment: str | None = None
 
 
 def hash_client_value(value: str | None) -> str | None:
@@ -240,11 +246,14 @@ def submit_flag(
     db.flush()
 
     # 9. Create the solve, arbitrated by uq_solves_team_challenge.
+    team_fragment = derive_team_fragment(team.id, challenge.id)
     solve = Solve(
         team_id=team.id,
         challenge_id=challenge.id,
         submission_id=attempt.id,
         points_awarded=challenge.points,
+        team_fragment_hash=hash_team_fragment(team_fragment),
+        team_fragment_preview=preview_team_fragment(team_fragment),
     )
     try:
         with db.begin_nested():  # SAVEPOINT
@@ -272,6 +281,7 @@ def submit_flag(
                 "team_id": str(team.id),
                 "points": challenge.points,
                 "submission_id": str(attempt.id),
+                "team_fragment_preview": solve.team_fragment_preview,
             },
         )
     )
@@ -299,4 +309,5 @@ def submit_flag(
         solved=True,
         message="Flag accepted.",
         next_act_unlocked=newly_unlocked[0] if newly_unlocked else None,
+        team_fragment=team_fragment,
     )

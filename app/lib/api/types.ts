@@ -101,6 +101,7 @@ export type ParticipantChallenge = {
   locked: boolean;
   solved: boolean;
   awarded_points: number | null;
+  team_fragment: string | null;
 };
 
 export type ActChallengeGroup = {
@@ -134,7 +135,18 @@ export type ChallengeLookup = {
   is_active: boolean;
 };
 
-export type ChallengeStatus = "draft" | "published" | "archived";
+export type ChallengeStatus = "draft" | "ready_for_review" | "published" | "archived";
+
+export type ChallengeFile = {
+  id: string;
+  challenge_id: string;
+  display_name: string;
+  original_filename: string;
+  extension: string;
+  content_type: string | null;
+  size_bytes: number;
+  is_active: boolean;
+};
 
 export type AdminChallenge = {
   id: string;
@@ -153,6 +165,7 @@ export type AdminChallenge = {
   category: ChallengeLookup | null;
   difficulty: ChallengeLookup | null;
   active_flag_count: number;
+  active_file_count: number;
 };
 
 export type AdminChallengeInput = {
@@ -176,5 +189,22 @@ export type ChallengeFlag = {
   label: string | null;
   validator_type: string;
   is_active: boolean;
+};
+
+export type UnlockedAct = {
+  id: string;
+  act_number: number;
+  slug: string;
+  title: string;
+};
+
+export type FlagSubmissionResult = {
+  correct: boolean;
+  awarded_points: number;
+  current_score: number;
+  solved: boolean;
+  message: string;
+  next_act_unlocked: UnlockedAct | null;
+  team_fragment: string | null;
 };
 
