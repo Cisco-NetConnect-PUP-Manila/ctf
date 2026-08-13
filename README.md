@@ -99,6 +99,9 @@ CHALLENGE_FILE_STORAGE_ROOT=/app/storage/challenge-files
 CHALLENGE_FILE_MAX_BYTES=104857600
 FLAG_HASH_SECRET=<unique random secret>
 TEAM_FRAGMENT_SECRET=<unique random secret>
+BOOTSTRAP_ADMIN_EMAIL=<admin email for testing deploys without shell access>
+BOOTSTRAP_ADMIN_PASSWORD=<long secure admin password for testing deploys without shell access>
+REQUIRE_TEAM_APPROVAL_ON_START=true
 ```
 
 Attach a Render persistent disk to the backend service:
@@ -114,6 +117,12 @@ After the backend deploys, create the first admin from the Render shell:
 ```bash
 python -m app.scripts.create_admin --email you@example.com --password "use-a-long-random-password"
 ```
+
+On Render Free, Shell may be unavailable. In that case, set `BOOTSTRAP_ADMIN_EMAIL`,
+`BOOTSTRAP_ADMIN_PASSWORD`, and `REQUIRE_TEAM_APPROVAL_ON_START=true` before deploying.
+The backend startup will create/update the admin account and enable team approval.
+Remove `BOOTSTRAP_ADMIN_PASSWORD` after the test admin is confirmed if you do not want
+admin password resets on every redeploy.
 
 Vercel frontend environment variables:
 
