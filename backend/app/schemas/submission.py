@@ -29,3 +29,4 @@ class FlagSubmissionResponse(BaseModel):
     solved: bool
     message: str
     next_act_unlocked: UnlockedActResponse | None = None
+    team_fragment: str | None = None

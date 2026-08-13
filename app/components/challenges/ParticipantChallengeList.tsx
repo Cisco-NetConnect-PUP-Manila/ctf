@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   listParticipantChallengeFiles,
@@ -194,6 +195,9 @@ export default function ParticipantChallengeList() {
                   )}
                   {!challenge.locked && (
                     <div className="challenge-card__files">
+                      <Link className="btn btn--primary" href={`/platform/challenges/${challenge.id}`}>
+                        Open challenge
+                      </Link>
                       <button className="btn" type="button" onClick={() => void toggleFiles(challenge)}>
                         Evidence files
                       </button>

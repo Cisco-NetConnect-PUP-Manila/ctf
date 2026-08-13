@@ -232,7 +232,8 @@ Submission flow:
 8. If correct, prevent duplicate awards using a database constraint or transaction lock.
 9. Create the solve only if one does not already exist.
 10. Update team score, check the 20 percent threshold, create any new `act_unlock`, and commit once.
-11. Return awarded points, current score, solved state, and newly unlocked Act.
+11. Return awarded points, current score, solved state, newly unlocked Act, and the
+    team-specific solve fragment for correct submissions.
 
 Official ranking priority:
 
@@ -299,7 +300,7 @@ Database rule: use UTC timestamps in storage. Convert only for display. Add fore
 | Auth user | `id`, `email`, `role`, `team_id`, `registration_status`, `created_at` |
 | Team | `id`, `group_name`, `email`, `score`, `current_act`, `status` |
 | Challenge | `id`, `act_id`, `title`, `category`, `difficulty`, `points`, `visible`, `locked`, `solved`, `files`, `hints_available` |
-| Submission response | `correct`, `awarded_points`, `current_score`, `solved`, `message`, `next_act_unlocked` |
+| Submission response | `correct`, `awarded_points`, `current_score`, `solved`, `message`, `next_act_unlocked`, `team_fragment` |
 | Leaderboard row | `rank`, `team_name`, `score`, `solved_count`, `current_act`, `last_solve_time`, `penalties` |
 | Error response | `code`, `message`, optional `field_errors` |
 
@@ -345,6 +346,10 @@ This is a starting map only. Final request/response fields should be tracked in 
 - Private challenge files require authorization.
 - Private challenge files are max 100 MB each and must use backend storage, not frontend `public/`.
 - Locked challenges must not reveal file names, counts, sizes, or download links.
+- Challenge URLs may be shared, but every challenge read, file download, and flag
+  submission must be authorized by the backend for the logged-in team.
+- Correct submissions return a team-specific solve fragment. A fragment from Team A
+  must not be accepted as proof for Team B.
 - Duplicate correct submission awards zero additional points.
 - Locked challenge submission returns `CHALLENGE_LOCKED`.
 - Already solved challenge returns `ALREADY_SOLVED`.

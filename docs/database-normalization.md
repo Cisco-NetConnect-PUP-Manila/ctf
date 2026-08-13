@@ -461,6 +461,8 @@ team_id
 challenge_id
 submission_id
 points_awarded
+team_fragment_hash
+team_fragment_preview
 solved_at
 ```
 
@@ -477,6 +479,9 @@ Rules:
 - A team can only solve a challenge once.
 - Duplicate correct submissions do not award points again.
 - `points_awarded` should snapshot the challenge value at solve time.
+- `team_fragment_hash` stores a keyed hash of the team-specific solve fragment.
+- `team_fragment_preview` is audit/debug metadata only; the API derives the full
+  displayed fragment from `team_id`, `challenge_id`, and `TEAM_FRAGMENT_SECRET`.
 
 ### score_adjustments
 

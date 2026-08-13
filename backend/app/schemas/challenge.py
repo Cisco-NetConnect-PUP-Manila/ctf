@@ -182,6 +182,7 @@ class ChallengeParticipantResponse(BaseModel):
     locked: bool
     solved: bool
     awarded_points: int | None
+    team_fragment: str | None = None
 
 
 class ActChallengeGroupResponse(BaseModel):

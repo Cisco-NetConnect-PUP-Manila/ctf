@@ -94,6 +94,8 @@ class Solve(Base):
     # Snapshot of challenges.points at solve time, so re-pointing a challenge mid-event
     # never rewrites history.
     points_awarded: Mapped[int] = mapped_column(Integer, nullable=False)
+    team_fragment_hash: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    team_fragment_preview: Mapped[str | None] = mapped_column(String(40), nullable=True)
     solved_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),

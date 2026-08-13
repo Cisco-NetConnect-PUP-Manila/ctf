@@ -7,6 +7,7 @@ import type {
   ChallengeFlag,
   ChallengeLookup,
   ChallengeStatus,
+  FlagSubmissionResult,
   ParticipantChallenge,
   ParticipantChallengeList,
 } from "./types";
@@ -134,4 +135,11 @@ export function listParticipantChallengeFiles(challengeId: string) {
 
 export function participantChallengeFileDownloadUrl(challengeId: string, fileId: string) {
   return backendApiUrl(`/challenges/${challengeId}/files/${fileId}/download`);
+}
+
+export function submitChallengeFlag(challengeId: string, flag: string) {
+  return apiRequest<FlagSubmissionResult>(`/challenges/${challengeId}/submissions`, {
+    method: "POST",
+    body: JSON.stringify({ flag }),
+  });
 }

@@ -101,6 +101,7 @@ export type ParticipantChallenge = {
   locked: boolean;
   solved: boolean;
   awarded_points: number | null;
+  team_fragment: string | null;
 };
 
 export type ActChallengeGroup = {
@@ -188,5 +189,22 @@ export type ChallengeFlag = {
   label: string | null;
   validator_type: string;
   is_active: boolean;
+};
+
+export type UnlockedAct = {
+  id: string;
+  act_number: number;
+  slug: string;
+  title: string;
+};
+
+export type FlagSubmissionResult = {
+  correct: boolean;
+  awarded_points: number;
+  current_score: number;
+  solved: boolean;
+  message: string;
+  next_act_unlocked: UnlockedAct | null;
+  team_fragment: string | null;
 };
 

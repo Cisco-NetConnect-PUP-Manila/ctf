@@ -267,6 +267,9 @@ Response: Challenge details including mission brief/story context/objectives (fi
 listed in §7 admin fields are not exposed to participants). Errors: `NOT_FOUND`,
 `LOCKED_CHALLENGE`.
 
+If the logged-in team already solved the challenge, `team_fragment` contains that
+team's derived solve fragment.
+
 ### 6.3 Submissions
 
 **POST /challenges/{id}/submissions** (Participant)
@@ -277,13 +280,29 @@ Request:
 { "flag": "PacketCapture{PHANTOM_TRACE}" }
 ```
 
-Response: SubmissionResult. Errors: `AUTH_REQUIRED`, `TEAM_NOT_APPROVED`,
+Response:
+
+```json
+{
+  "correct": true,
+  "awarded_points": 100,
+  "current_score": 220,
+  "solved": true,
+  "message": "Flag accepted.",
+  "next_act_unlocked": null,
+  "team_fragment": "PCFRAG-A1B2C3-D4E5F6"
+}
+```
+
+Errors: `AUTH_REQUIRED`, `TEAM_NOT_APPROVED`,
 `SUBMISSIONS_CLOSED`, `NOT_FOUND`, `LOCKED_CHALLENGE`, `ALREADY_SOLVED`,
 `RATE_LIMITED`.
 
 Rules: backend validates the flag; incorrect submissions award nothing; duplicate
 correct submissions award 0 (no double points); scoring and Act-unlock updates happen
-in one backend transaction.
+in one backend transaction. Correct submissions return a team-specific solve fragment
+derived from the team, challenge, and server secret. The fragment is not a validator and
+must not replace server-side flag checking.
 
 ### 6.4 Intel Requests
 

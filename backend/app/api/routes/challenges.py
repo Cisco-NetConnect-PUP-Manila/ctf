@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.api.deps import get_current_team
 from app.core.errors import APIError, LOCKED_CHALLENGE, NOT_FOUND
+from app.core.team_fragments import derive_team_fragment
 from app.db.session import get_db
 from app.models.act import Act
 from app.models.challenge import Challenge, ChallengeFile, ChallengeStatus
@@ -46,6 +47,7 @@ def _challenge_response(
     locked: bool,
     solved_ids: set[UUID],
     awarded_points: dict[UUID, int],
+    team_fragments: dict[UUID, str],
 ) -> ChallengeParticipantResponse:
     return ChallengeParticipantResponse(
         id=challenge.id,
@@ -62,6 +64,7 @@ def _challenge_response(
         locked=locked,
         solved=challenge.id in solved_ids,
         awarded_points=awarded_points.get(challenge.id),
+        team_fragment=None if locked else team_fragments.get(challenge.id),
     )
 
 
@@ -115,6 +118,10 @@ def list_challenges(
             select(Solve.challenge_id, Solve.points_awarded).where(Solve.team_id == team.id)
         ).all()
     }
+    team_fragments = {
+        challenge_id: derive_team_fragment(team.id, challenge_id)
+        for challenge_id in solved_ids
+    }
     unlocked_ids = scoring.unlocked_act_ids(db, team.id)
 
     groups: list[ActChallengeGroupResponse] = []
@@ -141,6 +148,7 @@ def list_challenges(
                         locked=not unlocked,
                         solved_ids=solved_ids,
                         awarded_points=awarded_points,
+                        team_fragments=team_fragments,
                     )
                     for challenge in challenges_by_act.get(act.id, [])
                 ],
@@ -163,17 +171,22 @@ def get_challenge(
     challenge = _load_accessible_challenge(db, team, challenge_id)
 
     solved_ids = scoring.solved_challenge_ids(db, team.id)
-    points_awarded = db.scalar(
+    solve_row = db.execute(
         select(Solve.points_awarded).where(
             Solve.team_id == team.id,
             Solve.challenge_id == challenge.id,
         )
-    )
+    ).first()
     return _challenge_response(
         challenge,
         locked=False,
         solved_ids=solved_ids,
-        awarded_points={challenge.id: points_awarded} if points_awarded is not None else {},
+        awarded_points={challenge.id: solve_row[0]} if solve_row is not None else {},
+        team_fragments={
+            challenge.id: derive_team_fragment(team.id, challenge.id)
+        }
+        if solve_row is not None
+        else {},
     )
 
 
