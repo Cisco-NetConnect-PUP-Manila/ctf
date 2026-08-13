@@ -50,7 +50,7 @@ export default function Home() {
                   <Link className="btn btn--primary btn--terminal" href="/register">
                     Register team
                   </Link>
-                  <Link className="btn btn--ghost btn--terminal hero__sign-in" href="/participant/login">
+                  <Link className="btn btn--ghost btn--terminal hero__sign-in" href="/login">
                     Sign in
                   </Link>
                 </div>
@@ -436,7 +436,7 @@ export default function Home() {
                 <Link className="btn btn--primary" href="/register">
                   Register team
                 </Link>
-                <Link className="btn" href="/participant/login">
+                <Link className="btn" href="/login">
                   Team login
                 </Link>
               </div>
