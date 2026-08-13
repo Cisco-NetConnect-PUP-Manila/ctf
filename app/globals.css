@@ -4657,6 +4657,81 @@ main p,
   text-underline-offset: 3px;
 }
 
+.login-router {
+  display: grid;
+  gap: 18px;
+}
+
+.login-router__primary {
+  background:
+    linear-gradient(180deg, rgba(255, 122, 24, 0.32), rgba(255, 176, 0, 0.12)),
+    rgba(13, 7, 2, 0.9);
+  border: 1px solid var(--amber);
+  box-shadow:
+    var(--bevel-thin-in),
+    0 0 24px rgba(255, 122, 24, 0.18);
+  color: var(--ink);
+  display: grid;
+  gap: 8px;
+  min-height: 154px;
+  padding: clamp(18px, 3vw, 28px);
+  text-decoration: none;
+}
+
+.login-router__primary strong {
+  color: var(--amber-2);
+  font-family: "OffBit Dot", var(--vga);
+  font-size: clamp(1.75rem, 4vw, 3.2rem);
+  line-height: 0.95;
+  text-shadow:
+    0 0 8px rgba(255, 176, 0, 0.45),
+    2px 2px 0 #1a0e00;
+  text-transform: uppercase;
+}
+
+.login-router__primary small {
+  color: var(--ink-dim);
+  font-family: var(--rodin);
+  font-size: 0.76rem;
+  font-weight: 800;
+  max-width: 42ch;
+}
+
+.login-router__primary:hover,
+.login-router__primary:focus-visible {
+  border-color: var(--orange);
+  box-shadow:
+    var(--bevel-thin-in),
+    0 0 34px rgba(255, 122, 24, 0.28);
+  outline: none;
+}
+
+.login-router__secondary {
+  align-items: center;
+  border-top: 1px dashed var(--wire);
+  color: rgba(242, 199, 142, 0.58);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 12px;
+  justify-content: flex-end;
+  padding-top: 14px;
+}
+
+.login-router__secondary span,
+.login-router__secondary a {
+  font-family: var(--rodin);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.login-router__secondary a {
+  color: rgba(255, 176, 0, 0.72);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .auth-notice {
   align-items: start;
   border: 1px solid var(--wire-2);

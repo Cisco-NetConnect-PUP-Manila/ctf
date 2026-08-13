@@ -138,7 +138,13 @@ export default function Taskbar() {
   const time = mounted && now ? fmtTime(z.tz, now) : "--:--";
   const date = mounted && now ? fmtDate(z.tz, now) : "--- --";
   const activeRoute =
-    pathname === "/platform" ? "platform" : pathname === "/admin" ? "admin" : "main";
+    pathname === "/platform"
+      ? "platform"
+      : pathname === "/admin"
+        ? "admin"
+        : pathname.includes("/login")
+          ? "login"
+          : "main";
   const menu =
     activeRoute === "platform"
       ? PLATFORM_MENU
@@ -209,6 +215,16 @@ export default function Taskbar() {
           >
             Main
           </Link>
+          {!accountRole && (
+            <Link
+              className={`taskbar__task ${
+                activeRoute === "login" ? "taskbar__task--active" : ""
+              }`}
+              href="/login"
+            >
+              Login
+            </Link>
+          )}
           {accountRole === "participant" && (
             <Link
               className={`taskbar__task ${
