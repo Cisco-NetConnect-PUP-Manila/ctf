@@ -3,9 +3,9 @@ import Reveal from "../components/Reveal";
 import Window from "../components/Window";
 import ParticipantSessionGuard from "../components/auth/ParticipantSessionGuard";
 import ParticipantAccountControls, {
-  ParticipantTeamName,
 } from "../components/auth/ParticipantAccountControls";
 import AnnouncementsFeed from "../components/announcements/AnnouncementsFeed";
+import ParticipantDashboardSnapshot from "../components/challenges/ParticipantDashboardSnapshot";
 import ParticipantChallengeList from "../components/challenges/ParticipantChallengeList";
 import {
   acts,
@@ -47,7 +47,7 @@ export default function CompetitionPlatformPage() {
           </Reveal>
 
           <Reveal>
-            <Window title="ACCESS.STATE" meta="authenticated frontend shell">
+            <Window title="ACCESS.STATE" meta="authenticated team session">
               <div className="portal-lock">
                 <b>Team channel authenticated.</b>
                 <span>
@@ -72,25 +72,8 @@ export default function CompetitionPlatformPage() {
           </Reveal>
 
           <Reveal className="portal-dashboard">
-            <Window title="team.snapshot" meta="mock display only">
-              <div className="metric-grid">
-                <div className="metric">
-                  <span>Team</span>
-                  <ParticipantTeamName />
-                </div>
-                <div className="metric">
-                  <span>Investigation Score</span>
-                  <b>0</b>
-                </div>
-                <div className="metric">
-                  <span>Current Rank</span>
-                  <b>--</b>
-                </div>
-                <div className="metric">
-                  <span>Current Act</span>
-                  <b>Locked</b>
-                </div>
-              </div>
+            <Window title="team.snapshot" meta="backend live">
+              <ParticipantDashboardSnapshot />
             </Window>
 
             <Window title="ranking.priority" meta="official order">
@@ -212,11 +195,11 @@ export default function CompetitionPlatformPage() {
         <div className="shell">
           <Reveal>
             <span className="eyebrow">PORTAL STATUS</span>
-            <h2>Backend Required</h2>
+            <h2>Backend Connected</h2>
             <p>
-              This route now contains the documented participant platform
-              surface. Live data, submissions, accounts, and scoring are ready
-              for backend integration later.
+              Participant login, approval gating, challenge access, file
+              downloads, flag submissions, scoring, and Act progression now
+              read from the backend.
             </p>
           </Reveal>
         </div>
@@ -252,8 +235,8 @@ export default function CompetitionPlatformPage() {
             <div>
               <h4>Access</h4>
               <ul>
-                <li>Login <span className="footer__soon">(backend)</span></li>
-                <li>Scoring <span className="footer__soon">(backend)</span></li>
+                <li>Login <span className="footer__soon">(live)</span></li>
+                <li>Scoring <span className="footer__soon">(live)</span></li>
                 <li>Flags <span className="footer__soon">(server-side)</span></li>
               </ul>
             </div>
@@ -267,7 +250,7 @@ export default function CompetitionPlatformPage() {
             </div>
           </div>
           <div className="footer__base">
-            <span>Competition Platform - frontend shell</span>
+            <span>Competition Platform - backend-connected team workspace</span>
             <span>{"// TEAM CHANNEL"}</span>
           </div>
         </div>

@@ -23,7 +23,13 @@ export function useParticipantSession() {
   return session;
 }
 
-export default function ParticipantSessionGuard({ children }: { children: ReactNode }) {
+export default function ParticipantSessionGuard({
+  allowPending = false,
+  children,
+}: {
+  allowPending?: boolean;
+  children: ReactNode;
+}) {
   const router = useRouter();
   const [session, setSession] = useState<CurrentAccount | null>(null);
   const [checking, setChecking] = useState(true);
@@ -36,13 +42,17 @@ export default function ParticipantSessionGuard({ children }: { children: ReactN
     try {
       const current = await getCurrentAccount();
       if (current.account.role !== "participant" || !current.team) {
-        router.replace("/login?reason=access");
+        router.replace("/participant/login?reason=access");
+        return;
+      }
+      if (!allowPending && current.team.status !== "approved") {
+        router.replace("/participant/pending");
         return;
       }
       setSession(current);
     } catch (caught) {
       if (caught instanceof ApiError && (caught.status === 401 || caught.status === 403)) {
-        router.replace("/login?reason=session");
+        router.replace("/participant/login?reason=session");
         return;
       }
       setError(
@@ -53,7 +63,7 @@ export default function ParticipantSessionGuard({ children }: { children: ReactN
     } finally {
       setChecking(false);
     }
-  }, [router]);
+  }, [allowPending, router]);
 
   useEffect(() => {
     void checkSession();

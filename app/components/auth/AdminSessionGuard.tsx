@@ -36,13 +36,13 @@ export default function AdminSessionGuard({ children }: { children: ReactNode })
     try {
       const current = await getCurrentAccount();
       if (current.account.role !== "admin") {
-        router.replace("/login?reason=admin");
+        router.replace("/admin/login?reason=admin");
         return;
       }
       setSession(current);
     } catch (caught) {
       if (caught instanceof ApiError && (caught.status === 401 || caught.status === 403)) {
-        router.replace("/login?reason=session");
+        router.replace("/admin/login?reason=session");
         return;
       }
       setError(
