@@ -17,17 +17,16 @@ const PUBLIC_MENU = [
 
 const PLATFORM_MENU = [
   { label: "Dashboard", href: "/platform#dashboard" },
-  { label: "Storyline", href: "/platform#storyline" },
-  { label: "Platform Modules", href: "/platform#modules" },
+  { label: "Announcements", href: "/platform#announcements-feed" },
   { label: "Challenge Workspace", href: "/platform#challenges" },
-  { label: "Portal Status", href: "/platform#portal-status" },
 ];
 
 const ADMIN_MENU = [
   { label: "Admin Overview", href: "/admin#overview" },
-  { label: "Admin Modules", href: "/admin#modules" },
-  { label: "Backend Authority", href: "/admin#authority" },
-  { label: "Admin Status", href: "/admin#admin-status" },
+  { label: "Challenge Console", href: "/admin#challenges" },
+  { label: "Team Approval", href: "/admin#teams" },
+  { label: "Announcements", href: "/admin#announcements" },
+  { label: "Submission Monitor", href: "/admin#submissions" },
 ];
 
 const ZONES = [

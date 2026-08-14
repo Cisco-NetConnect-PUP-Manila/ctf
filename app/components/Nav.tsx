@@ -21,20 +21,17 @@ const NAVS = {
     links: [
       { label: "Dashboard", href: "/platform#dashboard" },
       { label: "Announcements", href: "/platform#announcements-feed" },
-      { label: "Storyline", href: "/platform#storyline" },
-      { label: "Modules", href: "/platform#modules" },
       { label: "Challenges", href: "/platform#challenges" },
-      { label: "Status", href: "/platform#portal-status" },
     ],
   },
   admin: {
     brandHref: "/admin#admin-top",
     links: [
       { label: "Overview", href: "/admin#overview" },
-      { label: "Modules", href: "/admin#modules" },
+      { label: "Challenges", href: "/admin#challenges" },
+      { label: "Teams", href: "/admin#teams" },
       { label: "Announcements", href: "/admin#announcements" },
-      { label: "Authority", href: "/admin#authority" },
-      { label: "Status", href: "/admin#admin-status" },
+      { label: "Submissions", href: "/admin#submissions" },
     ],
   },
 };

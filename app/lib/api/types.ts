@@ -223,3 +223,25 @@ export type FlagSubmissionResult = {
   team_fragment: string | null;
 };
 
+export type AdminSubmissionMonitorRow = {
+  challenge_id: string;
+  challenge_title: string;
+  team_id: string;
+  team_name: string;
+  solved_at: string | null;
+  correct_attempts: number;
+  incorrect_attempts: number;
+  first_attempt_at: string | null;
+  last_attempt_at: string | null;
+  first_correct_at: string | null;
+  seconds_to_solve: number | null;
+  shared_ip_hash_team_count: number;
+  shared_user_agent_hash_team_count: number;
+  rapid_solve: boolean;
+  suspicious_notes: string[];
+};
+
+export type AdminSubmissionMonitorResponse = {
+  rows: AdminSubmissionMonitorRow[];
+};
+

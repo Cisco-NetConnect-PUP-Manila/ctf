@@ -497,12 +497,12 @@ export const adminModules: PortalModule[] = [
   {
     title: "Submission Logs",
     body: "Audit trail for authentication, submissions, Intel Request usage, unlock events, and score changes.",
-    status: "Backend required",
+    status: "Monitor live",
     details: [
-      "Login history",
-      "Flag submissions",
+      "Flag submission attempts",
       "Correct and incorrect attempts",
-      "Intel Request usage",
+      "Rapid solve signals",
+      "Shared metadata signals",
       "Challenge completion",
       "Unlock events",
       "Score changes",

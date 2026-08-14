@@ -4732,6 +4732,61 @@ main p,
   text-underline-offset: 3px;
 }
 
+.submission-monitor {
+  display: grid;
+  gap: 18px;
+}
+
+.submission-monitor__list {
+  display: grid;
+  gap: 12px;
+}
+
+.submission-monitor__row {
+  background: rgba(6, 3, 1, 0.58);
+  border: 1px solid var(--wire);
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.submission-monitor__row--flagged {
+  border-color: var(--orange);
+  box-shadow: inset 0 0 22px rgba(255, 80, 20, 0.08);
+}
+
+.submission-monitor__main h4 {
+  color: var(--amber-2);
+  font-family: var(--rodin);
+  font-size: 0.95rem;
+  margin: 5px 0;
+}
+
+.submission-monitor__main small,
+.submission-monitor__stats span,
+.submission-monitor__notes li {
+  color: var(--ink-dim);
+  font-family: var(--term);
+  font-size: 0.72rem;
+}
+
+.submission-monitor__stats {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.submission-monitor__stats span {
+  border: 1px solid var(--wire);
+  padding: 8px;
+}
+
+.submission-monitor__notes {
+  border-top: 1px dashed var(--wire);
+  margin: 0;
+  padding: 10px 0 0 18px;
+}
+
 .auth-notice {
   align-items: start;
   border: 1px solid var(--wire-2);
@@ -5911,11 +5966,11 @@ main p,
 }
 
 .challenge-detail-page {
-  padding-top: 120px;
+  padding-top: 92px;
 }
 .challenge-detail {
   display: grid;
-  gap: 22px;
+  gap: 18px;
 }
 .challenge-detail__nav a {
   color: var(--amber);
@@ -5930,21 +5985,33 @@ main p,
   box-shadow: inset 0 0 24px rgba(255, 128, 20, 0.035);
 }
 .challenge-detail__hero {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
+  display: grid;
+  gap: 14px;
+  padding: clamp(16px, 2.5vw, 24px);
+}
+.challenge-detail__hero-main {
   align-items: start;
-  padding: 24px;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
 }
 .challenge-detail__hero h1 {
   margin: 8px 0 14px;
   color: var(--amber-2);
   font-family: "OffBit", var(--vga);
-  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-size: clamp(1.9rem, 3.6vw, 3.65rem);
+  line-height: 0.98;
+  max-width: 18ch;
+  overflow-wrap: anywhere;
+}
+.challenge-detail__primary-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(300px, 0.72fr) minmax(0, 1.28fr);
 }
 .challenge-detail__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  grid-template-columns: 1fr;
   gap: 16px;
 }
 .challenge-detail__panel,
@@ -5965,6 +6032,53 @@ main p,
 }
 .challenge-detail__panel .eyebrow:first-child {
   margin-top: 0;
+}
+.challenge-detail__panel h2 {
+  color: var(--amber-2);
+  font-family: "OffBit Dot", var(--vga);
+  font-size: clamp(1.45rem, 2.5vw, 2.2rem);
+  margin: 8px 0 10px;
+  text-transform: uppercase;
+}
+.challenge-detail__panel--files {
+  border-color: var(--amber);
+  box-shadow:
+    inset 0 0 24px rgba(255, 128, 20, 0.06),
+    0 0 24px rgba(255, 128, 20, 0.12);
+}
+.challenge-card__file-list--detail {
+  margin-top: 14px;
+}
+.challenge-detail__file-button {
+  align-items: center;
+  background: rgba(255, 128, 20, 0.08);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 14px 16px;
+  text-align: left;
+  width: 100%;
+}
+.challenge-detail__file-button:hover,
+.challenge-detail__file-button:focus-visible {
+  border-color: var(--amber);
+  box-shadow: 0 0 18px rgba(255, 128, 20, 0.16);
+  outline: none;
+}
+.challenge-detail__file-button span {
+  color: var(--amber-2);
+  font-family: var(--term);
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+.challenge-detail__file-button small {
+  color: var(--ink-dim);
+  flex: 0 0 auto;
+  font-family: var(--term);
+  font-size: 0.74rem;
 }
 .challenge-detail__submit form {
   display: grid;
@@ -6003,6 +6117,12 @@ main p,
 .challenge-detail__error {
   color: var(--orange-2);
 }
+.challenge-detail__banner {
+  border: 1px solid var(--orange);
+  background: rgba(122, 26, 8, 0.24);
+  margin: 0;
+  padding: 12px 14px;
+}
 .challenge-detail__success {
   color: var(--amber-2);
 }
@@ -6030,15 +6150,20 @@ main p,
 }
 
 @media (max-width: 900px) {
+  .challenge-detail__primary-grid,
   .challenge-detail__grid {
     grid-template-columns: 1fr;
   }
 }
 @media (max-width: 620px) {
   .challenge-detail-page {
-    padding-top: 92px;
+    padding-top: 76px;
   }
-  .challenge-detail__hero {
+  .challenge-detail__hero-main {
+    flex-direction: column;
+  }
+  .challenge-detail__file-button {
+    align-items: start;
     flex-direction: column;
   }
   .challenge-detail__submit form > div {

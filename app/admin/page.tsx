@@ -4,17 +4,10 @@ import Window from "../components/Window";
 import AdminSessionGuard from "../components/auth/AdminSessionGuard";
 import AdminAccountControls from "../components/auth/AdminAccountControls";
 import AdminOverviewSnapshot from "../components/admin/AdminOverviewSnapshot";
+import AdminSubmissionMonitor from "../components/admin/AdminSubmissionMonitor";
 import AdminTeamManager from "../components/admin/AdminTeamManager";
 import AnnouncementsManager from "../components/announcements/AnnouncementsManager";
 import AdminChallengeManager from "../components/challenges/AdminChallengeManager";
-import { adminModules } from "../data";
-
-const moduleActions: Record<string, { href: string; label: string }> = {
-  "Admin Dashboard": { href: "/admin#overview", label: "View overview" },
-  "Team Management": { href: "/admin#teams", label: "Open team queue" },
-  "Challenge Management": { href: "/admin#challenges", label: "Open challenge console" },
-  "Announcement Management": { href: "/admin#announcements", label: "Open announcement console" },
-};
 
 export default function AdminPanelPage() {
   return (
@@ -26,9 +19,8 @@ export default function AdminPanelPage() {
             <span className="eyebrow">ADMIN CONSOLE.SYS</span>
             <h1>Administrative Panel</h1>
             <p>
-              Restricted organizer interface for challenge management, team
-              control, leaderboard oversight, announcements, submission logs,
-              and platform settings.
+              Organizer workspace for challenge publishing, team approvals,
+              announcements, and submission monitoring.
             </p>
             <div className="portal-actions">
               <AdminAccountControls />
@@ -38,18 +30,8 @@ export default function AdminPanelPage() {
             </div>
           </Reveal>
 
-          <Reveal>
-            <Window title="RESTRICTED.ACCESS" meta="admin auth required" tone="alert">
-              <div className="portal-lock portal-lock--alert">
-                <b>Administrative channel authenticated.</b>
-                <span>
-                  Challenge and announcement writes are protected by backend
-                  role checks. Score overrides, penalties, disqualification,
-                  and platform settings remain unavailable until implemented.
-                </span>
-              </div>
-            </Window>
-          </Reveal>
+          {/* Temporarily hidden: static access explainer. The working admin tools below
+              make the authenticated state clear without extra copy. */}
         </div>
       </section>
 
@@ -60,7 +42,7 @@ export default function AdminPanelPage() {
               <span className="eyebrow">(01) Admin Overview</span>
               <h2>Control Room</h2>
             </div>
-            <span className="section-index">01 / 06</span>
+            <span className="section-index">01 / 05</span>
           </Reveal>
 
           <Reveal className="portal-dashboard">
@@ -68,19 +50,12 @@ export default function AdminPanelPage() {
               <AdminOverviewSnapshot />
             </Window>
 
-            <Window title="audit.scope" meta="required logs">
-              <ul className="terminal-list">
-                <li>Login history</li>
-                <li>Flag submissions</li>
-                <li>Correct and incorrect attempts</li>
-                <li>Intel Request usage</li>
-                <li>Unlock events and score changes</li>
-              </ul>
-            </Window>
+            {/* Temporarily hidden: audit checklist repeated the submission monitor below. */}
           </Reveal>
         </div>
       </section>
 
+      {/* Temporarily hidden: module cards are mostly planning/documentation text.
       <section className="sec" id="modules">
         <div className="shell">
           <Reveal className="sec__head">
@@ -114,6 +89,7 @@ export default function AdminPanelPage() {
           </div>
         </div>
       </section>
+      */}
 
       <section className="sec" id="challenges">
         <div className="shell">
@@ -122,7 +98,7 @@ export default function AdminPanelPage() {
               <span className="eyebrow">(03) Challenge Management</span>
               <h2>Challenge Control Console</h2>
             </div>
-            <span className="section-index">03 / 06</span>
+            <span className="section-index">02 / 05</span>
           </Reveal>
 
           <Reveal>
@@ -140,7 +116,7 @@ export default function AdminPanelPage() {
               <span className="eyebrow">(04) Team Management</span>
               <h2>Registration Approval Queue</h2>
             </div>
-            <span className="section-index">04 / 06</span>
+            <span className="section-index">03 / 05</span>
           </Reveal>
 
           <Reveal>
@@ -158,7 +134,7 @@ export default function AdminPanelPage() {
               <span className="eyebrow">(05) Announcements</span>
               <h2>Publish Event Updates</h2>
             </div>
-            <span className="section-index">05 / 06</span>
+            <span className="section-index">04 / 05</span>
           </Reveal>
 
           <Reveal>
@@ -169,6 +145,8 @@ export default function AdminPanelPage() {
         </div>
       </section>
 
+      {/* Temporarily hidden: backend authority notes are useful docs, but noisy in the
+          production admin surface.
       <section className="sec" id="authority">
         <div className="shell">
           <Reveal className="sec__head">
@@ -176,7 +154,7 @@ export default function AdminPanelPage() {
               <span className="eyebrow">(06) Safety Boundary</span>
               <h2>Backend Authority</h2>
             </div>
-            <span className="section-index">06 / 06</span>
+            <span className="section-index">06 / 07</span>
           </Reveal>
 
           <Reveal className="brief-grid">
@@ -199,7 +177,27 @@ export default function AdminPanelPage() {
           </Reveal>
         </div>
       </section>
+      */}
 
+      <section className="sec" id="submissions">
+        <div className="shell">
+          <Reveal className="sec__head">
+            <div>
+            <span className="eyebrow">(05) Submission Monitor</span>
+              <h2>Anti-Sharing Signals</h2>
+            </div>
+            <span className="section-index">05 / 05</span>
+          </Reveal>
+
+          <Reveal>
+            <Window title="submission.monitor" meta="attempts / solves / suspicious signals">
+              <AdminSubmissionMonitor />
+            </Window>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Temporarily hidden: redundant status banner.
       <section className="register" id="admin-status">
         <div className="shell">
           <Reveal>
@@ -213,7 +211,9 @@ export default function AdminPanelPage() {
           </Reveal>
         </div>
       </section>
+      */}
 
+      {/* Temporarily hidden: footer repeated page navigation and added visual noise.
       <footer className="footer footer--portal">
         <div className="shell">
           <div className="footer__grid">
@@ -240,6 +240,9 @@ export default function AdminPanelPage() {
                   <Link href="/admin#teams">Teams</Link>
                 </li>
                 <li>
+                  <Link href="/admin#submissions">Submissions</Link>
+                </li>
+                <li>
                   <Link href="/admin#authority">Authority</Link>
                 </li>
                 <li>
@@ -252,7 +255,7 @@ export default function AdminPanelPage() {
               <ul>
                 <li>Roles <span className="footer__soon">(live)</span></li>
                 <li>Overrides <span className="footer__soon">(backend)</span></li>
-                <li>Audit Logs <span className="footer__soon">(backend)</span></li>
+                <li>Submission Monitor <span className="footer__soon">(live)</span></li>
               </ul>
             </div>
             <div>
@@ -273,6 +276,7 @@ export default function AdminPanelPage() {
           </div>
         </div>
       </footer>
+      */}
     </main>
     </AdminSessionGuard>
   );
