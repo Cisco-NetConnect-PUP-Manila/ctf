@@ -34,11 +34,15 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.core.config import settings
+
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
 
-DEFAULT_TEST_DATABASE_URL = (
-    "postgresql+psycopg://packet_capture:change_this_local_password"
-    "@localhost:5433/packet_capture_ctf_test"
+_application_url = make_url(settings.database_url)
+DEFAULT_TEST_DATABASE_URL = _application_url.set(
+    database=f"{_application_url.database}_test"
+).render_as_string(
+    hide_password=False
 )
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", DEFAULT_TEST_DATABASE_URL)
 
