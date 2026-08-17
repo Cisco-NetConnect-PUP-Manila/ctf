@@ -306,3 +306,20 @@ export type AdminLeaderboardResponse = {
   rows: AdminLeaderboardRow[];
 };
 
+export type ParticipantLeaderboardRow = {
+  rank: number;
+  team_id: string;
+  team_name: string;
+  investigation_score: number;
+  solved_count: number;
+  current_act: number;
+  intel_penalty: number;
+  last_solve_at: string | null;
+};
+
+export type ParticipantLeaderboardResponse = {
+  generated_at: string;
+  current_team_rank: number;
+  rows: ParticipantLeaderboardRow[];
+};
+

@@ -7,6 +7,7 @@ import AnnouncementsFeed from "../components/announcements/AnnouncementsFeed";
 import ParticipantDashboardSnapshot from "../components/challenges/ParticipantDashboardSnapshot";
 import ParticipantChallengeList from "../components/challenges/ParticipantChallengeList";
 import ParticipantPlatformStatusGate from "../components/challenges/ParticipantPlatformStatusGate";
+import ParticipantLeaderboard from "../components/leaderboard/ParticipantLeaderboard";
 
 export default function CompetitionPlatformPage() {
   return (
@@ -79,11 +80,27 @@ export default function CompetitionPlatformPage() {
                 <span className="eyebrow">(02) Announcements</span>
                 <h2>Event Transmissions</h2>
               </div>
-              <span className="section-index">02 / 03</span>
+              <span className="section-index">02 / 04</span>
             </Reveal>
 
             <Reveal>
               <AnnouncementsFeed />
+            </Reveal>
+          </div>
+        </section>
+
+        <section className="sec" id="leaderboard">
+          <div className="shell">
+            <Reveal className="sec__head">
+              <div>
+                <span className="eyebrow">(03) Leaderboard</span>
+                <h2>Investigation Standings</h2>
+              </div>
+              <span className="section-index">03 / 04</span>
+            </Reveal>
+
+            <Reveal>
+              <ParticipantLeaderboard />
             </Reveal>
           </div>
         </section>
@@ -167,10 +184,10 @@ export default function CompetitionPlatformPage() {
           <div className="shell">
             <Reveal className="sec__head">
               <div>
-                <span className="eyebrow">(03) Challenge Workspace</span>
+                <span className="eyebrow">(04) Challenge Workspace</span>
                 <h2>Challenge Directory</h2>
               </div>
-              <span className="section-index">03 / 03</span>
+              <span className="section-index">04 / 04</span>
             </Reveal>
 
             <Reveal>
