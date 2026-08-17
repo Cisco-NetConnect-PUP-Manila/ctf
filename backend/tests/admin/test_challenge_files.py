@@ -11,6 +11,8 @@ from app.models.act import Act
 from app.models.audit_log import AuditLog
 from app.models.challenge import Challenge, ChallengeFile, ChallengeStatus
 from app.models.team import TeamStatus
+from app.services.platform_settings import KEY_SUBMISSIONS_OPEN
+from app.models.platform_setting import PlatformSetting
 
 
 def _act(db_session, number: int = 1) -> Act:
@@ -193,8 +195,39 @@ def test_admin_deactivates_file_without_deleting_metadata(client, db_session, tm
     assert db_session.query(AuditLog).filter(AuditLog.action == "challenge_file.deactivated").count() == 1
 
 
+def test_admin_reactivates_existing_challenge_file(client, db_session, tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "challenge_file_storage_root", str(tmp_path))
+    challenge = _challenge(db_session, _act(db_session))
+    cookies = _login_admin(client, db_session)
+    uploaded = client.post(
+        f"/admin/challenges/{challenge.id}/files",
+        files={"upload": ("evidence.txt", b"notes", "text/plain")},
+        cookies=cookies,
+    ).json()
+    client.delete(
+        f"/admin/challenges/{challenge.id}/files/{uploaded['id']}",
+        cookies=cookies,
+    )
+
+    response = client.patch(
+        f"/admin/challenges/{challenge.id}/files/{uploaded['id']}/reactivate",
+        cookies=cookies,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["is_active"] is True
+    row = db_session.get(ChallengeFile, uploaded["id"])
+    assert row is not None
+    assert row.deactivated_at is None
+    assert db_session.query(AuditLog).filter(
+        AuditLog.action == "challenge_file.reactivated"
+    ).count() == 1
+
+
 def test_participant_downloads_only_unlocked_active_files(client, db_session, tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "challenge_file_storage_root", str(tmp_path))
+    db_session.add(PlatformSetting(key=KEY_SUBMISSIONS_OPEN, value_json=True))
+    db_session.flush()
     open_challenge = _challenge(db_session, _act(db_session, 1), title="Open Evidence")
     locked_challenge = _challenge(db_session, _act(db_session, 2), title="Locked Evidence")
     admin_cookies = _login_admin(client, db_session)

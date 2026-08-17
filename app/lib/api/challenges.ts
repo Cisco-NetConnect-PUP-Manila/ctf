@@ -173,6 +173,13 @@ export function submitChallengeFlag(challengeId: string, flag: string) {
   });
 }
 
+export function reactivateAdminChallengeFile(challengeId: string, fileId: string) {
+  return apiRequest<ChallengeFile>(
+    `/admin/challenges/${challengeId}/files/${fileId}/reactivate`,
+    { method: "PATCH" }
+  );
+}
+
 export function listParticipantChallengeHints(challengeId: string) {
   return apiRequest<ParticipantHint[]>(`/challenges/${challengeId}/hints`, {
     method: "GET",
