@@ -7857,6 +7857,28 @@ body.registration-closed-active .auth-page {
   grid-template-columns: 1fr;
   gap: 16px;
 }
+.challenge-hint-row__edit {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(120px, 0.25fr) minmax(110px, 0.2fr);
+  gap: 10px;
+  width: 100%;
+}
+.challenge-hint-row__edit textarea,
+.challenge-hint-row__edit input {
+  width: 100%;
+}
+.challenge-hint-row__edit label {
+  display: grid;
+  gap: 6px;
+  color: var(--orange-2);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.challenge-hint-row__edit .challenge-admin-row__actions {
+  grid-column: 1 / -1;
+}
 
 @media (max-width: 760px) {
   .team-admin__filters {
@@ -7866,6 +7888,10 @@ body.registration-closed-active .auth-page {
 
   .team-admin__filters small {
     padding-bottom: 0;
+  }
+
+  .challenge-hint-row__edit {
+    grid-template-columns: 1fr;
   }
 }
 .challenge-detail__intel-list {

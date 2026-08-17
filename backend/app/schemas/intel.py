@@ -8,15 +8,15 @@ class IntelRequestBase(BaseModel):
 
 
 class HintCreateRequest(IntelRequestBase):
-    content: str = Field(min_length=1)
+    content: str = Field(min_length=1, max_length=4000)
     penalty_points: int = Field(ge=0)
-    sort_order: int = 0
+    sort_order: int = Field(default=0, ge=0)
 
 
 class HintUpdateRequest(IntelRequestBase):
-    content: str | None = Field(default=None, min_length=1)
+    content: str | None = Field(default=None, min_length=1, max_length=4000)
     penalty_points: int | None = Field(default=None, ge=0)
-    sort_order: int | None = None
+    sort_order: int | None = Field(default=None, ge=0)
     is_active: bool | None = None
 
 

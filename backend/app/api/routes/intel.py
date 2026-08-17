@@ -88,7 +88,16 @@ def list_hints(challenge_id: UUID, team: Team = Depends(get_current_team), db: S
         )
         .order_by(Hint.sort_order, Hint.created_at)
     ).all()
-    return [HintParticipantResponse(id=row.id, penalty_points=row.penalty_points, sort_order=row.sort_order, requested=row.id in requests, content=row.content if row.id in requests else None) for row in rows]
+    return [
+        HintParticipantResponse(
+            id=row.id,
+            penalty_points=(requests[row.id].penalty_points if row.id in requests else row.penalty_points),
+            sort_order=row.sort_order,
+            requested=row.id in requests,
+            content=row.content if row.id in requests else None,
+        )
+        for row in rows
+    ]
 
 
 @router.post("/{challenge_id}/intel-requests", response_model=IntelRequestResponse)
