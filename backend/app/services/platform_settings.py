@@ -62,15 +62,10 @@ def submissions_are_open(db: Session) -> bool:
 
 
 def team_approval_required(db: Session) -> bool:
-    """Default false.
-
-    The handoff lists "whether registration requires organizer approval" as a Pending
-    Organizer Decision, so it must not be guessed. Encoding it as config keeps the
-    end-to-end milestone testable before issue #9 ships an approval route.
-    """
+    """Return the organizer preference, failing closed when the row is missing."""
     value = get_setting(db, KEY_REQUIRE_TEAM_APPROVAL)
     if value is None:
-        return False
+        return True
     return bool(value)
 
 

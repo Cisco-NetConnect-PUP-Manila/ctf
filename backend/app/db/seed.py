@@ -105,6 +105,7 @@ def seed():
 def _seed_platform_settings(db):
     defaults = {
         "registration_open": True,
+        "require_team_approval": True,
     }
     for key, value in defaults.items():
         existing = db.query(PlatformSetting).filter_by(key=key).first()
