@@ -66,6 +66,8 @@ def _team_to_response(team: Team | None) -> TeamResponse | None:
         id=team.id,
         group_name=team.group_name,
         status=team.status,
+        rejected_at=team.rejected_at,
+        rejection_reason=team.rejection_reason,
         members=[
             TeamMemberResponse(
                 id=member.id,
