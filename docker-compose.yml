@@ -32,10 +32,9 @@ services:
       CHALLENGE_FILE_MAX_BYTES: "${CHALLENGE_FILE_MAX_BYTES:-104857600}"
       FLAG_HASH_SECRET: "${FLAG_HASH_SECRET:-change-me-local-flag-hash-secret}"
       TEAM_FRAGMENT_SECRET: "${TEAM_FRAGMENT_SECRET:-change-me-local-team-fragment-secret}"
-      # No default organizer secret: local developers may opt in through their ignored
-      # .env file, while a copied Compose file cannot silently create a known admin.
-      DEV_ADMIN_EMAIL: "${DEV_ADMIN_EMAIL:-}"
-      DEV_ADMIN_PASSWORD: "${DEV_ADMIN_PASSWORD:-}"
+      # Local-development organizer account. Override both values outside local use.
+      DEV_ADMIN_EMAIL: "${DEV_ADMIN_EMAIL:-admin@example.com}"
+      DEV_ADMIN_PASSWORD: "${DEV_ADMIN_PASSWORD:-AdminPassword123!}"
     volumes:
       - challenge-files:/app/storage/challenge-files
     depends_on:
