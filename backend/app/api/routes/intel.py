@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import func, select, text
+from sqlalchemy import func, or_, select, text
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_team
@@ -79,8 +79,15 @@ def _audit_request(db: Session, team: Team, hint: Hint, *, repeated: bool) -> No
 def list_hints(challenge_id: UUID, team: Team = Depends(get_current_team), db: Session = Depends(get_db)) -> list[HintParticipantResponse]:
     _load_accessible_challenge(db, team, challenge_id)
     _ensure_intel_access_open(db)
-    rows = db.scalars(select(Hint).where(Hint.challenge_id == challenge_id, Hint.is_active.is_(True)).order_by(Hint.sort_order, Hint.created_at)).all()
     requests = {row.hint_id: row for row in db.scalars(select(IntelRequest).where(IntelRequest.team_id == team.id, IntelRequest.challenge_id == challenge_id)).all()}
+    rows = db.scalars(
+        select(Hint)
+        .where(
+            Hint.challenge_id == challenge_id,
+            or_(Hint.is_active.is_(True), Hint.id.in_(requests)),
+        )
+        .order_by(Hint.sort_order, Hint.created_at)
+    ).all()
     return [HintParticipantResponse(id=row.id, penalty_points=row.penalty_points, sort_order=row.sort_order, requested=row.id in requests, content=row.content if row.id in requests else None) for row in rows]
 
 

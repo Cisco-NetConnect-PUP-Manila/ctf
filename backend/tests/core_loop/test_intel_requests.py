@@ -165,3 +165,52 @@ def test_repeated_intel_requests_are_rate_limited_without_duplicate_penalty(
     assert blocked.status_code == 429
     assert blocked.json()["code"] == "RATE_LIMITED"
     assert scoring.compute_investigation_score(db, team.team.id) == -15
+
+
+def test_deactivated_intel_remains_visible_only_to_team_that_purchased_it(
+    db, client, seed_reference_data
+):
+    team = make_team(db)
+    other_team = make_team(db)
+    challenge = make_challenge(db, get_act(db, 1))
+    hint = Hint(
+        challenge_id=challenge.id,
+        content="Previously purchased evidence.",
+        penalty_points=30,
+    )
+    db.add(hint)
+    db.flush()
+    db.add(
+        IntelRequest(
+            team_id=team.team.id,
+            challenge_id=challenge.id,
+            hint_id=hint.id,
+            penalty_points=hint.penalty_points,
+        )
+    )
+    hint.is_active = False
+    db.commit()
+
+    assert client.post(
+        "/auth/login", json={"email": team.email, "password": PASSWORD}
+    ).status_code == 200
+    purchased = client.get(f"/challenges/{challenge.id}/hints")
+    assert purchased.status_code == 200
+    assert purchased.json() == [
+        {
+            "id": str(hint.id),
+            "penalty_points": 30,
+            "sort_order": 0,
+            "requested": True,
+            "content": "Previously purchased evidence.",
+        }
+    ]
+
+    client.post("/auth/logout")
+    client.cookies.clear()
+    assert client.post(
+        "/auth/login", json={"email": other_team.email, "password": PASSWORD}
+    ).status_code == 200
+    unavailable = client.get(f"/challenges/{challenge.id}/hints")
+    assert unavailable.status_code == 200
+    assert unavailable.json() == []
