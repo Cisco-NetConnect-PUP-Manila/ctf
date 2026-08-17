@@ -11,7 +11,7 @@ export default async function ParticipantChallengePage({
 
   return (
     <ParticipantSessionGuard>
-      <main className="portal-page">
+      <main className="portal-page portal-page--platform">
         <section className="sec challenge-detail-page">
           <div className="shell">
             <ParticipantChallengeDetail challengeId={id} />
@@ -19,9 +19,11 @@ export default async function ParticipantChallengePage({
         </section>
         <footer className="footer footer--portal">
           <div className="shell">
-            <div className="footer__base">
+            <div className="footer__base challenge-detail-footer">
               <span>Secured Challenge Channel</span>
-              <Link href="/platform">Return to platform</Link>
+              <Link className="btn" href="/platform">
+                Return to platform
+              </Link>
             </div>
           </div>
         </footer>

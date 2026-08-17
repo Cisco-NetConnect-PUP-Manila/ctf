@@ -51,7 +51,7 @@ export default function ParticipantPendingNotice() {
 
         <Reveal>
           <Window title="TEAM.STATUS" meta="approval required">
-            <div className="portal-lock">
+            <div className="portal-lock portal-lock--pending">
               <b>Team registration received.</b>
               <span>
                 The admin approval queue controls participant access. Once approved,
@@ -59,7 +59,7 @@ export default function ParticipantPendingNotice() {
               </span>
               <div className="portal-actions">
                 <ParticipantAccountControls />
-                <Link className="btn btn--primary" href="/">
+                <Link className="btn btn--primary portal-lock__main-link" href="/">
                   Back to public site
                 </Link>
               </div>

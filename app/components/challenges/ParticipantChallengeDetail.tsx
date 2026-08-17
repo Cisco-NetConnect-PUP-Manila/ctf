@@ -10,10 +10,15 @@ import {
   submitChallengeFlag,
 } from "../../lib/api/challenges";
 import { ApiError } from "../../lib/api/client";
+import {
+  getPlatformSettings,
+  platformIsFrozen,
+} from "../../lib/api/platformSettings";
 import type {
   ChallengeFile,
   FlagSubmissionResult,
   ParticipantChallenge,
+  PlatformSettings,
 } from "../../lib/api/types";
 
 function formatBytes(bytes: number) {
@@ -38,17 +43,22 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
   const [error, setError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [submission, setSubmission] = useState<FlagSubmissionResult | null>(null);
+  const [settings, setSettings] = useState<PlatformSettings | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const [challengeData, fileData] = await Promise.all([
+      const [challengeData, settingsData] = await Promise.all([
         getParticipantChallenge(challengeId),
-        listParticipantChallengeFiles(challengeId),
+        getPlatformSettings(),
       ]);
+      const fileData = platformIsFrozen(settingsData)
+        ? []
+        : await listParticipantChallengeFiles(challengeId);
       setChallenge(challengeData);
       setFiles(fileData);
+      setSettings(settingsData);
     } catch (caught) {
       setError(
         caught instanceof ApiError
@@ -68,10 +78,11 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
     () => fragmentForDisplay(challenge, submission),
     [challenge, submission]
   );
+  const scoringFrozen = settings ? platformIsFrozen(settings) : false;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!flag.trim() || submitting) return;
+    if (!flag.trim() || submitting || scoringFrozen) return;
 
     setSubmitting(true);
     setSubmitError("");
@@ -158,7 +169,9 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
     <div className="challenge-detail">
       <section className="challenge-detail__hero">
         <div className="challenge-detail__nav">
-          <Link href="/platform#challenges">Back to directory</Link>
+          <Link className="btn" href="/platform#challenges">
+            Back to directory
+          </Link>
         </div>
         <div className="challenge-detail__hero-main">
           <div>
@@ -186,44 +199,67 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
         <aside className="challenge-detail__panel challenge-detail__panel--files">
           <span className="eyebrow">ACTIVE.PROBLEM</span>
           <h2>Download evidence</h2>
-          <p>
-            Start here. Download the attached challenge file, solve it with the
-            required tool, then submit the recovered flag below.
-          </p>
-          <div className="challenge-card__file-list challenge-card__file-list--detail">
-            {files.length === 0 && <small>No attached files for this challenge.</small>}
-            {files.map((file) => (
-              <button
-                className="challenge-detail__file-button"
-                key={file.id}
-                onClick={() => void handleFileDownload(file)}
-                type="button"
-              >
-                <span>{file.display_name}</span>
-                <small>{file.extension} - {formatBytes(file.size_bytes)}</small>
-              </button>
-            ))}
-          </div>
+          {scoringFrozen ? (
+            <p>
+              Evidence access is closed because the competition has been frozen.
+              Review your recap from the platform page.
+            </p>
+          ) : (
+            <>
+              <p>
+                Start here. Download the attached challenge file, solve it with the
+                required tool, then submit the recovered flag below.
+              </p>
+              <div className="challenge-card__file-list challenge-card__file-list--detail">
+                {files.length === 0 && <small>No attached files for this challenge.</small>}
+                {files.map((file) => (
+                  <button
+                    className="challenge-detail__file-button"
+                    key={file.id}
+                    onClick={() => void handleFileDownload(file)}
+                    type="button"
+                  >
+                    <span>{file.display_name}</span>
+                    <small>{file.extension} - {formatBytes(file.size_bytes)}</small>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </aside>
 
         <section className="challenge-detail__submit" aria-live="polite">
-          <form onSubmit={handleSubmit}>
-            <label htmlFor="challenge-flag">Recovered flag</label>
-            <div>
-              <input
-                autoComplete="off"
-                id="challenge-flag"
-                maxLength={256}
-                onChange={(event) => setFlag(event.target.value)}
-                placeholder="PacketCapture{...}"
-                type="text"
-                value={flag}
-              />
-              <button className="btn btn--primary" disabled={submitting} type="submit">
-                {submitting ? "Submitting..." : "Submit flag"}
-              </button>
+          {scoringFrozen ? (
+            <div className="challenge-detail__closed">
+              <span className="eyebrow">SCORING.CLOSED</span>
+              <h2>Time is up</h2>
+              <p>
+                Submissions are closed by the organizers. Existing solves remain
+                recorded on your team recap.
+              </p>
+              <Link className="btn btn--primary" href="/platform#time-up">
+                View recap
+              </Link>
             </div>
-          </form>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="challenge-flag">Recovered flag</label>
+              <div>
+                <input
+                  autoComplete="off"
+                  id="challenge-flag"
+                  maxLength={256}
+                  onChange={(event) => setFlag(event.target.value)}
+                  placeholder="PacketCapture{...}"
+                  type="text"
+                  value={flag}
+                />
+                <button className="btn btn--primary" disabled={submitting} type="submit">
+                  {submitting ? "Submitting..." : "Submit flag"}
+                </button>
+              </div>
+            </form>
+          )}
 
           {submitError && <p className="challenge-detail__error">{submitError}</p>}
           {submission && (

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LoginForm from "../components/auth/LoginForm";
 import Reveal from "../components/Reveal";
 import Window from "../components/Window";
 
@@ -9,34 +9,23 @@ export default function LoginPage() {
         <Reveal className="auth-page__intro">
           <span className="eyebrow">TEAM ACCESS.EXE</span>
           <h1 className="auth-title">
-            Resume
+            Access
             <br />
             The
             <br />
-            <span className="glitch" data-text="Investigation">
-              Investigation
+            <span className="glitch" data-text="Platform">
+              Platform
             </span>
           </h1>
           <p>
-            Choose the correct access channel. Team login is the main participant
-            path; organizer access is kept separate for admins.
+            Use your approved team account to enter the competition, or register
+            your team if this is your first time joining.
           </p>
         </Reveal>
 
         <Reveal>
-          <Window title="ACCESS.ROUTER" meta="select channel">
-            <div className="login-router">
-              <Link className="login-router__primary" href="/participant/login">
-                <span className="eyebrow">PARTICIPANT CHANNEL</span>
-                <strong>Team Login</strong>
-                <small>Use the shared team email after organizer approval.</small>
-              </Link>
-
-              <div className="login-router__secondary">
-                <span>Organizer access</span>
-                <Link href="/admin/login">Admin login</Link>
-              </div>
-            </div>
+          <Window title="TEAM.LOGIN" meta="participant channel">
+            <LoginForm portal="participant" />
           </Window>
         </Reveal>
       </div>

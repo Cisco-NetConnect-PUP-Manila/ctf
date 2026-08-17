@@ -62,7 +62,7 @@ export default function LoginForm({ portal = "participant" }: LoginFormProps) {
     } else if (reason === "logged-out") {
       setSessionMessage(content.loggedOut);
     }
-  }, [content.access, content.loggedOut]);
+  }, [content.access, content.loggedOut, portal]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -122,7 +122,10 @@ export default function LoginForm({ portal = "participant" }: LoginFormProps) {
           autoComplete="email"
           inputMode="email"
           name="email"
-          onChange={(event) => setEmail(event.target.value)}
+          onChange={(event) => {
+            setEmail(event.target.value);
+            setError("");
+          }}
           placeholder={content.placeholder}
           required
           type="email"
@@ -137,7 +140,10 @@ export default function LoginForm({ portal = "participant" }: LoginFormProps) {
             autoComplete="current-password"
             minLength={1}
             name="password"
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(event) => {
+              setPassword(event.target.value);
+              setError("");
+            }}
             required
             type={passwordVisible ? "text" : "password"}
             value={password}
@@ -156,11 +162,6 @@ export default function LoginForm({ portal = "participant" }: LoginFormProps) {
       {portal !== "admin" && (
         <p className="auth-switch">
           No team account yet? <Link href="/register">Register your team</Link>
-        </p>
-      )}
-      {portal === "admin" && (
-        <p className="auth-switch">
-          Team account? <Link href="/participant/login">Use participant login</Link>
         </p>
       )}
     </form>

@@ -39,7 +39,7 @@ export const competition = {
   phrase: "Race Smart. Score Higher.",
   status: "Registration opening soon",
   format: "PacketCapture{FLAG_NAME}",
-  contact: "Official contact channel TBA",
+  contact: "learncyberph@gmail.com",
   description:
     "A team-based, story-driven Capture-the-Flag competition that bridges networking fundamentals and cybersecurity through immersive, hands-on technical challenges.",
   hero:

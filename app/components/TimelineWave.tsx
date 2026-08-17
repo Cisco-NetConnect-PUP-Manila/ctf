@@ -9,6 +9,8 @@ const VH = 200;
 const CY = 100;
 const AMP = 40; /* wave depth */
 const PAD_X = 150;
+const ABOVE_CARD_GAP = 34;
+const BELOW_CARD_GAP = 30;
 
 export default function TimelineWave({ items }: { items: TItem[] }) {
   const n = items.length;
@@ -108,8 +110,8 @@ export default function TimelineWave({ items }: { items: TItem[] }) {
         const topPct = (pts[i].y / VH) * 100;
         const above = pts[i].y < CY;
         const cardStyle: React.CSSProperties = above
-          ? { left: `${leftPct}%`, bottom: `calc(${100 - topPct}% + 22px)` }
-          : { left: `${leftPct}%`, top: `calc(${topPct}% + 22px)` };
+          ? { left: `${leftPct}%`, bottom: `calc(${100 - topPct}% + ${ABOVE_CARD_GAP}px)` }
+          : { left: `${leftPct}%`, top: `calc(${topPct}% + ${BELOW_CARD_GAP}px)` };
         return (
           <div key={i}>
             <button

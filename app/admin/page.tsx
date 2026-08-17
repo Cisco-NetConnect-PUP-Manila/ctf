@@ -3,7 +3,10 @@ import Reveal from "../components/Reveal";
 import Window from "../components/Window";
 import AdminSessionGuard from "../components/auth/AdminSessionGuard";
 import AdminAccountControls from "../components/auth/AdminAccountControls";
+import AdminActionCenter from "../components/admin/AdminActionCenter";
+import AdminLeaderboard from "../components/admin/AdminLeaderboard";
 import AdminOverviewSnapshot from "../components/admin/AdminOverviewSnapshot";
+import AdminPlatformControls from "../components/admin/AdminPlatformControls";
 import AdminSubmissionMonitor from "../components/admin/AdminSubmissionMonitor";
 import AdminTeamManager from "../components/admin/AdminTeamManager";
 import AnnouncementsManager from "../components/announcements/AnnouncementsManager";
@@ -13,15 +16,23 @@ export default function AdminPanelPage() {
   return (
     <AdminSessionGuard>
       <main className="portal-page portal-page--admin" id="admin-top">
-      <section className="portal-hero">
-        <div className="shell portal-hero__grid">
-          <Reveal>
-            <span className="eyebrow">ADMIN CONSOLE.SYS</span>
-            <h1>Administrative Panel</h1>
+      <section className="portal-hero" id="control">
+        <div className="shell admin-hero-grid">
+          <Reveal className="admin-hero-copy">
+            <div className="admin-hero-kicker">
+              <span className="eyebrow">ADMIN CONSOLE.SYS</span>
+              <span className="admin-hero-badge">Organizer Channel</span>
+            </div>
+            <h1>Control Room</h1>
             <p>
               Organizer workspace for challenge publishing, team approvals,
               announcements, and submission monitoring.
             </p>
+            <div className="admin-hero-strip" aria-label="Admin console responsibilities">
+              <span>Challenge Ops</span>
+              <span>Team Review</span>
+              <span>Score Lock</span>
+            </div>
             <div className="portal-actions">
               <AdminAccountControls />
               <Link className="btn btn--primary" href="/">
@@ -30,12 +41,15 @@ export default function AdminPanelPage() {
             </div>
           </Reveal>
 
-          {/* Temporarily hidden: static access explainer. The working admin tools below
-              make the authenticated state clear without extra copy. */}
+          <Reveal>
+            <Window title="event.control" meta="registration / scoring / freeze">
+              <AdminPlatformControls />
+            </Window>
+          </Reveal>
         </div>
       </section>
 
-      <section className="sec" id="overview">
+      <section className="sec admin-ops-section" id="overview">
         <div className="shell">
           <Reveal className="sec__head">
             <div>
@@ -45,13 +59,23 @@ export default function AdminPanelPage() {
             <span className="section-index">01 / 05</span>
           </Reveal>
 
-          <Reveal className="portal-dashboard">
-            <Window title="platform.status" meta="backend live">
-              <AdminOverviewSnapshot />
-            </Window>
-
-            {/* Temporarily hidden: audit checklist repeated the submission monitor below. */}
-          </Reveal>
+          <div className="admin-overview-grid">
+            <Reveal>
+              <Window title="action.center" meta="needs attention">
+                <AdminActionCenter />
+              </Window>
+            </Reveal>
+            <Reveal>
+              <Window title="platform.status" meta="backend live">
+                <AdminOverviewSnapshot />
+              </Window>
+            </Reveal>
+            <Reveal className="admin-overview-grid__wide">
+              <Window title="admin.leaderboard" meta="derived from solves">
+                <AdminLeaderboard />
+              </Window>
+            </Reveal>
+          </div>
         </div>
       </section>
 
@@ -91,7 +115,7 @@ export default function AdminPanelPage() {
       </section>
       */}
 
-      <section className="sec" id="challenges">
+      <section className="sec admin-tool-section" id="challenges">
         <div className="shell">
           <Reveal className="sec__head">
             <div>
@@ -109,7 +133,7 @@ export default function AdminPanelPage() {
         </div>
       </section>
 
-      <section className="sec" id="teams">
+      <section className="sec admin-tool-section" id="teams">
         <div className="shell">
           <Reveal className="sec__head">
             <div>
@@ -127,7 +151,7 @@ export default function AdminPanelPage() {
         </div>
       </section>
 
-      <section className="sec" id="announcements">
+      <section className="sec admin-tool-section" id="announcements">
         <div className="shell">
           <Reveal className="sec__head">
             <div>
@@ -179,7 +203,7 @@ export default function AdminPanelPage() {
       </section>
       */}
 
-      <section className="sec" id="submissions">
+      <section className="sec admin-tool-section" id="submissions">
         <div className="shell">
           <Reveal className="sec__head">
             <div>

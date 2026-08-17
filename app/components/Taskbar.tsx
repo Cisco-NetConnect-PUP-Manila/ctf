@@ -97,22 +97,6 @@ export default function Taskbar() {
     return () => clearInterval(id);
   }, []);
 
-  useEffect(() => {
-    const screen = document.getElementById("screen");
-    if (!screen) return;
-    let idle: ReturnType<typeof setTimeout>;
-    const onScroll = () => {
-      setGli(true);
-      clearTimeout(idle);
-      idle = setTimeout(() => setGli(false), 480);
-    };
-    screen.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      screen.removeEventListener("scroll", onScroll);
-      clearTimeout(idle);
-    };
-  }, []);
-
   const chooseZone = (n: number) => {
     setSelected(n);
     try {
@@ -120,6 +104,29 @@ export default function Taskbar() {
     } catch {}
     setTzOpen(false);
   };
+
+  useEffect(() => {
+    const screen = document.getElementById("screen");
+    if (!screen) return;
+    let last = 0;
+    let idle: ReturnType<typeof setTimeout>;
+
+    const onScroll = () => {
+      const nowMs = Date.now();
+      if (nowMs - last < 1400) return;
+      if (Math.random() < 0.72) return;
+      last = nowMs;
+      setGli(true);
+      clearTimeout(idle);
+      idle = setTimeout(() => setGli(false), 140);
+    };
+
+    screen.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      screen.removeEventListener("scroll", onScroll);
+      clearTimeout(idle);
+    };
+  }, []);
 
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
@@ -132,18 +139,22 @@ export default function Taskbar() {
     return () => document.removeEventListener("mousedown", onDown);
   }, []);
 
-  const displayZone = gli ? (selected === 0 ? 1 : 0) : selected;
+  const displayZone = selected;
   const z = ZONES[displayZone];
   const time = mounted && now ? fmtTime(z.tz, now) : "--:--";
   const date = mounted && now ? fmtDate(z.tz, now) : "--- --";
   const activeRoute =
-    pathname === "/platform"
+    pathname === "/platform" ||
+    pathname.startsWith("/platform/") ||
+    pathname === "/participant/pending"
       ? "platform"
-      : pathname === "/admin"
+      : pathname === "/admin" || pathname.startsWith("/admin/")
         ? "admin"
-        : pathname.includes("/login")
-          ? "login"
-          : "main";
+        : pathname === "/register"
+          ? "register"
+          : pathname.includes("/login")
+            ? "login"
+            : "main";
   const menu =
     activeRoute === "platform"
       ? PLATFORM_MENU
@@ -156,6 +167,22 @@ export default function Taskbar() {
       : activeRoute === "admin"
         ? "ADMIN_PANEL"
         : "PACKET_CAPTURE";
+  const quickLinks =
+    accountRole === "participant"
+      ? [
+          { label: "Main", href: "/" },
+          { label: "Competition Platform", href: "/platform" },
+        ]
+      : accountRole === "admin"
+        ? [
+            { label: "Main", href: "/" },
+            { label: "Admin", href: "/admin" },
+          ]
+        : [
+            { label: "Main", href: "/" },
+            { label: "Register", href: "/register" },
+            { label: "Login", href: "/login" },
+          ];
 
   return (
     <div ref={rootRef}>
@@ -163,6 +190,19 @@ export default function Taskbar() {
         <div className="startmenu__rail">
           <div className="startmenu__side">{startSide}</div>
           <div className="startmenu__items">
+            <div className="startmenu__group" aria-label="Page shortcuts">
+              {quickLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="startmenu__item startmenu__item--shortcut"
+                  onClick={() => setOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+            <div className="startmenu__sep startmenu__sep--shortcuts" />
             {menu.map((m) => (
               <Link
                 key={m.label}
@@ -215,14 +255,24 @@ export default function Taskbar() {
             Main
           </Link>
           {!accountRole && (
-            <Link
-              className={`taskbar__task ${
-                activeRoute === "login" ? "taskbar__task--active" : ""
-              }`}
-              href="/login"
-            >
-              Login
-            </Link>
+            <>
+              <Link
+                className={`taskbar__task ${
+                  activeRoute === "register" ? "taskbar__task--active" : ""
+                }`}
+                href="/register"
+              >
+                Register
+              </Link>
+              <Link
+                className={`taskbar__task ${
+                  activeRoute === "login" ? "taskbar__task--active" : ""
+                }`}
+                href="/login"
+              >
+                Login
+              </Link>
+            </>
           )}
           {accountRole === "participant" && (
             <Link
