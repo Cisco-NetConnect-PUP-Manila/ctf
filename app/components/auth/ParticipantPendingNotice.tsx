@@ -12,6 +12,7 @@ export default function ParticipantPendingNotice() {
   const router = useRouter();
   const { team } = useParticipantSession();
   const approved = team?.status === "approved";
+  const rejected = team?.status === "rejected";
 
   useEffect(() => {
     if (approved) {
@@ -25,6 +26,51 @@ export default function ParticipantPendingNotice() {
         <span className="eyebrow">ACCESS.APPROVED</span>
         <h1>Opening team platform</h1>
         <div className="auth-state-page__pulse" aria-hidden="true" />
+      </main>
+    );
+  }
+
+  if (rejected) {
+    return (
+      <main className="auth-page">
+        <div className="shell auth-page__shell">
+          <Reveal className="auth-page__intro">
+            <span className="eyebrow">REGISTRATION.REJECTED</span>
+            <h1 className="auth-title">
+              Registration
+              <br />
+              <span className="glitch" data-text="Rejected">
+                Rejected
+              </span>
+            </h1>
+            <p>
+              <ParticipantTeamName /> was reviewed but could not be approved by the
+              organizers.
+            </p>
+          </Reveal>
+
+          <Reveal>
+            <Window title="TEAM.STATUS" meta="organizer review complete">
+              <div className="portal-lock portal-lock--pending">
+                <b>Team registration rejected.</b>
+                <span>
+                  <strong>Organizer reason:</strong>{" "}
+                  {team?.rejection_reason || "No rejection reason was provided."}
+                </span>
+                <span>
+                  Contact the organizers if you need clarification or want to submit
+                  corrected registration details.
+                </span>
+                <div className="portal-actions">
+                  <ParticipantAccountControls />
+                  <Link className="btn btn--primary portal-lock__main-link" href="/">
+                    Back to public site
+                  </Link>
+                </div>
+              </div>
+            </Window>
+          </Reveal>
+        </div>
       </main>
     );
   }

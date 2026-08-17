@@ -31,6 +31,8 @@ export type Team = {
   id: string;
   group_name: string;
   status: string;
+  rejected_at: string | null;
+  rejection_reason: string | null;
   members: TeamMember[];
 };
 
