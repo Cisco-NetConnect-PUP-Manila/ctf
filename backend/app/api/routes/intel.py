@@ -5,13 +5,14 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_team
-from app.core.errors import APIError, NOT_FOUND
+from app.core.errors import APIError, NOT_FOUND, SUBMISSIONS_CLOSED
 from app.db.session import get_db
 from app.models.audit_log import AuditLog
 from app.models.intel import Hint, IntelRequest
 from app.models.team import Team
 from app.schemas.intel import HintParticipantResponse, IntelRequestCreate, IntelRequestResponse
 from app.api.routes.challenges import _load_accessible_challenge
+from app.services.platform_settings import submissions_are_open
 
 router = APIRouter()
 
@@ -28,9 +29,15 @@ def _total(db: Session, team_id: UUID) -> int:
     return int(value or 0)
 
 
+def _ensure_intel_access_open(db: Session) -> None:
+    if not submissions_are_open(db):
+        raise APIError(403, SUBMISSIONS_CLOSED, "Intel Requests are closed.")
+
+
 @router.get("/{challenge_id}/hints", response_model=list[HintParticipantResponse])
 def list_hints(challenge_id: UUID, team: Team = Depends(get_current_team), db: Session = Depends(get_db)) -> list[HintParticipantResponse]:
     _load_accessible_challenge(db, team, challenge_id)
+    _ensure_intel_access_open(db)
     rows = db.scalars(select(Hint).where(Hint.challenge_id == challenge_id, Hint.is_active.is_(True)).order_by(Hint.sort_order, Hint.created_at)).all()
     requests = {row.hint_id: row for row in db.scalars(select(IntelRequest).where(IntelRequest.team_id == team.id, IntelRequest.challenge_id == challenge_id)).all()}
     return [HintParticipantResponse(id=row.id, penalty_points=row.penalty_points, sort_order=row.sort_order, requested=row.id in requests, content=row.content if row.id in requests else None) for row in rows]
@@ -39,6 +46,7 @@ def list_hints(challenge_id: UUID, team: Team = Depends(get_current_team), db: S
 @router.post("/{challenge_id}/intel-requests", response_model=IntelRequestResponse)
 def request_intel(challenge_id: UUID, payload: IntelRequestCreate, team: Team = Depends(get_current_team), db: Session = Depends(get_db)) -> IntelRequestResponse:
     _load_accessible_challenge(db, team, challenge_id)
+    _ensure_intel_access_open(db)
     hint = _hint(db, challenge_id, payload.hint_id)
     db.execute(select(Team.id).where(Team.id == team.id).with_for_update()).scalar_one()
     existing = db.scalar(select(IntelRequest).where(IntelRequest.team_id == team.id, IntelRequest.hint_id == hint.id))
