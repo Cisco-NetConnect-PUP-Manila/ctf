@@ -15,6 +15,7 @@ import {
   listChallengeCategories,
   listChallengeDifficulties,
   listChallengeFlags,
+  reactivateAdminChallengeFile,
   setAdminChallengeStatus,
   updateAdminChallenge,
   updateAdminChallengeHint,
@@ -493,6 +494,30 @@ export default function AdminChallengeManager() {
     }
   }
 
+  async function handleReactivateFile(item: AdminChallenge, file: ChallengeFile) {
+    setBusyId(item.id);
+    setError("");
+    try {
+      const updated = await reactivateAdminChallengeFile(item.id, file.id);
+      setFilesByChallenge((current) => ({
+        ...current,
+        [item.id]: (current[item.id] ?? []).map((candidate) => candidate.id === file.id ? updated : candidate),
+      }));
+      if (!file.is_active) {
+        setItems((current) => current.map((candidate) =>
+          candidate.id === item.id
+            ? { ...candidate, active_file_count: candidate.active_file_count + 1 }
+            : candidate
+        ));
+      }
+      setItemNotice(item.id, `Reactivated ${updated.display_name}.`);
+    } catch (caught) {
+      setError(errorMessage(caught, "Could not reactivate challenge file."));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   if (loading) return <p className="challenge-admin__note">Loading organizer challenge data…</p>;
 
   return (
@@ -601,6 +626,7 @@ export default function AdminChallengeManager() {
                       </small>
                     </span>
                     {file.is_active && <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void handleDeactivateFile(item, file)}>Deactivate</button>}
+                    {!file.is_active && <button className="btn btn--primary" type="button" disabled={busyId === item.id} onClick={() => void handleReactivateFile(item, file)}>Reactivate</button>}
                   </div>
                 ))}
                 <div className="challenge-flag__new challenge-file__new">
