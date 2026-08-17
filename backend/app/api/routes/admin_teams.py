@@ -3,8 +3,9 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.api.deps import get_current_admin
@@ -156,3 +157,43 @@ def reactivate_team(
     _audit(db, admin, team, "team.reactivated", {"group_name": team.group_name})
     db.commit()
     return _team_to_response(_load_team(db, team.id))
+
+
+@router.delete("/teams/{team_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_team_registration(
+    team_id: UUID,
+    db: Session = Depends(get_db),
+    admin: Account = Depends(get_current_admin),
+) -> Response:
+    team = _load_team(db, team_id)
+    if team.status not in {TeamStatus.PENDING.value, TeamStatus.REJECTED.value}:
+        raise APIError(
+            400,
+            VALIDATION_ERROR,
+            "Only pending or rejected registrations can be deleted. Disable approved teams instead.",
+        )
+
+    account = team.account
+    _audit(
+        db,
+        admin,
+        team,
+        "team.registration_deleted",
+        {"group_name": team.group_name, "email": account.email, "status": team.status},
+    )
+    db.delete(team)
+    try:
+        # The team references its account, so flush the team deletion before removing
+        # the now-orphaned login account and its sessions.
+        db.flush()
+        db.delete(account)
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise APIError(
+            409,
+            VALIDATION_ERROR,
+            "This registration has protected competition activity and cannot be deleted.",
+        ) from exc
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
