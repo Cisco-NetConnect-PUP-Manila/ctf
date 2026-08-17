@@ -139,6 +139,10 @@ export default function AdminChallengeManager() {
   const [selectedFiles, setSelectedFiles] = useState<Record<string, File | null>>({});
   const [hintContent, setHintContent] = useState("");
   const [hintPenalty, setHintPenalty] = useState("0");
+  const [editingHintId, setEditingHintId] = useState<string | null>(null);
+  const [hintEditContent, setHintEditContent] = useState("");
+  const [hintEditPenalty, setHintEditPenalty] = useState("0");
+  const [hintEditSortOrder, setHintEditSortOrder] = useState("0");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -289,11 +293,56 @@ export default function AdminChallengeManager() {
     setOpenHintsId(item.id);
     setHintContent("");
     setHintPenalty("0");
+    setEditingHintId(null);
     try {
       const hints = await listAdminChallengeHints(item.id);
       setHintsByChallenge((current) => ({ ...current, [item.id]: hints }));
     } catch (caught) {
       setError(errorMessage(caught, "Could not load Intel Requests."));
+    }
+  }
+
+  function beginHintEdit(hint: AdminHint) {
+    setEditingHintId(hint.id);
+    setHintEditContent(hint.content);
+    setHintEditPenalty(String(hint.penalty_points));
+    setHintEditSortOrder(String(hint.sort_order));
+    setError("");
+  }
+
+  function cancelHintEdit() {
+    setEditingHintId(null);
+    setHintEditContent("");
+    setHintEditPenalty("0");
+    setHintEditSortOrder("0");
+  }
+
+  async function handleHintEdit(item: AdminChallenge, hint: AdminHint) {
+    const content = hintEditContent.trim();
+    const penalty = Number(hintEditPenalty);
+    const sortOrder = Number(hintEditSortOrder);
+    if (!content || penalty < 0 || sortOrder < 0) return;
+
+    setBusyId(item.id);
+    setError("");
+    try {
+      const updated = await updateAdminChallengeHint(item.id, hint.id, {
+        content,
+        penalty_points: penalty,
+        sort_order: sortOrder,
+      });
+      setHintsByChallenge((current) => ({
+        ...current,
+        [item.id]: (current[item.id] ?? [])
+          .map((candidate) => candidate.id === hint.id ? updated : candidate)
+          .sort((a, b) => a.sort_order - b.sort_order),
+      }));
+      cancelHintEdit();
+      setItemNotice(item.id, "Intel Request updated.");
+    } catch (caught) {
+      setError(errorMessage(caught, "Could not edit the Intel Request."));
+    } finally {
+      setBusyId(null);
     }
   }
 
@@ -576,17 +625,34 @@ export default function AdminChallengeManager() {
                 <p>Participants see the penalty before choosing to reveal the hint.</p>
                 {(hintsByChallenge[item.id] ?? []).map((hint, index) => (
                   <div className="challenge-flag challenge-hint-row" key={hint.id}>
-                    <span className="challenge-file-row__main">
-                      <b>Intel {index + 1} · {hint.penalty_points} point penalty</b>
-                      <small>{hint.content} · {hint.is_active ? "active" : "inactive"}</small>
-                    </span>
-                    <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void handleHintStatus(item, hint)}>
-                      {hint.is_active ? "Deactivate" : "Reactivate"}
-                    </button>
+                    {editingHintId === hint.id ? (
+                      <div className="challenge-hint-row__edit">
+                        <textarea maxLength={4000} rows={3} value={hintEditContent} onChange={(event) => setHintEditContent(event.target.value)} />
+                        <label>Penalty points<input min="0" type="number" value={hintEditPenalty} onChange={(event) => setHintEditPenalty(event.target.value)} /></label>
+                        <label>Sort order<input min="0" type="number" value={hintEditSortOrder} onChange={(event) => setHintEditSortOrder(event.target.value)} /></label>
+                        <div className="challenge-admin-row__actions">
+                          <button className="btn btn--primary" type="button" disabled={!hintEditContent.trim() || Number(hintEditPenalty) < 0 || Number(hintEditSortOrder) < 0 || busyId === item.id} onClick={() => void handleHintEdit(item, hint)}>Save Intel</button>
+                          <button className="btn" type="button" disabled={busyId === item.id} onClick={cancelHintEdit}>Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="challenge-file-row__main">
+                          <b>Intel {index + 1} · {hint.penalty_points} point penalty</b>
+                          <small>{hint.content} · order {hint.sort_order} · {hint.is_active ? "active" : "inactive"}</small>
+                        </span>
+                        <div className="challenge-admin-row__actions">
+                          <button className="btn" type="button" disabled={busyId === item.id} onClick={() => beginHintEdit(hint)}>Edit</button>
+                          <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void handleHintStatus(item, hint)}>
+                            {hint.is_active ? "Deactivate" : "Reactivate"}
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
                 <div className="challenge-flag__new challenge-hint__new">
-                  <textarea aria-label="Intel hint text" placeholder="Hint revealed after confirmation" rows={3} value={hintContent} onChange={(event) => setHintContent(event.target.value)} />
+                  <textarea aria-label="Intel hint text" maxLength={4000} placeholder="Hint revealed after confirmation" rows={3} value={hintContent} onChange={(event) => setHintContent(event.target.value)} />
                   <input aria-label="Intel penalty points" min="0" placeholder="Penalty points" type="number" value={hintPenalty} onChange={(event) => setHintPenalty(event.target.value)} />
                   <button className="btn btn--primary" type="button" disabled={!hintContent.trim() || Number(hintPenalty) < 0 || busyId === item.id} onClick={() => void handleAddHint(item)}>
                     Add Intel

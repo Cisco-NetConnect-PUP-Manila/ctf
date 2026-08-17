@@ -188,6 +188,7 @@ def test_deactivated_intel_remains_visible_only_to_team_that_purchased_it(
             penalty_points=hint.penalty_points,
         )
     )
+    hint.penalty_points = 99
     hint.is_active = False
     db.commit()
 
