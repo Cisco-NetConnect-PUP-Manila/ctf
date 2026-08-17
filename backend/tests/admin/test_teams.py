@@ -87,3 +87,39 @@ def test_participant_cannot_access_team_management(client, db_session):
 
     assert response.status_code == 403
     assert response.json()["code"] == "FORBIDDEN"
+
+
+def test_admin_deletes_pending_registration_and_account(client, db_session):
+    from app.models.account import Account
+    from app.models.team import Team
+
+    account = create_test_account(db_session, email="delete-registration@test.com")
+    team = create_test_team(
+        db_session,
+        account,
+        group_name="Delete Registration",
+        team_status=TeamStatus.PENDING.value,
+    )
+    cookies = _login_admin(client, db_session)
+
+    response = client.delete(f"/admin/teams/{team.id}", cookies=cookies)
+
+    assert response.status_code == 204
+    assert db_session.get(Team, team.id) is None
+    assert db_session.get(Account, account.id) is None
+
+
+def test_admin_cannot_delete_approved_registration(client, db_session):
+    account = create_test_account(db_session, email="keep-approved@test.com")
+    team = create_test_team(
+        db_session,
+        account,
+        group_name="Keep Approved",
+        team_status=TeamStatus.APPROVED.value,
+    )
+    cookies = _login_admin(client, db_session)
+
+    response = client.delete(f"/admin/teams/{team.id}", cookies=cookies)
+
+    assert response.status_code == 400
+    assert response.json()["code"] == "VALIDATION_ERROR"

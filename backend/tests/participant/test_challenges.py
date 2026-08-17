@@ -72,6 +72,24 @@ def test_challenge_list_requires_authentication(client):
     assert response.status_code == 401
 
 
+def test_pending_team_is_denied_when_approval_setting_is_missing(client, db_session):
+    email = f"pending-reader-{uuid.uuid4().hex[:8]}@example.com"
+    account = create_test_account(db_session, email=email)
+    create_test_team(
+        db_session,
+        account,
+        group_name=f"Pending Readers {uuid.uuid4().hex[:6]}",
+        team_status=TeamStatus.PENDING.value,
+    )
+    login = client.post("/auth/login", json={"email": email, "password": TEST_PASSWORD})
+    assert login.status_code == 200
+
+    response = client.get("/challenges", cookies=login.cookies)
+
+    assert response.status_code == 403
+    assert response.json()["code"] == "TEAM_NOT_APPROVED"
+
+
 def test_list_groups_published_challenges_and_keeps_locked_acts(client, db_session):
     act_one = _act(db_session, 1)
     act_two = _act(db_session, 2)

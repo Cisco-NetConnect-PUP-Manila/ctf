@@ -560,6 +560,52 @@ def deactivate_challenge_file(
     return _file_to_response(row)
 
 
+@router.patch(
+    "/challenges/{challenge_id}/files/{file_id}/reactivate",
+    response_model=ChallengeFileResponse,
+)
+def reactivate_challenge_file(
+    challenge_id: UUID,
+    file_id: UUID,
+    current_admin: Account = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+) -> ChallengeFileResponse:
+    row = db.scalar(
+        select(ChallengeFile).where(
+            ChallengeFile.id == file_id,
+            ChallengeFile.challenge_id == challenge_id,
+        )
+    )
+    if row is None:
+        raise APIError(status.HTTP_404_NOT_FOUND, NOT_FOUND, "Challenge file not found.")
+
+    try:
+        get_challenge_file_storage().path_for_download(row.storage_key)
+    except FileNotFoundError as exc:
+        raise APIError(
+            status.HTTP_409_CONFLICT,
+            NOT_FOUND,
+            "The stored file is missing and cannot be reactivated. Upload it again.",
+        ) from exc
+
+    if not row.is_active:
+        row.is_active = True
+        row.deactivated_at = None
+        db.add(
+            AuditLog(
+                actor_account_id=current_admin.id,
+                action="challenge_file.reactivated",
+                target_type="challenge",
+                target_id=challenge_id,
+                metadata_json={"file_id": str(row.id), "display_name": row.display_name},
+            )
+        )
+        db.commit()
+        db.refresh(row)
+
+    return _file_to_response(row)
+
+
 # ----------------------------------------------------------------- flag validators
 
 

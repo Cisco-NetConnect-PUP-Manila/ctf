@@ -6,7 +6,9 @@ import type { FormEvent } from "react";
 import {
   getParticipantChallenge,
   listParticipantChallengeFiles,
+  listParticipantChallengeHints,
   participantChallengeFileDownloadUrl,
+  requestChallengeIntel,
   submitChallengeFlag,
 } from "../../lib/api/challenges";
 import { ApiError } from "../../lib/api/client";
@@ -17,6 +19,7 @@ import {
 import type {
   ChallengeFile,
   FlagSubmissionResult,
+  ParticipantHint,
   ParticipantChallenge,
   PlatformSettings,
 } from "../../lib/api/types";
@@ -44,6 +47,10 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
   const [submitError, setSubmitError] = useState("");
   const [submission, setSubmission] = useState<FlagSubmissionResult | null>(null);
   const [settings, setSettings] = useState<PlatformSettings | null>(null);
+  const [hints, setHints] = useState<ParticipantHint[]>([]);
+  const [requestingHintId, setRequestingHintId] = useState<string | null>(null);
+  const [intelError, setIntelError] = useState("");
+  const [totalPenalty, setTotalPenalty] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -53,11 +60,15 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
         getParticipantChallenge(challengeId),
         getPlatformSettings(),
       ]);
-      const fileData = platformIsFrozen(settingsData)
-        ? []
-        : await listParticipantChallengeFiles(challengeId);
+      const [fileData, hintData] = platformIsFrozen(settingsData)
+        ? [[], []]
+        : await Promise.all([
+            listParticipantChallengeFiles(challengeId),
+            listParticipantChallengeHints(challengeId),
+          ]);
       setChallenge(challengeData);
       setFiles(fileData);
+      setHints(hintData);
       setSettings(settingsData);
     } catch (caught) {
       setError(
@@ -162,6 +173,34 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
       URL.revokeObjectURL(objectUrl);
     } catch {
       setError("Cannot reach the competition server. Try again in a moment.");
+    }
+  }
+
+  async function handleIntelRequest(hint: ParticipantHint, index: number) {
+    if (hint.requested || requestingHintId || scoringFrozen) return;
+    const confirmed = window.confirm(
+      `Reveal Intel ${index + 1}? This permanently deducts ${hint.penalty_points} point${hint.penalty_points === 1 ? "" : "s"} from your Investigation Score.`
+    );
+    if (!confirmed) return;
+
+    setRequestingHintId(hint.id);
+    setIntelError("");
+    try {
+      const result = await requestChallengeIntel(challengeId, hint.id);
+      setHints((current) =>
+        current.map((candidate) =>
+          candidate.id === hint.id
+            ? { ...candidate, requested: true, content: result.hint, penalty_points: result.penalty_points }
+            : candidate
+        )
+      );
+      setTotalPenalty(result.total_penalty);
+    } catch (caught) {
+      setIntelError(
+        caught instanceof ApiError ? caught.message : "Unable to request Intel."
+      );
+    } finally {
+      setRequestingHintId(null);
     }
   }
 
@@ -296,6 +335,38 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
               </ul>
             </>
           )}
+        </article>
+        <article className="challenge-detail__panel challenge-detail__intel">
+          <span className="eyebrow">INTEL.REQUESTS</span>
+          <h2>Optional assistance</h2>
+          <p>
+            Intel can help move the investigation forward, but each request permanently
+            reduces your team&apos;s Investigation Score by the displayed amount.
+          </p>
+          {hints.length === 0 && <small>No Intel is available for this challenge.</small>}
+          {intelError && <p className="challenge-detail__error" role="alert">{intelError}</p>}
+          {totalPenalty !== null && (
+            <p className="challenge-detail__penalty" role="status">
+              Total Intel penalty: <b>-{totalPenalty} points</b>
+            </p>
+          )}
+          <div className="challenge-detail__intel-list">
+            {hints.map((hint, index) => (
+              <div className={`challenge-detail__intel-row ${hint.requested ? "challenge-detail__intel-row--used" : ""}`} key={hint.id}>
+                <div>
+                  <b>Intel {index + 1}</b>
+                  <small>{hint.requested ? `Applied penalty: -${hint.penalty_points} points` : `Cost: ${hint.penalty_points} points`}</small>
+                  {hint.requested && hint.content && <p>{hint.content}</p>}
+                </div>
+                {!hint.requested && (
+                  <button className="btn" type="button" disabled={requestingHintId !== null || scoringFrozen} onClick={() => void handleIntelRequest(hint, index)}>
+                    {requestingHintId === hint.id ? "Requesting..." : "Request Intel"}
+                  </button>
+                )}
+                {hint.requested && <span className="status-pill">Used</span>}
+              </div>
+            ))}
+          </div>
         </article>
       </section>
     </div>

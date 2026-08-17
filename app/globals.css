@@ -6502,7 +6502,8 @@ body.registration-closed-active .auth-page {
 .challenge-editor input,
 .challenge-editor select,
 .challenge-editor textarea,
-.challenge-flag__new input {
+.challenge-flag__new input,
+.challenge-flag__new textarea {
   width: 100%;
   min-width: 0;
   border: 1px solid var(--line);
@@ -6515,7 +6516,8 @@ body.registration-closed-active .auth-page {
 .challenge-editor input:focus,
 .challenge-editor select:focus,
 .challenge-editor textarea:focus,
-.challenge-flag__new input:focus {
+.challenge-flag__new input:focus,
+.challenge-flag__new textarea:focus {
   outline: 1px solid var(--amber);
   border-color: var(--amber);
 }
@@ -6617,6 +6619,43 @@ body.registration-closed-active .auth-page {
 }
 .team-admin__summary {
   margin-bottom: 2px;
+}
+.team-admin__filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(160px, 0.35fr) auto;
+  gap: 12px;
+  align-items: end;
+  padding: 14px;
+  border: 1px solid var(--line-dim);
+  background: rgba(9, 5, 2, 0.45);
+}
+.team-admin__search,
+.team-admin__status-filter {
+  display: grid;
+  gap: 7px;
+  color: var(--orange-2);
+  font-family: var(--rodin);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.team-admin__filters input,
+.team-admin__filters select {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-dim);
+  background: rgba(0, 0, 0, 0.32);
+  color: var(--ink);
+  font: 0.82rem var(--rodin);
+  text-transform: none;
+}
+.team-admin__filters small {
+  padding-bottom: 11px;
+  color: var(--ink-dim);
+  font: 0.74rem var(--rodin);
+  white-space: nowrap;
 }
 .team-admin__list {
   display: grid;
@@ -7817,6 +7856,79 @@ body.registration-closed-active .auth-page {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
+}
+.challenge-hint-row__edit {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(120px, 0.25fr) minmax(110px, 0.2fr);
+  gap: 10px;
+  width: 100%;
+}
+.challenge-hint-row__edit textarea,
+.challenge-hint-row__edit input {
+  width: 100%;
+}
+.challenge-hint-row__edit label {
+  display: grid;
+  gap: 6px;
+  color: var(--orange-2);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.challenge-hint-row__edit .challenge-admin-row__actions {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 760px) {
+  .team-admin__filters {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .team-admin__filters small {
+    padding-bottom: 0;
+  }
+
+  .challenge-hint-row__edit {
+    grid-template-columns: 1fr;
+  }
+}
+.challenge-detail__intel-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+.challenge-detail__intel-row {
+  align-items: center;
+  background: rgba(255, 128, 20, 0.04);
+  border: 1px solid var(--line-dim);
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 14px;
+}
+.challenge-detail__intel-row--used {
+  border-color: var(--line);
+}
+.challenge-detail__intel-row > div {
+  display: grid;
+  gap: 5px;
+}
+.challenge-detail__intel-row b,
+.challenge-detail__penalty b {
+  color: var(--amber-2);
+}
+.challenge-detail__intel-row small {
+  color: var(--ink-faint);
+  font-family: var(--term);
+}
+.challenge-detail__intel-row p {
+  margin: 5px 0 0;
+}
+.challenge-detail__penalty {
+  border-left: 3px solid var(--amber);
+  padding-left: 10px;
 }
 .challenge-detail__panel,
 .challenge-detail__submit {

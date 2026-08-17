@@ -14,6 +14,7 @@ from app.models.challenge import (
     FlagValidatorType,
 )
 from app.models.platform_setting import PlatformSetting
+from app.models.intel import Hint, IntelRequest
 from app.models.team import Team, TeamMember, TeamStatus
 
 __all__ = [
@@ -35,6 +36,8 @@ __all__ = [
     "ChallengeStatus",
     "FlagValidatorType",
     "PlatformSetting",
+    "Hint",
+    "IntelRequest",
     "Team",
     "TeamMember",
     "TeamStatus",

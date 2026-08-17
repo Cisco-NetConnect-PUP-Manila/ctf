@@ -11,6 +11,8 @@ from app.models.act import Act
 from app.models.audit_log import AuditLog
 from app.models.challenge import Challenge, ChallengeFile, ChallengeStatus
 from app.models.team import TeamStatus
+from app.services.platform_settings import KEY_SUBMISSIONS_OPEN
+from app.models.platform_setting import PlatformSetting
 
 
 def _act(db_session, number: int = 1) -> Act:
@@ -114,6 +116,62 @@ def test_admin_upload_rejects_unsupported_extension(client, db_session, tmp_path
     assert db_session.query(ChallengeFile).count() == 0
 
 
+def test_unauthenticated_user_cannot_upload_challenge_file(
+    client, db_session, tmp_path, monkeypatch
+):
+    monkeypatch.setattr(settings, "challenge_file_storage_root", str(tmp_path))
+    challenge = _challenge(db_session, _act(db_session))
+
+    response = client.post(
+        f"/admin/challenges/{challenge.id}/files",
+        files={"upload": ("evidence.txt", b"private", "text/plain")},
+    )
+
+    assert response.status_code == 401
+    assert response.json()["code"] == "AUTH_REQUIRED"
+    assert db_session.query(ChallengeFile).count() == 0
+    assert list(Path(tmp_path).rglob("*")) == []
+
+
+def test_participant_cannot_upload_challenge_file(
+    client, db_session, tmp_path, monkeypatch
+):
+    monkeypatch.setattr(settings, "challenge_file_storage_root", str(tmp_path))
+    challenge = _challenge(db_session, _act(db_session))
+    team_cookies = _login_team(client, db_session)
+
+    response = client.post(
+        f"/admin/challenges/{challenge.id}/files",
+        files={"upload": ("evidence.txt", b"private", "text/plain")},
+        cookies=team_cookies,
+    )
+
+    assert response.status_code == 403
+    assert response.json()["code"] == "FORBIDDEN"
+    assert db_session.query(ChallengeFile).count() == 0
+    assert list(Path(tmp_path).rglob("*")) == []
+
+
+def test_oversized_upload_leaves_no_file_or_metadata(
+    client, db_session, tmp_path, monkeypatch
+):
+    monkeypatch.setattr(settings, "challenge_file_storage_root", str(tmp_path))
+    monkeypatch.setattr(settings, "challenge_file_max_bytes", 4)
+    challenge = _challenge(db_session, _act(db_session))
+    cookies = _login_admin(client, db_session)
+
+    response = client.post(
+        f"/admin/challenges/{challenge.id}/files",
+        files={"upload": ("too-large.raw", b"12345", "application/octet-stream")},
+        cookies=cookies,
+    )
+
+    assert response.status_code == 413
+    assert response.json()["code"] == "VALIDATION_ERROR"
+    assert db_session.query(ChallengeFile).count() == 0
+    assert [path for path in Path(tmp_path).rglob("*") if path.is_file()] == []
+
+
 def test_admin_deactivates_file_without_deleting_metadata(client, db_session, tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "challenge_file_storage_root", str(tmp_path))
     challenge = _challenge(db_session, _act(db_session))
@@ -137,8 +195,39 @@ def test_admin_deactivates_file_without_deleting_metadata(client, db_session, tm
     assert db_session.query(AuditLog).filter(AuditLog.action == "challenge_file.deactivated").count() == 1
 
 
+def test_admin_reactivates_existing_challenge_file(client, db_session, tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "challenge_file_storage_root", str(tmp_path))
+    challenge = _challenge(db_session, _act(db_session))
+    cookies = _login_admin(client, db_session)
+    uploaded = client.post(
+        f"/admin/challenges/{challenge.id}/files",
+        files={"upload": ("evidence.txt", b"notes", "text/plain")},
+        cookies=cookies,
+    ).json()
+    client.delete(
+        f"/admin/challenges/{challenge.id}/files/{uploaded['id']}",
+        cookies=cookies,
+    )
+
+    response = client.patch(
+        f"/admin/challenges/{challenge.id}/files/{uploaded['id']}/reactivate",
+        cookies=cookies,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["is_active"] is True
+    row = db_session.get(ChallengeFile, uploaded["id"])
+    assert row is not None
+    assert row.deactivated_at is None
+    assert db_session.query(AuditLog).filter(
+        AuditLog.action == "challenge_file.reactivated"
+    ).count() == 1
+
+
 def test_participant_downloads_only_unlocked_active_files(client, db_session, tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "challenge_file_storage_root", str(tmp_path))
+    db_session.add(PlatformSetting(key=KEY_SUBMISSIONS_OPEN, value_json=True))
+    db_session.flush()
     open_challenge = _challenge(db_session, _act(db_session, 1), title="Open Evidence")
     locked_challenge = _challenge(db_session, _act(db_session, 2), title="Locked Evidence")
     admin_cookies = _login_admin(client, db_session)

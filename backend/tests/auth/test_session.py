@@ -9,6 +9,7 @@ from tests.conftest import (
 
 from app.core.security import hash_session_token, new_session_token
 from app.models.account import AccountSession, AccountStatus
+from app.models.team import TeamStatus
 
 
 class TestLogin:
@@ -62,6 +63,30 @@ class TestSession:
         data = resp.json()
         assert data["account"]["email"] == "team@test.com"
         assert data["team"]["group_name"] == "Test Team"
+
+    def test_me_returns_rejection_details_to_rejected_team(self, client, db_session):
+        account = create_test_account(db_session, email="rejected-team@test.com")
+        team = create_test_team(
+            db_session,
+            account,
+            group_name="Rejected Team",
+            team_status=TeamStatus.REJECTED.value,
+        )
+        team.rejected_at = datetime.now(UTC)
+        team.rejection_reason = "Team roster is incomplete."
+        db_session.flush()
+
+        login_resp = client.post(
+            "/auth/login",
+            json={"email": "rejected-team@test.com", "password": TEST_PASSWORD},
+        )
+        resp = client.get("/auth/me", cookies=login_resp.cookies)
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["team"]["status"] == "rejected"
+        assert data["team"]["rejected_at"] is not None
+        assert data["team"]["rejection_reason"] == "Team roster is incomplete."
 
     def test_me_returns_auth_required_without_cookie(self, client, db_session):
         resp = client.get("/auth/me")

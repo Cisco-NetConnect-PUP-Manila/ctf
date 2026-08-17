@@ -19,7 +19,6 @@ from app.db.session import get_db
 from app.models.account import Account, AccountRole, AccountSession, AccountStatus
 from app.models.audit_log import AuditLog
 from app.models.team import Team, TeamStatus
-from app.services.platform_settings import team_approval_required
 
 
 def get_current_account(
@@ -99,10 +98,10 @@ def get_current_team(
     if team is None:
         raise APIError(403, TEAM_REQUIRED, "This account is not linked to a team.")
 
-    if team.status == TeamStatus.DISABLED.value:
-        raise APIError(403, TEAM_NOT_APPROVED, "This team has been disabled.")
-
-    if team_approval_required(db) and team.status != TeamStatus.APPROVED.value:
+    # Participant data is always approval-gated server-side. A frontend pending-page
+    # redirect is not a security boundary, and a missing settings row must never turn
+    # registration into immediate challenge/file/Intel access.
+    if team.status != TeamStatus.APPROVED.value:
         raise APIError(
             403, TEAM_NOT_APPROVED, "Your team is not approved for the competition yet."
         )

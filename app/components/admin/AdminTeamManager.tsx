@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   approveAdminTeam,
+  deleteAdminTeamRegistration,
   disableAdminTeam,
   listAdminTeams,
   reactivateAdminTeam,
@@ -33,7 +34,9 @@ export default function AdminTeamManager() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [openTeamId, setOpenTeamId] = useState<string | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
+  const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const counts = useMemo(
     () =>
@@ -48,6 +51,21 @@ export default function AdminTeamManager() {
       ),
     [teams]
   );
+
+  const visibleTeams = useMemo(() => {
+    const query = searchQuery.trim().toLocaleLowerCase();
+
+    return teams.filter((team) => {
+      if (statusFilter !== "all" && team.status !== statusFilter) return false;
+      if (!query) return true;
+
+      return [
+        team.group_name,
+        team.email,
+        ...team.members.flatMap((member) => [member.full_name, member.email]),
+      ].some((value) => value.toLocaleLowerCase().includes(query));
+    });
+  }, [searchQuery, statusFilter, teams]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -74,21 +92,59 @@ export default function AdminTeamManager() {
     setError("");
     try {
       updateTeam(await action());
-      setRejectReason("");
+      return true;
     } catch (caught) {
       setError(errorMessage(caught, fallback));
+      return false;
     } finally {
       setBusyId(null);
     }
   }
 
   async function handleReject(team: AdminTeam) {
-    const reason = rejectReason.trim();
-    if (!reason) {
-      setError("Add a rejection reason before rejecting this team.");
+    const reason = (rejectReasons[team.id] ?? "").trim();
+    if (reason.length < 2) {
+      setError("Add a rejection reason with at least 2 characters before rejecting this team.");
       return;
     }
-    await runAction(team, () => rejectAdminTeam(team.id, reason), "Could not reject team.");
+    if (!window.confirm(`Reject "${team.group_name}"?\n\nReason: ${reason}`)) return;
+
+    const rejected = await runAction(
+      team,
+      () => rejectAdminTeam(team.id, reason),
+      "Could not reject team."
+    );
+    if (rejected) {
+      setRejectReasons((current) => {
+        const next = { ...current };
+        delete next[team.id];
+        return next;
+      });
+    }
+  }
+
+  async function handleDeleteRegistration(team: AdminTeam) {
+    const confirmed = window.confirm(
+      `Permanently delete the registration for "${team.group_name}"?\n\nThis removes the team account and cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setBusyId(team.id);
+    setError("");
+    try {
+      await deleteAdminTeamRegistration(team.id);
+      setTeams((current) => current.filter((candidate) => candidate.id !== team.id));
+      setRejectReasons((current) => {
+        const next = { ...current };
+        delete next[team.id];
+        return next;
+      });
+      if (openTeamId === team.id) setOpenTeamId(null);
+    } catch (caught) {
+      setError(errorMessage(caught, "Could not delete team registration."));
+    } finally {
+      setBusyId(null);
+    }
   }
 
   if (loading) {
@@ -114,12 +170,47 @@ export default function AdminTeamManager() {
         </div>
       </div>
 
+      <div className="team-admin__filters" role="search" aria-label="Search team registrations">
+        <label className="team-admin__search">
+          <span>Search teams</span>
+          <input
+            aria-label="Search by group name, account email, or member"
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Group name, email, or member"
+            type="search"
+            value={searchQuery}
+          />
+        </label>
+        <label className="team-admin__status-filter">
+          <span>Approval status</span>
+          <select
+            onChange={(event) => setStatusFilter(event.target.value)}
+            value={statusFilter}
+          >
+            <option value="all">All teams</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="disabled">Disabled</option>
+          </select>
+        </label>
+        <small aria-live="polite">
+          Showing {visibleTeams.length} of {teams.length} teams
+        </small>
+      </div>
+
       <div className="team-admin__list">
         {teams.length === 0 && (
           <p className="challenge-admin__note">No team registrations yet.</p>
         )}
 
-        {teams.map((team) => (
+        {teams.length > 0 && visibleTeams.length === 0 && (
+          <p className="challenge-admin__note">
+            No teams match this search and approval status.
+          </p>
+        )}
+
+        {visibleTeams.map((team) => (
           <article className="team-admin-row" key={team.id}>
             <header className="team-admin-row__head">
               <div>
@@ -207,6 +298,16 @@ export default function AdminTeamManager() {
                   Reactivate
                 </button>
               )}
+              {(team.status === "pending" || team.status === "rejected") && (
+                <button
+                  className="btn challenge-admin-row__delete"
+                  disabled={busyId === team.id}
+                  onClick={() => void handleDeleteRegistration(team)}
+                  type="button"
+                >
+                  Delete registration
+                </button>
+              )}
             </div>
 
             {team.status === "pending" && (
@@ -214,9 +315,15 @@ export default function AdminTeamManager() {
                 Rejection reason
                 <input
                   maxLength={500}
-                  onChange={(event) => setRejectReason(event.target.value)}
+                  minLength={2}
+                  onChange={(event) =>
+                    setRejectReasons((current) => ({
+                      ...current,
+                      [team.id]: event.target.value,
+                    }))
+                  }
                   placeholder="Only needed if rejecting this team"
-                  value={rejectReason}
+                  value={rejectReasons[team.id] ?? ""}
                 />
               </label>
             )}

@@ -4,6 +4,7 @@ import FaqAccordion from "./components/FaqAccordion";
 import TimelineWave from "./components/TimelineWave";
 import Window from "./components/Window";
 import Reveal from "./components/Reveal";
+import HomeAuthActions from "./components/auth/HomeAuthActions";
 import {
   acts,
   aiExamples,
@@ -46,14 +47,7 @@ export default function Home() {
               </h1>
               <p className="hero__lead">{competition.hero}</p>
               <div className="btn-row hero__actions">
-                <div className="hero__auth-actions">
-                  <Link className="btn btn--primary btn--terminal" href="/register">
-                    Register team
-                  </Link>
-                  <Link className="btn btn--ghost btn--terminal hero__sign-in" href="/login">
-                    Sign in
-                  </Link>
-                </div>
+                <HomeAuthActions terminal />
                 <a href="#rules" className="btn btn--ghost btn--terminal">
                   Read official rules
                 </a>
@@ -432,14 +426,7 @@ export default function Home() {
                 rules, prepare your tools, and wait for the official
                 registration window.
               </p>
-              <div className="btn-row">
-                <Link className="btn btn--primary" href="/register">
-                  Register team
-                </Link>
-                <Link className="btn" href="/login">
-                  Team login
-                </Link>
-              </div>
+              <HomeAuthActions />
             </Reveal>
           </div>
         </section>

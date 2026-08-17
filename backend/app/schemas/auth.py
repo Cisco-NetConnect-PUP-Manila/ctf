@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -48,6 +49,8 @@ class TeamResponse(BaseModel):
     id: UUID
     group_name: str
     status: str
+    rejected_at: datetime | None
+    rejection_reason: str | None
     members: list[TeamMemberResponse]
 
 

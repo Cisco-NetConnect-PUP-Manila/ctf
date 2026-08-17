@@ -31,6 +31,8 @@ export type Team = {
   id: string;
   group_name: string;
   status: string;
+  rejected_at: string | null;
+  rejection_reason: string | null;
   members: TeamMember[];
 };
 
@@ -204,6 +206,36 @@ export type ChallengeFlag = {
   label: string | null;
   validator_type: string;
   is_active: boolean;
+};
+
+export type AdminHint = {
+  id: string;
+  challenge_id: string;
+  content: string;
+  penalty_points: number;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type HintInput = {
+  content: string;
+  penalty_points: number;
+  sort_order: number;
+};
+
+export type ParticipantHint = {
+  id: string;
+  penalty_points: number;
+  sort_order: number;
+  requested: boolean;
+  content: string | null;
+};
+
+export type IntelRequestResult = {
+  hint: string;
+  penalty_points: number;
+  total_penalty: number;
+  already_requested: boolean;
 };
 
 export type UnlockedAct = {
