@@ -35,6 +35,8 @@ export default function AdminTeamManager() {
   const [error, setError] = useState("");
   const [openTeamId, setOpenTeamId] = useState<string | null>(null);
   const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const counts = useMemo(
     () =>
@@ -49,6 +51,21 @@ export default function AdminTeamManager() {
       ),
     [teams]
   );
+
+  const visibleTeams = useMemo(() => {
+    const query = searchQuery.trim().toLocaleLowerCase();
+
+    return teams.filter((team) => {
+      if (statusFilter !== "all" && team.status !== statusFilter) return false;
+      if (!query) return true;
+
+      return [
+        team.group_name,
+        team.email,
+        ...team.members.flatMap((member) => [member.full_name, member.email]),
+      ].some((value) => value.toLocaleLowerCase().includes(query));
+    });
+  }, [searchQuery, statusFilter, teams]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -153,12 +170,47 @@ export default function AdminTeamManager() {
         </div>
       </div>
 
+      <div className="team-admin__filters" role="search" aria-label="Search team registrations">
+        <label className="team-admin__search">
+          <span>Search teams</span>
+          <input
+            aria-label="Search by group name, account email, or member"
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Group name, email, or member"
+            type="search"
+            value={searchQuery}
+          />
+        </label>
+        <label className="team-admin__status-filter">
+          <span>Approval status</span>
+          <select
+            onChange={(event) => setStatusFilter(event.target.value)}
+            value={statusFilter}
+          >
+            <option value="all">All teams</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="disabled">Disabled</option>
+          </select>
+        </label>
+        <small aria-live="polite">
+          Showing {visibleTeams.length} of {teams.length} teams
+        </small>
+      </div>
+
       <div className="team-admin__list">
         {teams.length === 0 && (
           <p className="challenge-admin__note">No team registrations yet.</p>
         )}
 
-        {teams.map((team) => (
+        {teams.length > 0 && visibleTeams.length === 0 && (
+          <p className="challenge-admin__note">
+            No teams match this search and approval status.
+          </p>
+        )}
+
+        {visibleTeams.map((team) => (
           <article className="team-admin-row" key={team.id}>
             <header className="team-admin-row__head">
               <div>
