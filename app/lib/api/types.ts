@@ -206,6 +206,21 @@ export type ChallengeFlag = {
   is_active: boolean;
 };
 
+export type AdminHint = {
+  id: string;
+  challenge_id: string;
+  content: string;
+  penalty_points: number;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type HintInput = {
+  content: string;
+  penalty_points: number;
+  sort_order: number;
+};
+
 export type UnlockedAct = {
   id: string;
   act_number: number;
