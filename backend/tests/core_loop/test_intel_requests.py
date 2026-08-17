@@ -7,6 +7,8 @@ from app.models.intel import Hint, IntelRequest
 from app.services import scoring
 
 from app.models.account import AccountRole
+from app.models.platform_setting import PlatformSetting
+from app.services.platform_settings import KEY_SUBMISSIONS_OPEN
 
 from .factories import PASSWORD, get_act, make_account, make_challenge, make_team
 
@@ -115,3 +117,25 @@ def test_admin_configures_hint_and_participant_is_charged_once(
     assert repeat.json()["already_requested"] is True
     assert repeat.json()["total_penalty"] == 20
     assert scoring.compute_investigation_score(db, team.team.id) == -20
+
+
+def test_closed_submissions_block_intel_listing_and_requests(db, client, seed_reference_data):
+    team = make_team(db)
+    challenge = make_challenge(db, get_act(db, 1))
+    hint = Hint(challenge_id=challenge.id, content="This must remain closed.", penalty_points=10)
+    db.add(hint)
+    db.add(PlatformSetting(key=KEY_SUBMISSIONS_OPEN, value_json=False))
+    db.commit()
+    assert client.post(
+        "/auth/login", json={"email": team.email, "password": PASSWORD}
+    ).status_code == 200
+
+    listing = client.get(f"/challenges/{challenge.id}/hints")
+    request = client.post(
+        f"/challenges/{challenge.id}/intel-requests", json={"hint_id": str(hint.id)}
+    )
+
+    assert listing.status_code == 403
+    assert listing.json()["code"] == "SUBMISSIONS_CLOSED"
+    assert request.status_code == 403
+    assert request.json()["code"] == "SUBMISSIONS_CLOSED"
