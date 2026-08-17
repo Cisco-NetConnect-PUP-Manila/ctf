@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 from app.models.act import Act, ActUnlock, ActUnlockReason
 from app.models.challenge import Challenge, ChallengeStatus
 from app.models.submission import Solve
+from app.models.intel import IntelRequest
 
 FIRST_ACT_NUMBER = 1
 
@@ -30,10 +31,15 @@ def compute_investigation_score(db: Session, team_id: UUID) -> int:
     Intel Request penalties (#17) and admin score adjustments become additional terms
     here -- this is the single place that definition lives.
     """
-    total = db.scalar(
+    solve_total = db.scalar(
         select(func.coalesce(func.sum(Solve.points_awarded), 0)).where(Solve.team_id == team_id)
     )
-    return int(total or 0)
+    penalty_total = db.scalar(
+        select(func.coalesce(func.sum(IntelRequest.penalty_points), 0)).where(
+            IntelRequest.team_id == team_id
+        )
+    )
+    return int(solve_total or 0) - int(penalty_total or 0)
 
 
 def solved_challenge_ids(db: Session, team_id: UUID) -> set[UUID]:
