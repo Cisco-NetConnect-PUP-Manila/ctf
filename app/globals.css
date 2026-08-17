@@ -6620,6 +6620,43 @@ body.registration-closed-active .auth-page {
 .team-admin__summary {
   margin-bottom: 2px;
 }
+.team-admin__filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(160px, 0.35fr) auto;
+  gap: 12px;
+  align-items: end;
+  padding: 14px;
+  border: 1px solid var(--line-dim);
+  background: rgba(9, 5, 2, 0.45);
+}
+.team-admin__search,
+.team-admin__status-filter {
+  display: grid;
+  gap: 7px;
+  color: var(--orange-2);
+  font-family: var(--rodin);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.team-admin__filters input,
+.team-admin__filters select {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-dim);
+  background: rgba(0, 0, 0, 0.32);
+  color: var(--ink);
+  font: 0.82rem var(--rodin);
+  text-transform: none;
+}
+.team-admin__filters small {
+  padding-bottom: 11px;
+  color: var(--ink-dim);
+  font: 0.74rem var(--rodin);
+  white-space: nowrap;
+}
 .team-admin__list {
   display: grid;
   gap: 14px;
@@ -7819,6 +7856,17 @@ body.registration-closed-active .auth-page {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
+}
+
+@media (max-width: 760px) {
+  .team-admin__filters {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .team-admin__filters small {
+    padding-bottom: 0;
+  }
 }
 .challenge-detail__intel-list {
   display: grid;
