@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   approveAdminTeam,
+  deleteAdminTeamRegistration,
   disableAdminTeam,
   listAdminTeams,
   reactivateAdminTeam,
@@ -102,6 +103,30 @@ export default function AdminTeamManager() {
         delete next[team.id];
         return next;
       });
+    }
+  }
+
+  async function handleDeleteRegistration(team: AdminTeam) {
+    const confirmed = window.confirm(
+      `Permanently delete the registration for "${team.group_name}"?\n\nThis removes the team account and cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setBusyId(team.id);
+    setError("");
+    try {
+      await deleteAdminTeamRegistration(team.id);
+      setTeams((current) => current.filter((candidate) => candidate.id !== team.id));
+      setRejectReasons((current) => {
+        const next = { ...current };
+        delete next[team.id];
+        return next;
+      });
+      if (openTeamId === team.id) setOpenTeamId(null);
+    } catch (caught) {
+      setError(errorMessage(caught, "Could not delete team registration."));
+    } finally {
+      setBusyId(null);
     }
   }
 
@@ -219,6 +244,16 @@ export default function AdminTeamManager() {
                   type="button"
                 >
                   Reactivate
+                </button>
+              )}
+              {(team.status === "pending" || team.status === "rejected") && (
+                <button
+                  className="btn challenge-admin-row__delete"
+                  disabled={busyId === team.id}
+                  onClick={() => void handleDeleteRegistration(team)}
+                  type="button"
+                >
+                  Delete registration
                 </button>
               )}
             </div>

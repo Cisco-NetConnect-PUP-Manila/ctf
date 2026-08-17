@@ -32,3 +32,9 @@ export function reactivateAdminTeam(teamId: string) {
     method: "PATCH",
   });
 }
+
+export function deleteAdminTeamRegistration(teamId: string) {
+  return apiRequest<void>(`/admin/teams/${teamId}`, {
+    method: "DELETE",
+  });
+}
