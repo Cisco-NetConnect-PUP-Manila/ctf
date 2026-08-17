@@ -24,3 +24,21 @@ class AdminSubmissionMonitorRow(BaseModel):
 
 class AdminSubmissionMonitorResponse(BaseModel):
     rows: list[AdminSubmissionMonitorRow]
+
+
+class AdminLeaderboardRow(BaseModel):
+    rank: int
+    team_id: UUID
+    team_name: str
+    team_status: str
+    member_count: int
+    score: int
+    current_act: int
+    solves: int
+    attempts: int
+    incorrect_attempts: int
+    last_solve_at: datetime | None
+
+
+class AdminLeaderboardResponse(BaseModel):
+    rows: list[AdminLeaderboardRow]

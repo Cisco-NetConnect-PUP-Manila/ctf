@@ -17,9 +17,12 @@ from app.models.challenge import Challenge
 from app.models.submission import Solve, Submission
 from app.models.team import Team
 from app.schemas.admin_submission import (
+    AdminLeaderboardResponse,
+    AdminLeaderboardRow,
     AdminSubmissionMonitorResponse,
     AdminSubmissionMonitorRow,
 )
+from app.services import scoring
 
 router = APIRouter()
 
@@ -142,3 +145,60 @@ def submission_monitor(db: Session = Depends(get_db)) -> AdminSubmissionMonitorR
         reverse=True,
     )
     return AdminSubmissionMonitorResponse(rows=rows)
+
+
+@router.get("/leaderboard", response_model=AdminLeaderboardResponse)
+def leaderboard(db: Session = Depends(get_db)) -> AdminLeaderboardResponse:
+    teams = db.scalars(select(Team).order_by(Team.group_name)).all()
+    solves = db.scalars(select(Solve)).all()
+    submissions = db.scalars(select(Submission)).all()
+
+    solves_by_team: dict = defaultdict(list)
+    submissions_by_team: dict = defaultdict(list)
+    for solve in solves:
+        solves_by_team[solve.team_id].append(solve)
+    for submission in submissions:
+        submissions_by_team[submission.team_id].append(submission)
+
+    ranked = []
+    for team in teams:
+        team_solves = solves_by_team.get(team.id, [])
+        team_submissions = submissions_by_team.get(team.id, [])
+        last_solve_at = max((solve.solved_at for solve in team_solves), default=None)
+        ranked.append(
+            {
+                "team": team,
+                "score": scoring.compute_investigation_score(db, team.id),
+                "current_act": scoring.current_act_number(db, team.id),
+                "solves": len(team_solves),
+                "attempts": len(team_submissions),
+                "incorrect_attempts": sum(1 for item in team_submissions if not item.is_correct),
+                "last_solve_at": last_solve_at,
+            }
+        )
+
+    ranked.sort(
+        key=lambda item: (
+            -item["score"],
+            item["last_solve_at"] or datetime.max.replace(tzinfo=UTC),
+            item["team"].group_name.lower(),
+        )
+    )
+
+    rows = [
+        AdminLeaderboardRow(
+            rank=index + 1,
+            team_id=item["team"].id,
+            team_name=item["team"].group_name,
+            team_status=item["team"].status,
+            member_count=len(item["team"].members),
+            score=item["score"],
+            current_act=item["current_act"],
+            solves=item["solves"],
+            attempts=item["attempts"],
+            incorrect_attempts=item["incorrect_attempts"],
+            last_solve_at=item["last_solve_at"],
+        )
+        for index, item in enumerate(ranked)
+    ]
+    return AdminLeaderboardResponse(rows=rows)

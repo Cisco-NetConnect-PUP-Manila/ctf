@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.deps import get_current_team
-from app.core.errors import APIError, LOCKED_CHALLENGE, NOT_FOUND
+from app.core.errors import APIError, LOCKED_CHALLENGE, NOT_FOUND, SUBMISSIONS_CLOSED
 from app.core.team_fragments import derive_team_fragment
 from app.db.session import get_db
 from app.models.act import Act
@@ -24,6 +24,7 @@ from app.schemas.challenge import (
 )
 from app.services import scoring
 from app.services.challenge_files import get_challenge_file_storage
+from app.services.platform_settings import submissions_are_open
 
 router = APIRouter()
 
@@ -93,6 +94,11 @@ def _load_accessible_challenge(db: Session, team: Team, challenge_id: UUID) -> C
     if not scoring.team_can_access_act(db, team.id, challenge.act):
         raise APIError(422, LOCKED_CHALLENGE, "This challenge is not available yet.")
     return challenge
+
+
+def _ensure_artifact_access_open(db: Session) -> None:
+    if not submissions_are_open(db):
+        raise APIError(403, SUBMISSIONS_CLOSED, "Challenge files are closed.")
 
 
 @router.get("", response_model=ChallengeListResponse)
@@ -197,6 +203,7 @@ def list_challenge_files(
     db: Session = Depends(get_db),
 ) -> list[ChallengeFileResponse]:
     _load_accessible_challenge(db, team, challenge_id)
+    _ensure_artifact_access_open(db)
     rows = db.scalars(
         select(ChallengeFile)
         .where(
@@ -216,6 +223,7 @@ def download_challenge_file(
     db: Session = Depends(get_db),
 ) -> FileResponse:
     _load_accessible_challenge(db, team, challenge_id)
+    _ensure_artifact_access_open(db)
     row = db.scalar(
         select(ChallengeFile).where(
             ChallengeFile.id == file_id,

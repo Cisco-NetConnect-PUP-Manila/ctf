@@ -2,19 +2,19 @@ import Link from "next/link";
 import Reveal from "../components/Reveal";
 import Window from "../components/Window";
 import ParticipantSessionGuard from "../components/auth/ParticipantSessionGuard";
-import ParticipantAccountControls, {
-} from "../components/auth/ParticipantAccountControls";
+import ParticipantAccountControls from "../components/auth/ParticipantAccountControls";
 import AnnouncementsFeed from "../components/announcements/AnnouncementsFeed";
 import ParticipantDashboardSnapshot from "../components/challenges/ParticipantDashboardSnapshot";
 import ParticipantChallengeList from "../components/challenges/ParticipantChallengeList";
+import ParticipantPlatformStatusGate from "../components/challenges/ParticipantPlatformStatusGate";
 
 export default function CompetitionPlatformPage() {
   return (
     <ParticipantSessionGuard>
-      <main className="portal-page" id="platform-top">
-      <section className="portal-hero">
+      <main className="portal-page portal-page--platform" id="platform-top">
+      <section className="portal-hero" id="dashboard">
         <div className="shell portal-hero__grid">
-          <Reveal>
+          <Reveal className="platform-hero-copy">
             <span className="eyebrow">TEAM PORTAL.EXE</span>
             <h1>
               Competition
@@ -28,54 +28,65 @@ export default function CompetitionPlatformPage() {
               challenges, download evidence files, submit flags, and track
               current progress.
             </p>
-            <div className="portal-actions">
-              <ParticipantAccountControls />
-              <Link className="btn btn--primary" href="/">
-                Back to public site
+            <div className="platform-brief-grid" aria-label="Participant workflow">
+              <div>
+                <span>01</span>
+                <b>Review updates</b>
+                <small>Check organizer transmissions before starting a solve.</small>
+              </div>
+              <div>
+                <span>02</span>
+                <b>Open unlocked Acts</b>
+                <small>Use only challenges your team has access to.</small>
+              </div>
+              <div>
+                <span>03</span>
+                <b>Submit recovered flags</b>
+                <small>Correct solves update your score and progression.</small>
+              </div>
+            </div>
+            <div className="portal-actions platform-hero-actions">
+              <Link className="btn" href="#announcements-feed">
+                Read announcements
+              </Link>
+              <Link className="btn btn--primary" href="#challenges">
+                Open challenges
               </Link>
             </div>
           </Reveal>
 
-          {/* Temporarily hidden: static access explainer. The dashboard and challenge
-              directory below now show the useful backend-backed state directly. */}
-        </div>
-      </section>
-
-      <section className="sec" id="dashboard">
-        <div className="shell">
-          <Reveal className="sec__head">
-            <div>
-              <span className="eyebrow">(01) Team Dashboard</span>
-              <h2>Standby Snapshot</h2>
-            </div>
-            <span className="section-index">01 / 03</span>
-          </Reveal>
-
-          <Reveal className="portal-dashboard">
-            <Window title="team.snapshot" meta="backend live">
-              <ParticipantDashboardSnapshot />
-            </Window>
-
-            {/* Temporarily hidden until leaderboard/ranking is backend-backed. */}
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="sec" id="announcements-feed">
-        <div className="shell">
-          <Reveal className="sec__head">
-            <div>
-              <span className="eyebrow">(02) Announcements</span>
-              <h2>Event Transmissions</h2>
-            </div>
-            <span className="section-index">02 / 03</span>
-          </Reveal>
-
           <Reveal>
-            <AnnouncementsFeed />
+            <Window title="team.snapshot" meta="backend live">
+              <div className="platform-snapshot-panel">
+                <ParticipantDashboardSnapshot />
+              </div>
+              <div className="platform-session-panel">
+                <ParticipantAccountControls />
+                <Link className="btn" href="/">
+                  Back to public site
+                </Link>
+              </div>
+            </Window>
           </Reveal>
         </div>
       </section>
+
+      <ParticipantPlatformStatusGate>
+        <section className="sec" id="announcements-feed">
+          <div className="shell">
+            <Reveal className="sec__head">
+              <div>
+                <span className="eyebrow">(02) Announcements</span>
+                <h2>Event Transmissions</h2>
+              </div>
+              <span className="section-index">02 / 03</span>
+            </Reveal>
+
+            <Reveal>
+              <AnnouncementsFeed />
+            </Reveal>
+          </div>
+        </section>
 
       {/* Temporarily hidden: static storyline/modules/status sections were making the
           participant page read like documentation instead of a working CTF portal.
@@ -152,21 +163,22 @@ export default function CompetitionPlatformPage() {
       </section>
       */}
 
-      <section className="sec" id="challenges">
-        <div className="shell">
-          <Reveal className="sec__head">
-            <div>
-              <span className="eyebrow">(05) Challenge Workspace</span>
-              <h2>Challenge Directory</h2>
-            </div>
-            <span className="section-index">03 / 03</span>
-          </Reveal>
+        <section className="sec" id="challenges">
+          <div className="shell">
+            <Reveal className="sec__head">
+              <div>
+                <span className="eyebrow">(03) Challenge Workspace</span>
+                <h2>Challenge Directory</h2>
+              </div>
+              <span className="section-index">03 / 03</span>
+            </Reveal>
 
-          <Reveal>
-            <ParticipantChallengeList />
-          </Reveal>
-        </div>
-      </section>
+            <Reveal>
+              <ParticipantChallengeList />
+            </Reveal>
+          </div>
+        </section>
+      </ParticipantPlatformStatusGate>
 
       {/* Temporarily hidden: redundant backend status banner.
       <section className="register" id="portal-status">

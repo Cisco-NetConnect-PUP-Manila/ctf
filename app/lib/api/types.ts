@@ -245,3 +245,32 @@ export type AdminSubmissionMonitorResponse = {
   rows: AdminSubmissionMonitorRow[];
 };
 
+export type CompetitionStatus = "upcoming" | "live" | "paused" | "ended";
+
+export type PlatformSettings = {
+  registration_open: boolean;
+  submissions_open: boolean;
+  competition_status: CompetitionStatus;
+  leaderboard_visible: boolean;
+};
+
+export type PlatformSettingsUpdate = Partial<PlatformSettings>;
+
+export type AdminLeaderboardRow = {
+  rank: number;
+  team_id: string;
+  team_name: string;
+  team_status: string;
+  member_count: number;
+  score: number;
+  current_act: number;
+  solves: number;
+  attempts: number;
+  incorrect_attempts: number;
+  last_solve_at: string | null;
+};
+
+export type AdminLeaderboardResponse = {
+  rows: AdminLeaderboardRow[];
+};
+

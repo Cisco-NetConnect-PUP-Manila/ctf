@@ -129,6 +129,7 @@ def get_all_settings(db: Session) -> dict[str, Any]:
     """Return every competition-control setting, falling back to defaults."""
     return {
         KEY_REGISTRATION_OPEN: registration_is_open(db),
+        KEY_SUBMISSIONS_OPEN: submissions_are_open(db),
         KEY_COMPETITION_STATUS: competition_status(db),
         KEY_LEADERBOARD_VISIBLE: leaderboard_is_visible(db),
     }

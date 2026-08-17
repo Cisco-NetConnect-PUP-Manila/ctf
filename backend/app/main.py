@@ -14,6 +14,7 @@ from app.api.routes import (
     auth,
     challenges,
     health,
+    platform_settings,
     submissions,
 )
 from app.core.config import settings
@@ -43,6 +44,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(auth.router, prefix="/auth", tags=["auth"])
     app.include_router(announcements.router, tags=["announcements"])
+    app.include_router(platform_settings.router, tags=["platform-settings"])
     app.include_router(challenges.router, prefix="/challenges", tags=["challenges"])
     app.include_router(submissions.router, prefix="/challenges", tags=["challenges"])
 

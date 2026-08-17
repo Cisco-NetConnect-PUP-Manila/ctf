@@ -1,4 +1,3 @@
-import Link from "next/link";
 import LoginForm from "../../components/auth/LoginForm";
 import Reveal from "../../components/Reveal";
 import Window from "../../components/Window";
@@ -19,9 +18,6 @@ export default function AdminLoginPage() {
             </span>
           </h1>
           <p>Restricted login for challenge makers and competition organizers.</p>
-          <p className="auth-switch">
-            Participant? <Link href="/participant/login">Open team login</Link>
-          </p>
         </Reveal>
 
         <Reveal>

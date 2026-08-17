@@ -17,17 +17,8 @@ const TRANSMISSIONS: Record<string, Transmission> = {
     heading: "CHANNEL SECURED - WELCOME, RESPONDER.",
     body: "You've slipped past the surface layer. What sits beneath the network is classified, corrupted, and waiting. Trace the evidence, unlock the four acts, and preserve every key you recover.",
   },
-  "/platform": {
-    title: "TEAM PORTAL HANDSHAKE",
-    heading: "PARTICIPANT CHANNEL - ACCESS LIMITED.",
-    body: "This workspace is prepared for registered teams: progress, challenges, evidence, leaderboard, announcements, and the final investigation. Live access remains locked until authentication and backend services are connected.",
-  },
-  "/admin": {
-    title: "RESTRICTED ADMIN SIGNAL",
-    heading: "ORGANIZER CONSOLE - AUTHORITY REQUIRED.",
-    body: "Administrative controls are staged but disabled. Challenge management, score overrides, penalties, submissions, and platform settings must be protected by organizer authentication before launch.",
-  },
 };
+const PUBLIC_INTRO_SEEN_KEY = "packet-capture-public-intro-seen";
 
 function Frame({ cls }: { cls?: string }) {
   return (
@@ -47,20 +38,36 @@ function Frame({ cls }: { cls?: string }) {
 
 export default function IntroExperience() {
   const pathname = usePathname();
-  const [phase, setPhase] = useState<Phase>("landing");
+  const [phase, setPhase] = useState<Phase>("done");
+  const publicIntroRoute = pathname === "/";
   const transmission = TRANSMISSIONS[pathname] ?? TRANSMISSIONS["/"];
 
   useEffect(() => {
+    if (!publicIntroRoute) {
+      window.sessionStorage.setItem(PUBLIC_INTRO_SEEN_KEY, "true");
+      setPhase("done");
+      return;
+    }
+
+    const hasSeenPublicIntro =
+      window.sessionStorage.getItem(PUBLIC_INTRO_SEEN_KEY) === "true";
+
+    if (hasSeenPublicIntro) {
+      setPhase("done");
+      return;
+    }
+
+    window.sessionStorage.setItem(PUBLIC_INTRO_SEEN_KEY, "true");
     setPhase("landing");
-    const t1 = setTimeout(() => setPhase("glitch"), 1500); // clean landing, then corrupt
-    const t2 = setTimeout(() => setPhase("popup"), 2950); // full-screen glitch -> reveal + welcome
+    const t1 = setTimeout(() => setPhase("glitch"), 1600);
+    const t2 = setTimeout(() => setPhase("popup"), 3300);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, [pathname]);
+  }, [pathname, publicIntroRoute]);
 
-  if (phase === "done") return null;
+  if (!publicIntroRoute || phase === "done") return null;
 
   return (
     <>
@@ -69,7 +76,7 @@ export default function IntroExperience() {
           className={`fakeland ${phase === "glitch" ? "is-glitch" : ""}`}
           aria-hidden="true"
         >
-          {/* three full-screen copies -> RGB channel split across the whole screen */}
+          {/* Three full-screen copies create a slow, low-contrast signal drift. */}
           <Frame />
           <Frame cls="fakeland__frame--r" />
           <Frame cls="fakeland__frame--b" />

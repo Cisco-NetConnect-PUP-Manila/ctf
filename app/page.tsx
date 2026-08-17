@@ -485,7 +485,11 @@ export default function Home() {
             <div>
               <h4>Contact</h4>
               <ul>
-                <li>{competition.contact}</li>
+                <li>
+                  <a href={`mailto:${competition.contact}`}>
+                    {competition.contact}
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
