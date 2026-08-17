@@ -16,6 +16,7 @@ from app.api.routes import (
     challenges,
     health,
     intel,
+    leaderboard,
     platform_settings,
     submissions,
 )
@@ -50,6 +51,7 @@ def create_app() -> FastAPI:
     app.include_router(challenges.router, prefix="/challenges", tags=["challenges"])
     app.include_router(submissions.router, prefix="/challenges", tags=["challenges"])
     app.include_router(intel.router, prefix="/challenges", tags=["intel"])
+    app.include_router(leaderboard.router, tags=["leaderboard"])
 
     # Admin guard is attached at the router level so no individual endpoint can omit it.
     admin_dependencies = [Depends(get_current_admin)]
