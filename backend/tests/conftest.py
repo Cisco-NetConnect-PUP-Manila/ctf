@@ -1,10 +1,17 @@
+import os
+import subprocess
+import sys
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.security import hash_password, normalize_email
+from app.db.base import Base
 from app.db.session import get_db
 from app.main import create_app
 from app.models.account import Account, AccountRole, AccountStatus
@@ -12,18 +19,60 @@ from app.models.platform_setting import PlatformSetting
 from app.models.team import Team, TeamMember, TeamStatus
 
 TEST_PASSWORD = "test-password-1234"
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _test_database_url() -> str:
+    configured = os.environ.get("TEST_DATABASE_URL")
+    if configured:
+        return configured
+    application_url = make_url(settings.database_url)
+    return application_url.set(
+        database=f"{application_url.database}_test"
+    ).render_as_string(hide_password=False)
+
+
+def _create_database_if_missing(url: str) -> None:
+    parsed = make_url(url)
+    admin_engine = create_engine(parsed.set(database="postgres"), isolation_level="AUTOCOMMIT")
+    try:
+        with admin_engine.connect() as connection:
+            exists = connection.execute(
+                text("select 1 from pg_database where datname = :name"),
+                {"name": parsed.database},
+            ).scalar()
+            if not exists:
+                connection.execute(text(f'create database "{parsed.database}"'))
+    finally:
+        admin_engine.dispose()
+
+
+def _run_migrations(url: str) -> None:
+    subprocess.run(
+        [sys.executable, "-m", "alembic", "upgrade", "head"],
+        cwd=BACKEND_ROOT,
+        env={**os.environ, "DATABASE_URL": url},
+        check=True,
+        capture_output=True,
+    )
 
 
 @pytest.fixture(scope="session")
 def engine():
-    test_engine = create_engine(settings.database_url)
+    url = _test_database_url()
+    _create_database_if_missing(url)
+    _run_migrations(url)
+    test_engine = create_engine(url)
     yield test_engine
+    test_engine.dispose()
 
 
 @pytest.fixture
 def db_session(engine):
     connection = engine.connect()
     transaction = connection.begin()
+    table_names = ", ".join(f'"{table.name}"' for table in Base.metadata.tables.values())
+    connection.execute(text(f"truncate table {table_names} restart identity cascade"))
     session = Session(bind=connection, join_transaction_mode="create_savepoint")
     yield session
     session.close()
