@@ -33,7 +33,7 @@ export default function AdminTeamManager() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [openTeamId, setOpenTeamId] = useState<string | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
+  const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({});
 
   const counts = useMemo(
     () =>
@@ -74,21 +74,35 @@ export default function AdminTeamManager() {
     setError("");
     try {
       updateTeam(await action());
-      setRejectReason("");
+      return true;
     } catch (caught) {
       setError(errorMessage(caught, fallback));
+      return false;
     } finally {
       setBusyId(null);
     }
   }
 
   async function handleReject(team: AdminTeam) {
-    const reason = rejectReason.trim();
-    if (!reason) {
-      setError("Add a rejection reason before rejecting this team.");
+    const reason = (rejectReasons[team.id] ?? "").trim();
+    if (reason.length < 2) {
+      setError("Add a rejection reason with at least 2 characters before rejecting this team.");
       return;
     }
-    await runAction(team, () => rejectAdminTeam(team.id, reason), "Could not reject team.");
+    if (!window.confirm(`Reject "${team.group_name}"?\n\nReason: ${reason}`)) return;
+
+    const rejected = await runAction(
+      team,
+      () => rejectAdminTeam(team.id, reason),
+      "Could not reject team."
+    );
+    if (rejected) {
+      setRejectReasons((current) => {
+        const next = { ...current };
+        delete next[team.id];
+        return next;
+      });
+    }
   }
 
   if (loading) {
@@ -214,9 +228,15 @@ export default function AdminTeamManager() {
                 Rejection reason
                 <input
                   maxLength={500}
-                  onChange={(event) => setRejectReason(event.target.value)}
+                  minLength={2}
+                  onChange={(event) =>
+                    setRejectReasons((current) => ({
+                      ...current,
+                      [team.id]: event.target.value,
+                    }))
+                  }
                   placeholder="Only needed if rejecting this team"
-                  value={rejectReason}
+                  value={rejectReasons[team.id] ?? ""}
                 />
               </label>
             )}
