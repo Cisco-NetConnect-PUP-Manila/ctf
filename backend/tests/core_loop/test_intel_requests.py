@@ -139,3 +139,29 @@ def test_closed_submissions_block_intel_listing_and_requests(db, client, seed_re
     assert listing.json()["code"] == "SUBMISSIONS_CLOSED"
     assert request.status_code == 403
     assert request.json()["code"] == "SUBMISSIONS_CLOSED"
+
+
+def test_repeated_intel_requests_are_rate_limited_without_duplicate_penalty(
+    db, client, seed_reference_data, monkeypatch
+):
+    from app.api.routes import intel as intel_routes
+
+    monkeypatch.setattr(intel_routes, "INTEL_REQUEST_LIMIT", 2)
+    team = make_team(db)
+    challenge = make_challenge(db, get_act(db, 1))
+    hint = Hint(challenge_id=challenge.id, content="Rate-limited Intel.", penalty_points=15)
+    db.add(hint)
+    db.commit()
+    assert client.post(
+        "/auth/login", json={"email": team.email, "password": PASSWORD}
+    ).status_code == 200
+    path = f"/challenges/{challenge.id}/intel-requests"
+    payload = {"hint_id": str(hint.id)}
+
+    assert client.post(path, json=payload).status_code == 200
+    assert client.post(path, json=payload).status_code == 200
+    blocked = client.post(path, json=payload)
+
+    assert blocked.status_code == 429
+    assert blocked.json()["code"] == "RATE_LIMITED"
+    assert scoring.compute_investigation_score(db, team.team.id) == -15
