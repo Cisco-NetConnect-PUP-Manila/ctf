@@ -221,6 +221,21 @@ export type HintInput = {
   sort_order: number;
 };
 
+export type ParticipantHint = {
+  id: string;
+  penalty_points: number;
+  sort_order: number;
+  requested: boolean;
+  content: string | null;
+};
+
+export type IntelRequestResult = {
+  hint: string;
+  penalty_points: number;
+  total_penalty: number;
+  already_requested: boolean;
+};
+
 export type UnlockedAct = {
   id: string;
   act_number: number;

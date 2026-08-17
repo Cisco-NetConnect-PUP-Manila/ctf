@@ -7820,6 +7820,42 @@ body.registration-closed-active .auth-page {
   grid-template-columns: 1fr;
   gap: 16px;
 }
+.challenge-detail__intel-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+.challenge-detail__intel-row {
+  align-items: center;
+  background: rgba(255, 128, 20, 0.04);
+  border: 1px solid var(--line-dim);
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 14px;
+}
+.challenge-detail__intel-row--used {
+  border-color: var(--line);
+}
+.challenge-detail__intel-row > div {
+  display: grid;
+  gap: 5px;
+}
+.challenge-detail__intel-row b,
+.challenge-detail__penalty b {
+  color: var(--amber-2);
+}
+.challenge-detail__intel-row small {
+  color: var(--ink-faint);
+  font-family: var(--term);
+}
+.challenge-detail__intel-row p {
+  margin: 5px 0 0;
+}
+.challenge-detail__penalty {
+  border-left: 3px solid var(--amber);
+  padding-left: 10px;
+}
 .challenge-detail__panel,
 .challenge-detail__submit {
   padding: 20px;

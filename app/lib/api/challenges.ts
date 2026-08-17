@@ -10,8 +10,10 @@ import type {
   ChallengeStatus,
   FlagSubmissionResult,
   HintInput,
+  IntelRequestResult,
   ParticipantChallenge,
   ParticipantChallengeList,
+  ParticipantHint,
 } from "./types";
 
 export function listParticipantChallenges() {
@@ -168,5 +170,19 @@ export function submitChallengeFlag(challengeId: string, flag: string) {
   return apiRequest<FlagSubmissionResult>(`/challenges/${challengeId}/submissions`, {
     method: "POST",
     body: JSON.stringify({ flag }),
+  });
+}
+
+export function listParticipantChallengeHints(challengeId: string) {
+  return apiRequest<ParticipantHint[]>(`/challenges/${challengeId}/hints`, {
+    method: "GET",
+    cache: "no-store",
+  });
+}
+
+export function requestChallengeIntel(challengeId: string, hintId: string) {
+  return apiRequest<IntelRequestResult>(`/challenges/${challengeId}/intel-requests`, {
+    method: "POST",
+    body: JSON.stringify({ hint_id: hintId }),
   });
 }
