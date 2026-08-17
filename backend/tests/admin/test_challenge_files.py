@@ -114,6 +114,62 @@ def test_admin_upload_rejects_unsupported_extension(client, db_session, tmp_path
     assert db_session.query(ChallengeFile).count() == 0
 
 
+def test_unauthenticated_user_cannot_upload_challenge_file(
+    client, db_session, tmp_path, monkeypatch
+):
+    monkeypatch.setattr(settings, "challenge_file_storage_root", str(tmp_path))
+    challenge = _challenge(db_session, _act(db_session))
+
+    response = client.post(
+        f"/admin/challenges/{challenge.id}/files",
+        files={"upload": ("evidence.txt", b"private", "text/plain")},
+    )
+
+    assert response.status_code == 401
+    assert response.json()["code"] == "AUTH_REQUIRED"
+    assert db_session.query(ChallengeFile).count() == 0
+    assert list(Path(tmp_path).rglob("*")) == []
+
+
+def test_participant_cannot_upload_challenge_file(
+    client, db_session, tmp_path, monkeypatch
+):
+    monkeypatch.setattr(settings, "challenge_file_storage_root", str(tmp_path))
+    challenge = _challenge(db_session, _act(db_session))
+    team_cookies = _login_team(client, db_session)
+
+    response = client.post(
+        f"/admin/challenges/{challenge.id}/files",
+        files={"upload": ("evidence.txt", b"private", "text/plain")},
+        cookies=team_cookies,
+    )
+
+    assert response.status_code == 403
+    assert response.json()["code"] == "FORBIDDEN"
+    assert db_session.query(ChallengeFile).count() == 0
+    assert list(Path(tmp_path).rglob("*")) == []
+
+
+def test_oversized_upload_leaves_no_file_or_metadata(
+    client, db_session, tmp_path, monkeypatch
+):
+    monkeypatch.setattr(settings, "challenge_file_storage_root", str(tmp_path))
+    monkeypatch.setattr(settings, "challenge_file_max_bytes", 4)
+    challenge = _challenge(db_session, _act(db_session))
+    cookies = _login_admin(client, db_session)
+
+    response = client.post(
+        f"/admin/challenges/{challenge.id}/files",
+        files={"upload": ("too-large.raw", b"12345", "application/octet-stream")},
+        cookies=cookies,
+    )
+
+    assert response.status_code == 413
+    assert response.json()["code"] == "VALIDATION_ERROR"
+    assert db_session.query(ChallengeFile).count() == 0
+    assert [path for path in Path(tmp_path).rglob("*") if path.is_file()] == []
+
+
 def test_admin_deactivates_file_without_deleting_metadata(client, db_session, tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "challenge_file_storage_root", str(tmp_path))
     challenge = _challenge(db_session, _act(db_session))
