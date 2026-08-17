@@ -4,10 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 import {
   addChallengeFlag,
   createAdminChallenge,
+  createAdminChallengeHint,
   deactivateAdminChallengeFile,
   deactivateChallengeFlag,
   deleteAdminChallenge,
   listAdminChallengeFiles,
+  listAdminChallengeHints,
   listAdminActs,
   listAdminChallenges,
   listChallengeCategories,
@@ -15,6 +17,7 @@ import {
   listChallengeFlags,
   setAdminChallengeStatus,
   updateAdminChallenge,
+  updateAdminChallengeHint,
   uploadAdminChallengeFile,
 } from "../../lib/api/challenges";
 import { ApiError } from "../../lib/api/client";
@@ -22,6 +25,7 @@ import type {
   AdminAct,
   AdminChallenge,
   AdminChallengeInput,
+  AdminHint,
   ChallengeFile,
   ChallengeFlag,
   ChallengeLookup,
@@ -125,12 +129,16 @@ export default function AdminChallengeManager() {
   const [itemNotices, setItemNotices] = useState<Record<string, string>>({});
   const [flagsByChallenge, setFlagsByChallenge] = useState<Record<string, ChallengeFlag[]>>({});
   const [filesByChallenge, setFilesByChallenge] = useState<Record<string, ChallengeFile[]>>({});
+  const [hintsByChallenge, setHintsByChallenge] = useState<Record<string, AdminHint[]>>({});
   const [openFlagsId, setOpenFlagsId] = useState<string | null>(null);
   const [openFilesId, setOpenFilesId] = useState<string | null>(null);
+  const [openHintsId, setOpenHintsId] = useState<string | null>(null);
   const [flagValue, setFlagValue] = useState("");
   const [flagLabel, setFlagLabel] = useState("");
   const [fileDisplayNames, setFileDisplayNames] = useState<Record<string, string>>({});
   const [selectedFiles, setSelectedFiles] = useState<Record<string, File | null>>({});
+  const [hintContent, setHintContent] = useState("");
+  const [hintPenalty, setHintPenalty] = useState("0");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -270,6 +278,65 @@ export default function AdminChallengeManager() {
       setFilesByChallenge((current) => ({ ...current, [item.id]: files }));
     } catch (caught) {
       setError(errorMessage(caught, "Could not load challenge files."));
+    }
+  }
+
+  async function toggleHints(item: AdminChallenge) {
+    if (openHintsId === item.id) {
+      setOpenHintsId(null);
+      return;
+    }
+    setOpenHintsId(item.id);
+    setHintContent("");
+    setHintPenalty("0");
+    try {
+      const hints = await listAdminChallengeHints(item.id);
+      setHintsByChallenge((current) => ({ ...current, [item.id]: hints }));
+    } catch (caught) {
+      setError(errorMessage(caught, "Could not load Intel Requests."));
+    }
+  }
+
+  async function handleAddHint(item: AdminChallenge) {
+    setBusyId(item.id);
+    setError("");
+    try {
+      const created = await createAdminChallengeHint(item.id, {
+        content: hintContent.trim(),
+        penalty_points: Number(hintPenalty),
+        sort_order: (hintsByChallenge[item.id] ?? []).length,
+      });
+      setHintsByChallenge((current) => ({
+        ...current,
+        [item.id]: [...(current[item.id] ?? []), created],
+      }));
+      setHintContent("");
+      setHintPenalty("0");
+      setItemNotice(item.id, `Intel Request added with a ${created.penalty_points}-point penalty.`);
+    } catch (caught) {
+      setError(errorMessage(caught, "Could not add the Intel Request."));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function handleHintStatus(item: AdminChallenge, hint: AdminHint) {
+    setBusyId(item.id);
+    setError("");
+    try {
+      const updated = await updateAdminChallengeHint(item.id, hint.id, {
+        is_active: !hint.is_active,
+      });
+      setHintsByChallenge((current) => ({
+        ...current,
+        [item.id]: (current[item.id] ?? []).map((candidate) =>
+          candidate.id === hint.id ? updated : candidate
+        ),
+      }));
+    } catch (caught) {
+      setError(errorMessage(caught, "Could not update the Intel Request."));
+    } finally {
+      setBusyId(null);
     }
   }
 
@@ -447,6 +514,7 @@ export default function AdminChallengeManager() {
               <button className="btn" type="button" disabled={busyId === item.id} onClick={() => beginEdit(item)}>Edit</button>
               <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void toggleFlags(item)}>Flags</button>
               <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void toggleFiles(item)}>Files</button>
+              <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void toggleHints(item)}>Intel</button>
               {item.status !== "published" && <button className="btn btn--primary" type="button" disabled={busyId === item.id} onClick={() => void handleStatus(item, "published")}>Publish</button>}
               {item.status === "published" && <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void handleStatus(item, "draft")}>Unpublish</button>}
               <button className="btn challenge-admin-row__delete" type="button" disabled={busyId === item.id} onClick={() => void handleDelete(item)}>Delete</button>
@@ -499,6 +567,31 @@ export default function AdminChallengeManager() {
                   </small>
                 )}
                 <small>Accepted: .raw, .pcap, .dd, .png, .txt, .pkz, .pka. Maximum size: 100 MB.</small>
+              </div>
+            )}
+
+            {openHintsId === item.id && (
+              <div className="challenge-flags challenge-hints">
+                <h5>Intel Requests</h5>
+                <p>Participants see the penalty before choosing to reveal the hint.</p>
+                {(hintsByChallenge[item.id] ?? []).map((hint, index) => (
+                  <div className="challenge-flag challenge-hint-row" key={hint.id}>
+                    <span className="challenge-file-row__main">
+                      <b>Intel {index + 1} · {hint.penalty_points} point penalty</b>
+                      <small>{hint.content} · {hint.is_active ? "active" : "inactive"}</small>
+                    </span>
+                    <button className="btn" type="button" disabled={busyId === item.id} onClick={() => void handleHintStatus(item, hint)}>
+                      {hint.is_active ? "Deactivate" : "Reactivate"}
+                    </button>
+                  </div>
+                ))}
+                <div className="challenge-flag__new challenge-hint__new">
+                  <textarea aria-label="Intel hint text" placeholder="Hint revealed after confirmation" rows={3} value={hintContent} onChange={(event) => setHintContent(event.target.value)} />
+                  <input aria-label="Intel penalty points" min="0" placeholder="Penalty points" type="number" value={hintPenalty} onChange={(event) => setHintPenalty(event.target.value)} />
+                  <button className="btn btn--primary" type="button" disabled={!hintContent.trim() || Number(hintPenalty) < 0 || busyId === item.id} onClick={() => void handleAddHint(item)}>
+                    Add Intel
+                  </button>
+                </div>
               </div>
             )}
           </article>

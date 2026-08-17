@@ -3,11 +3,13 @@ import type {
   AdminAct,
   AdminChallenge,
   AdminChallengeInput,
+  AdminHint,
   ChallengeFile,
   ChallengeFlag,
   ChallengeLookup,
   ChallengeStatus,
   FlagSubmissionResult,
+  HintInput,
   ParticipantChallenge,
   ParticipantChallengeList,
 } from "./types";
@@ -95,6 +97,31 @@ export function deactivateChallengeFlag(challengeId: string, flagId: string) {
     `/admin/challenges/${challengeId}/flags/${flagId}`,
     { method: "DELETE" }
   );
+}
+
+export function listAdminChallengeHints(challengeId: string) {
+  return apiRequest<AdminHint[]>(`/admin/challenges/${challengeId}/hints`, {
+    method: "GET",
+    cache: "no-store",
+  });
+}
+
+export function createAdminChallengeHint(challengeId: string, payload: HintInput) {
+  return apiRequest<AdminHint>(`/admin/challenges/${challengeId}/hints`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateAdminChallengeHint(
+  challengeId: string,
+  hintId: string,
+  payload: Partial<HintInput> & { is_active?: boolean }
+) {
+  return apiRequest<AdminHint>(`/admin/challenges/${challengeId}/hints/${hintId}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
 }
 
 export function listAdminChallengeFiles(challengeId: string) {

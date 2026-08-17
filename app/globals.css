@@ -6502,7 +6502,8 @@ body.registration-closed-active .auth-page {
 .challenge-editor input,
 .challenge-editor select,
 .challenge-editor textarea,
-.challenge-flag__new input {
+.challenge-flag__new input,
+.challenge-flag__new textarea {
   width: 100%;
   min-width: 0;
   border: 1px solid var(--line);
@@ -6515,7 +6516,8 @@ body.registration-closed-active .auth-page {
 .challenge-editor input:focus,
 .challenge-editor select:focus,
 .challenge-editor textarea:focus,
-.challenge-flag__new input:focus {
+.challenge-flag__new input:focus,
+.challenge-flag__new textarea:focus {
   outline: 1px solid var(--amber);
   border-color: var(--amber);
 }
