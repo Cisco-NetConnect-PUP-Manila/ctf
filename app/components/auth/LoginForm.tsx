@@ -27,6 +27,18 @@ function copyFor(portal: LoginPortal) {
     };
   }
 
+  if (portal === "auto") {
+    return {
+      emailLabel: "Account email",
+      placeholder: "team-or-admin@example.com",
+      button: "Enter secure portal",
+      submitting: "Verifying account...",
+      registered: "Team registration received. Sign in with the team email to continue.",
+      access: "Sign in with an account authorized to open that page.",
+      loggedOut: "Your session has been closed successfully.",
+    };
+  }
+
   return {
     emailLabel: "Team email",
     placeholder: "team@example.com",
@@ -38,7 +50,7 @@ function copyFor(portal: LoginPortal) {
   };
 }
 
-export default function LoginForm({ portal = "participant" }: LoginFormProps) {
+export default function LoginForm({ portal = "auto" }: LoginFormProps) {
   const router = useRouter();
   const content = copyFor(portal);
   const [email, setEmail] = useState("");
@@ -72,10 +84,6 @@ export default function LoginForm({ portal = "participant" }: LoginFormProps) {
     try {
       const current = await login({ email: email.trim(), password });
       if (current.account.role === "admin") {
-        if (portal === "participant") {
-          setError("Use the admin login page for organizer accounts.");
-          return;
-        }
         router.push("/admin");
         router.refresh();
         return;
@@ -84,11 +92,7 @@ export default function LoginForm({ portal = "participant" }: LoginFormProps) {
         setError("This account role is not recognized.");
         return;
       }
-      if (portal === "admin") {
-        setError("Use a team account on the participant login page.");
-        return;
-      }
-      if (portal !== "auto" && current.team?.status !== "approved") {
+      if (current.team?.status !== "approved") {
         router.push("/participant/pending");
         router.refresh();
         return;

@@ -53,7 +53,7 @@ export default function RegistrationForm() {
         password,
         members: roster,
       });
-      router.push("/participant/login?registered=1");
+      router.push("/login?registered=1");
     } catch (caught) {
       if (caught instanceof ApiError) {
         setError(caught.message);
@@ -197,7 +197,7 @@ export default function RegistrationForm() {
       </button>
 
       <p className="auth-switch">
-        Already registered? <a href="/participant/login">Sign in</a>
+        Already registered? <a href="/login">Sign in</a>
       </p>
     </form>
   );

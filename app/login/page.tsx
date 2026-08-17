@@ -7,7 +7,7 @@ export default function LoginPage() {
     <main className="auth-page">
       <div className="shell auth-page__shell">
         <Reveal className="auth-page__intro">
-          <span className="eyebrow">TEAM ACCESS.EXE</span>
+          <span className="eyebrow">SECURE ACCESS.EXE</span>
           <h1 className="auth-title">
             Access
             <br />
@@ -18,14 +18,14 @@ export default function LoginPage() {
             </span>
           </h1>
           <p>
-            Use your approved team account to enter the competition, or register
-            your team if this is your first time joining.
+            Teams and organizers use the same secure account entry point. Your
+            authenticated role determines which workspace opens.
           </p>
         </Reveal>
 
         <Reveal>
-          <Window title="TEAM.LOGIN" meta="participant channel">
-            <LoginForm portal="participant" />
+          <Window title="ACCOUNT.LOGIN" meta="role-aware channel">
+            <LoginForm portal="auto" />
           </Window>
         </Reveal>
       </div>

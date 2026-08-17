@@ -17,7 +17,7 @@ export default function AdminAccountControls() {
     setError("");
     try {
       await logout();
-      router.replace("/admin/login?reason=logged-out");
+      router.replace("/login?reason=logged-out");
       router.refresh();
     } catch (caught) {
       setError(

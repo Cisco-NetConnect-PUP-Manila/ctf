@@ -17,7 +17,7 @@ export default function ParticipantAccountControls() {
     setError("");
     try {
       await logout();
-      router.replace("/participant/login?reason=logged-out");
+      router.replace("/login?reason=logged-out");
       router.refresh();
     } catch (caught) {
       setError(

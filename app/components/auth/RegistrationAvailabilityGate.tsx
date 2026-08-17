@@ -95,7 +95,7 @@ export default function RegistrationAvailabilityGate({
             <Link className="btn btn--primary" href="/">
               Back to main
             </Link>
-            <Link className="btn" href="/participant/login">
+            <Link className="btn" href="/login">
               Team login
             </Link>
           </div>

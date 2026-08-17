@@ -42,7 +42,7 @@ export default function ParticipantSessionGuard({
     try {
       const current = await getCurrentAccount();
       if (current.account.role !== "participant" || !current.team) {
-        router.replace("/participant/login?reason=access");
+        router.replace("/login?reason=access");
         return;
       }
       if (!allowPending && current.team.status !== "approved") {
@@ -52,7 +52,7 @@ export default function ParticipantSessionGuard({
       setSession(current);
     } catch (caught) {
       if (caught instanceof ApiError && (caught.status === 401 || caught.status === 403)) {
-        router.replace("/participant/login?reason=session");
+        router.replace("/login?reason=session");
         return;
       }
       setError(
