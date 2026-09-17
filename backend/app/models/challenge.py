@@ -215,7 +215,7 @@ class ChallengeFile(Base):
     )
 
     __table_args__ = (
-        CheckConstraint("storage_provider in ('local')", name="ck_challenge_files_provider"),
+        CheckConstraint("storage_provider in ('local', 's3')", name="ck_challenge_files_provider"),
         CheckConstraint(
             "extension in ('.raw', '.pcap', '.dd', '.png', '.txt', '.pkz', '.pka')",
             name="ck_challenge_files_extension",

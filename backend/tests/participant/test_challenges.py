@@ -129,6 +129,7 @@ def test_participant_shape_never_exposes_flag_or_admin_fields(client, db_session
         "locked",
         "solved",
         "awarded_points",
+        "team_fragment",
     }
     assert "flag" not in str(item).lower()
     assert "story_fragment" not in item

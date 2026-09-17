@@ -1,7 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
+from alembic import command
+from alembic.config import Config
 
 from app.core.config import settings
 from app.core.security import hash_password, normalize_email
@@ -13,11 +16,70 @@ from app.models.team import Team, TeamMember, TeamStatus
 
 TEST_PASSWORD = "test-password-1234"
 
+TEST_DATABASE_URL = make_url(settings.database_url).set(
+    database="packet_capture_ctf_test"
+).render_as_string(hide_password=False)
+
+TABLES_TO_TRUNCATE = (
+    "act_unlocks",
+    "solves",
+    "submissions",
+    "challenge_files",
+    "challenge_flags",
+    "challenges",
+    "challenge_categories",
+    "challenge_difficulties",
+    "acts",
+    "audit_logs",
+    "account_sessions",
+    "team_members",
+    "teams",
+    "accounts",
+    "platform_settings",
+)
+
+
+def _create_database_if_missing() -> None:
+    url = make_url(TEST_DATABASE_URL)
+    app_database_url = make_url(settings.database_url)
+    admin_engine = create_engine(app_database_url, isolation_level="AUTOCOMMIT")
+    try:
+        with admin_engine.connect() as conn:
+            exists = conn.execute(
+                text("select 1 from pg_database where datname = :name"),
+                {"name": url.database},
+            ).scalar()
+            if not exists:
+                conn.execute(text(f'create database "{url.database}"'))
+    finally:
+        admin_engine.dispose()
+
+
+def _run_migrations() -> None:
+    config = Config("alembic.ini")
+    original_database_url = settings.database_url
+    settings.database_url = TEST_DATABASE_URL
+    try:
+        command.upgrade(config, "head")
+    finally:
+        settings.database_url = original_database_url
+
 
 @pytest.fixture(scope="session")
 def engine():
-    test_engine = create_engine(settings.database_url)
+    _create_database_if_missing()
+    _run_migrations()
+    test_engine = create_engine(TEST_DATABASE_URL)
     yield test_engine
+    test_engine.dispose()
+
+
+@pytest.fixture(autouse=True)
+def clean_database(engine):
+    with engine.connect() as conn:
+        conn.execute(text(f"truncate table {', '.join(TABLES_TO_TRUNCATE)} restart identity cascade"))
+        conn.commit()
+    yield
 
 
 @pytest.fixture

@@ -34,12 +34,13 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.core.config import settings
+
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
 
-DEFAULT_TEST_DATABASE_URL = (
-    "postgresql+psycopg://packet_capture:change_this_local_password"
-    "@localhost:5433/packet_capture_ctf_test"
-)
+DEFAULT_TEST_DATABASE_URL = make_url(settings.database_url).set(
+    database="packet_capture_ctf_test"
+).render_as_string(hide_password=False)
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", DEFAULT_TEST_DATABASE_URL)
 
 # More than the thread count used by the concurrency tests.
@@ -65,7 +66,7 @@ TABLES_TO_TRUNCATE = (
 
 
 def _create_database_if_missing(url) -> None:
-    admin_engine = create_engine(url.set(database="postgres"), isolation_level="AUTOCOMMIT")
+    admin_engine = create_engine(settings.database_url, isolation_level="AUTOCOMMIT")
     try:
         with admin_engine.connect() as conn:
             exists = conn.execute(

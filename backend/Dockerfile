@@ -5,8 +5,11 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+ARG INSTALL_DEV_DEPS=false
+
 COPY requirements.txt requirements-dev.txt ./
-RUN pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt
+RUN pip install --no-cache-dir -r requirements.txt \
+    && if [ "$INSTALL_DEV_DEPS" = "true" ]; then pip install --no-cache-dir -r requirements-dev.txt; fi
 
 COPY . .
 
