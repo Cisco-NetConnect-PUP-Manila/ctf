@@ -579,14 +579,21 @@ def reactivate_challenge_file(
     if row is None:
         raise APIError(status.HTTP_404_NOT_FOUND, NOT_FOUND, "Challenge file not found.")
 
+    storage = get_challenge_file_storage(row.storage_provider)
     try:
-        get_challenge_file_storage().path_for_download(row.storage_key)
-    except FileNotFoundError as exc:
+        file_exists = storage.exists(row.storage_key)
+    except ChallengeFileStorageError as exc:
+        raise APIError(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            VALIDATION_ERROR,
+            "Challenge file storage is not configured correctly.",
+        ) from exc
+    if not file_exists:
         raise APIError(
             status.HTTP_409_CONFLICT,
             NOT_FOUND,
             "The stored file is missing and cannot be reactivated. Upload it again.",
-        ) from exc
+        )
 
     if not row.is_active:
         row.is_active = True
