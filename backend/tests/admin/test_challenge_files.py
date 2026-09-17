@@ -1,4 +1,5 @@
 import uuid
+from datetime import UTC, datetime
 from pathlib import Path
 
 from sqlalchemy import select
@@ -223,6 +224,40 @@ def test_admin_reactivates_existing_challenge_file(client, db_session, tmp_path,
     assert db_session.query(AuditLog).filter(
         AuditLog.action == "challenge_file.reactivated"
     ).count() == 1
+
+
+def test_admin_reactivates_existing_s3_challenge_file(client, db_session, monkeypatch):
+    monkeypatch.setattr(settings, "challenge_file_storage_provider", "local")
+    monkeypatch.setattr(settings, "challenge_file_s3_bucket", "packet-capture-challenge-files")
+    monkeypatch.setattr(S3ChallengeFileStorage, "exists", lambda self, storage_key: True)
+
+    challenge = _challenge(db_session, _act(db_session))
+    cookies = _login_admin(client, db_session)
+    stored_file = ChallengeFile(
+        challenge_id=challenge.id,
+        storage_provider="s3",
+        storage_key="challenge-files/challenges/example/files/evidence.pcap",
+        original_filename="evidence.pcap",
+        display_name="S3 Evidence",
+        extension=".pcap",
+        content_type="application/vnd.tcpdump.pcap",
+        size_bytes=16,
+        is_active=False,
+        deactivated_at=datetime.now(UTC),
+    )
+    db_session.add(stored_file)
+    db_session.flush()
+
+    response = client.patch(
+        f"/admin/challenges/{challenge.id}/files/{stored_file.id}/reactivate",
+        cookies=cookies,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["is_active"] is True
+    row = db_session.get(ChallengeFile, stored_file.id)
+    assert row is not None
+    assert row.deactivated_at is None
 
 
 def test_participant_downloads_only_unlocked_active_files(client, db_session, tmp_path, monkeypatch):

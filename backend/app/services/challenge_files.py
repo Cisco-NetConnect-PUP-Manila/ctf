@@ -123,6 +123,9 @@ class LocalChallengeFileStorage:
             raise FileNotFoundError(storage_key)
         return path
 
+    def exists(self, storage_key: str) -> bool:
+        return self._path_for(storage_key).is_file()
+
     def delete(self, storage_key: str) -> None:
         self._path_for(storage_key).unlink(missing_ok=True)
 
@@ -198,6 +201,16 @@ class S3ChallengeFileStorage:
             },
             ExpiresIn=settings.challenge_file_s3_presign_seconds,
         )
+
+    def exists(self, storage_key: str) -> bool:
+        try:
+            self._client().head_object(Bucket=self.bucket, Key=storage_key)
+            return True
+        except Exception as exc:
+            error_code = getattr(exc, "response", {}).get("Error", {}).get("Code")
+            if error_code in {"404", "NoSuchKey", "NotFound"}:
+                return False
+            raise ChallengeFileStorageError("Unable to verify S3 challenge file.") from exc
 
     def delete(self, storage_key: str) -> None:
         self._client().delete_object(Bucket=self.bucket, Key=storage_key)
