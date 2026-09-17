@@ -37,6 +37,7 @@ from app.schemas.auth import (
     TeamMemberResponse,
     TeamResponse,
 )
+from app.services.email_notifications import registration_received_email, send_email_best_effort
 
 router = APIRouter()
 
@@ -180,6 +181,8 @@ def register_team(payload: RegisterRequest, db: Session = Depends(get_db)) -> Me
         .options(selectinload(Account.team).selectinload(Team.members))
         .where(Account.id == account.id)
     )
+    if account.team is not None:
+        send_email_best_effort(registration_received_email(account.team))
     return MeResponse(account=_account_to_response(account), team=_team_to_response(account.team))
 
 

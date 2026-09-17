@@ -19,6 +19,11 @@ from app.schemas.admin_team import (
     AdminTeamResponse,
     TeamRejectRequest,
 )
+from app.services.email_notifications import (
+    send_email_best_effort,
+    team_approved_email,
+    team_rejected_email,
+)
 
 router = APIRouter()
 
@@ -96,7 +101,9 @@ def approve_team(
     _audit(db, admin, team, "team.approved", {"group_name": team.group_name})
     db.commit()
     db.refresh(team)
-    return _team_to_response(_load_team(db, team.id))
+    team = _load_team(db, team.id)
+    send_email_best_effort(team_approved_email(team))
+    return _team_to_response(team)
 
 
 @router.patch("/teams/{team_id}/reject", response_model=AdminTeamResponse)
@@ -127,7 +134,9 @@ def reject_team(
         {"group_name": team.group_name, "reason": team.rejection_reason},
     )
     db.commit()
-    return _team_to_response(_load_team(db, team.id))
+    team = _load_team(db, team.id)
+    send_email_best_effort(team_rejected_email(team))
+    return _team_to_response(team)
 
 
 @router.patch("/teams/{team_id}/disable", response_model=AdminTeamResponse)

@@ -35,7 +35,10 @@ def test_admin_lists_registered_teams(client, db_session):
     assert body[0]["member_count"] == 1
 
 
-def test_admin_approves_pending_team(client, db_session):
+def test_admin_approves_pending_team(client, db_session, monkeypatch):
+    sent_messages = []
+    monkeypatch.setattr("app.api.routes.admin_teams.send_email_best_effort", sent_messages.append)
+
     account = create_test_account(db_session, email="approve-team@test.com")
     team = create_test_team(
         db_session,
@@ -52,9 +55,15 @@ def test_admin_approves_pending_team(client, db_session):
     assert body["status"] == "approved"
     assert body["approved_at"] is not None
     assert db_session.query(AuditLog).filter_by(action="team.approved").count() == 1
+    assert len(sent_messages) == 1
+    assert sent_messages[0].to == "approve-team@test.com"
+    assert "approved" in sent_messages[0].subject.lower()
 
 
-def test_admin_rejects_pending_team_with_reason(client, db_session):
+def test_admin_rejects_pending_team_with_reason(client, db_session, monkeypatch):
+    sent_messages = []
+    monkeypatch.setattr("app.api.routes.admin_teams.send_email_best_effort", sent_messages.append)
+
     account = create_test_account(db_session, email="reject-team@test.com")
     team = create_test_team(
         db_session,
@@ -74,6 +83,9 @@ def test_admin_rejects_pending_team_with_reason(client, db_session):
     body = response.json()
     assert body["status"] == "rejected"
     assert body["rejection_reason"] == "Incomplete member details."
+    assert len(sent_messages) == 1
+    assert sent_messages[0].to == "reject-team@test.com"
+    assert "update" in sent_messages[0].subject.lower()
 
 
 def test_participant_cannot_access_team_management(client, db_session):

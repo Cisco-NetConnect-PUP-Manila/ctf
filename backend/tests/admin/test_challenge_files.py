@@ -10,9 +10,10 @@ from app.models.account import AccountRole
 from app.models.act import Act
 from app.models.audit_log import AuditLog
 from app.models.challenge import Challenge, ChallengeFile, ChallengeStatus
+from app.models.platform_setting import PlatformSetting
 from app.models.team import TeamStatus
 from app.services.platform_settings import KEY_SUBMISSIONS_OPEN
-from app.models.platform_setting import PlatformSetting
+from app.services.challenge_files import S3ChallengeFileStorage, get_challenge_file_storage
 
 
 def _act(db_session, number: int = 1) -> Act:
@@ -266,3 +267,52 @@ def test_participant_downloads_only_unlocked_active_files(client, db_session, tm
     )
     assert inactive_download.status_code == 404
     assert locked["original_filename"] == "future.raw"
+
+
+def test_s3_storage_factory_uses_configured_bucket(monkeypatch):
+    monkeypatch.setattr(settings, "challenge_file_storage_provider", "s3")
+    monkeypatch.setattr(settings, "challenge_file_s3_bucket", "packet-capture-challenge-files")
+
+    storage = get_challenge_file_storage()
+
+    assert isinstance(storage, S3ChallengeFileStorage)
+    assert storage.bucket == "packet-capture-challenge-files"
+
+
+def test_participant_s3_file_download_redirects_after_authorization(client, db_session, monkeypatch):
+    monkeypatch.setattr(settings, "challenge_file_storage_provider", "local")
+    monkeypatch.setattr(settings, "challenge_file_s3_bucket", "packet-capture-challenge-files")
+    monkeypatch.setattr(
+        S3ChallengeFileStorage,
+        "presigned_download_url",
+        lambda self, storage_key, filename: f"https://signed.example.test/{storage_key}?file={filename}",
+    )
+
+    db_session.add(PlatformSetting(key=KEY_SUBMISSIONS_OPEN, value_json=True))
+    db_session.flush()
+    challenge = _challenge(db_session, _act(db_session, 1), title="S3 Evidence")
+    team_cookies = _login_team(client, db_session)
+    stored_file = ChallengeFile(
+        challenge_id=challenge.id,
+        storage_provider="s3",
+        storage_key="challenge-files/challenges/example/files/evidence.pcap",
+        original_filename="evidence.pcap",
+        display_name="S3 Evidence",
+        extension=".pcap",
+        content_type="application/vnd.tcpdump.pcap",
+        size_bytes=16,
+        is_active=True,
+    )
+    db_session.add(stored_file)
+    db_session.commit()
+
+    response = client.get(
+        f"/challenges/{challenge.id}/files/{stored_file.id}/download",
+        cookies=team_cookies,
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert response.headers["location"].startswith(
+        "https://signed.example.test/challenge-files/challenges/example/files/evidence.pcap"
+    )

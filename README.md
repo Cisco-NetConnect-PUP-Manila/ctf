@@ -11,15 +11,17 @@ Use the Google Docs developer guide as the source of truth for task ownership, f
 
 ## Current Status
 
-- Live front-facing deployment: [https://cnc-pup-ctf.vercel.app/](https://cnc-pup-ctf.vercel.app/)
-- Deployment note: the live site is frontend-only and is not yet mobile-friendly.
-- Public website: built in Next.js. Mobile/tablet/iPad responsive work is still pending for the deployed frontend-only site.
-- Participant platform: `/platform` exists as a frontend shell.
-- Admin panel: `/admin` exists as a frontend shell.
-- Backend/API: FastAPI foundation exists in `backend/`.
-- Database: PostgreSQL and Alembic foundation exists for local development.
-- Authentication: registration/login/session foundation exists; full frontend integration and admin approval UI are still pending.
-- Deployment: cloud provider is still TBD; backend and file storage are designed to stay provider-flexible.
+- Live frontend domain: [https://packetcapture.xyz/](https://packetcapture.xyz/)
+- Public website: Next.js App Router frontend.
+- Registration: participant registration flow posts to the FastAPI backend and creates pending teams.
+- Authentication: backend-owned login/session handling with secure HTTP-only cookies.
+- Participant platform: backend-authorized challenge listing, details, submissions, and private file access.
+- Admin panel: organizer login, registration/team review, challenge management, file upload, announcements, and audit logging.
+- Backend/API: FastAPI service in `backend/`.
+- Database: PostgreSQL managed through SQLAlchemy models and Alembic migrations.
+- Challenge files: backend-managed private storage; local Docker uses a volume, production should use private S3.
+- Email notifications: provider-neutral transactional email scaffold for registration receipt and approval/status emails.
+- Deployment direction: AWS for backend/database/storage, Vercel for frontend, Cloudflare for DNS/security.
 
 Do not put real flags, final answers, hidden keys, validator logic, or private challenge files in frontend code or the `public/` folder.
 
@@ -48,98 +50,20 @@ Backend stack:
 
 ### Deployment
 
-Deployment direction:
+Current production direction:
 
-- Frontend can deploy on Vercel.
-- Backend can deploy on Render as a Docker web service.
-- Production database can use Render PostgreSQL for the first deployed test.
-- Protected challenge files can use a Render persistent disk for the first deployed test.
-- Long-term protected challenge files should use private object storage from the chosen provider.
-- Monitoring/logging should use the chosen provider's observability tools.
-- GitHub Actions for CI/CD
+- Frontend: Vercel, already mapped to `https://packetcapture.xyz/`.
+- Backend: FastAPI Docker image on AWS, recommended first path is ECR + App Runner.
+- API domain: `https://api.packetcapture.xyz`.
+- Database: Amazon RDS for PostgreSQL.
+- Challenge files: private Amazon S3 bucket with short-lived signed downloads after backend authorization.
+- Email: Resend or SendGrid for the initial release; AWS SES can replace it later.
+- DNS/security: Cloudflare manages the domain, TLS proxying, and optional Access rules.
+- Extended web/lab challenges: Cloudflare Tunnel + Cloudflare Access; raw service ports should not be public.
+- Monitoring/logging: AWS CloudWatch for backend logs.
+- CI/CD: GitHub Actions can build, test, and push the backend image when AWS access is ready.
 
-Local development should continue even without a final cloud account. Keep auth, storage, and email logic behind service modules so they can be swapped to AWS, Azure, GCP, Oracle, or another provider later.
-
-## Render + Vercel Deployment
-
-Recommended first deployment split:
-
-- Vercel: Next.js frontend.
-- Render: FastAPI backend Docker web service.
-- Render PostgreSQL: production database.
-- Render persistent disk: temporary private challenge file storage.
-
-Important upload/download note: Vercel Functions have a 4.5 MB request/response body
-limit. Challenge file traffic uses `/api/backend/*` rewrites from Vercel to Render so
-large `.pka`, `.pcap`, `.raw`, `.dd`, `.png`, `.txt`, and `.pkz` files do not pass
-through a Vercel Function route handler.
-
-Render backend settings:
-
-```txt
-Service type: Web Service
-Runtime: Docker
-Root directory: backend
-Dockerfile path: backend/Dockerfile
-Health check path: /health
-```
-
-Render backend environment variables:
-
-```txt
-BACKEND_ENV=production
-DATABASE_URL=<Render PostgreSQL internal URL converted to postgresql+psycopg://...>
-FRONTEND_ORIGIN=https://<your-vercel-domain>
-SESSION_COOKIE_SECURE=true
-SESSION_COOKIE_NAME=packet_capture_session
-SESSION_EXPIRE_HOURS=12
-REGISTRATION_OPEN_BY_DEFAULT=true
-CHALLENGE_FILE_STORAGE_PROVIDER=local
-CHALLENGE_FILE_STORAGE_ROOT=/app/storage/challenge-files
-CHALLENGE_FILE_MAX_BYTES=104857600
-FLAG_HASH_SECRET=<unique random secret>
-TEAM_FRAGMENT_SECRET=<unique random secret>
-BOOTSTRAP_ADMIN_EMAIL=<admin email for testing deploys without shell access>
-BOOTSTRAP_ADMIN_PASSWORD=<long secure admin password for testing deploys without shell access>
-REQUIRE_TEAM_APPROVAL_ON_START=true
-```
-
-Attach a Render persistent disk to the backend service:
-
-```txt
-Mount path: /app/storage
-```
-
-Only files written under the disk mount path survive Render restarts/redeploys.
-
-After the backend deploys, create the first admin from the Render shell:
-
-```bash
-python -m app.scripts.create_admin --email you@example.com --password "use-a-long-random-password"
-```
-
-On Render Free, Shell may be unavailable. In that case, set `BOOTSTRAP_ADMIN_EMAIL`,
-`BOOTSTRAP_ADMIN_PASSWORD`, and `REQUIRE_TEAM_APPROVAL_ON_START=true` before deploying.
-The backend startup will create/update the admin account and enable team approval.
-Remove `BOOTSTRAP_ADMIN_PASSWORD` after the test admin is confirmed if you do not want
-admin password resets on every redeploy.
-
-Vercel frontend environment variables:
-
-```txt
-BACKEND_INTERNAL_URL=https://<your-render-backend>.onrender.com
-NEXT_PUBLIC_API_BASE_URL=https://<your-render-backend>.onrender.com
-```
-
-Then redeploy Vercel. Test in this order:
-
-1. Open `https://<render-backend>.onrender.com/health`.
-2. Open `https://<render-backend>.onrender.com/docs`.
-3. Open the Vercel site.
-4. Register/login a test participant team.
-5. Login as admin and create/publish a test challenge.
-6. Upload a small file first, then the `.pka` files.
-7. Open the challenge as a participant, download the file, submit a test flag.
+See [docs/cloud-deployment-runbook.md](docs/cloud-deployment-runbook.md) for the production environment variables, AWS services, deployment steps, smoke tests, and rollback notes.
 
 ## Local Setup
 

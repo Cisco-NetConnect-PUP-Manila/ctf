@@ -79,7 +79,10 @@ class TestRegistration:
         assert data["code"] == "VALIDATION_ERROR"
         assert "email" in data["field_errors"]
 
-    def test_successful_registration(self, client, db_session):
+    def test_successful_registration(self, client, db_session, monkeypatch):
+        sent_messages = []
+        monkeypatch.setattr("app.api.routes.auth.send_email_best_effort", sent_messages.append)
+
         seed_registration_open(db_session, True)
         resp = client.post("/auth/register", json=build_payload())
         assert resp.status_code == 201
@@ -91,3 +94,6 @@ class TestRegistration:
         assert data["team"]["status"] == "pending"
         assert len(data["team"]["members"]) == 4
         assert data["team"]["members"][0]["is_leader"] is True
+        assert len(sent_messages) == 1
+        assert sent_messages[0].to == "team@test.com"
+        assert "registration received" in sent_messages[0].subject.lower()
