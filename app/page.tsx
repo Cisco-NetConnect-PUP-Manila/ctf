@@ -1,5 +1,4 @@
 import Marquee from "./components/Marquee";
-import Link from "next/link";
 import FaqAccordion from "./components/FaqAccordion";
 import TimelineWave from "./components/TimelineWave";
 import Window from "./components/Window";

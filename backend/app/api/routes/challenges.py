@@ -3,12 +3,12 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.deps import get_current_team
-from app.core.errors import APIError, LOCKED_CHALLENGE, NOT_FOUND, SUBMISSIONS_CLOSED
+from app.core.errors import APIError, INTERNAL_ERROR, LOCKED_CHALLENGE, NOT_FOUND, SUBMISSIONS_CLOSED
 from app.core.team_fragments import derive_team_fragment
 from app.db.session import get_db
 from app.models.act import Act
@@ -23,7 +23,11 @@ from app.schemas.challenge import (
     ChallengeParticipantResponse,
 )
 from app.services import scoring
-from app.services.challenge_files import get_challenge_file_storage
+from app.services.challenge_files import (
+    LocalChallengeFileStorage,
+    S3ChallengeFileStorage,
+    get_challenge_file_storage,
+)
 from app.services.platform_settings import submissions_are_open
 
 router = APIRouter()
@@ -215,13 +219,13 @@ def list_challenge_files(
     return [_file_response(row) for row in rows]
 
 
-@router.get("/{challenge_id}/files/{file_id}/download", response_class=FileResponse)
+@router.get("/{challenge_id}/files/{file_id}/download")
 def download_challenge_file(
     challenge_id: UUID,
     file_id: UUID,
     team: Team = Depends(get_current_team),
     db: Session = Depends(get_db),
-) -> FileResponse:
+) -> Response:
     _load_accessible_challenge(db, team, challenge_id)
     _ensure_artifact_access_open(db)
     row = db.scalar(
@@ -234,13 +238,23 @@ def download_challenge_file(
     if row is None:
         raise APIError(404, NOT_FOUND, "Challenge file not found.")
 
-    try:
-        path = get_challenge_file_storage().path_for_download(row.storage_key)
-    except FileNotFoundError as exc:
-        raise APIError(404, NOT_FOUND, "Challenge file not found.") from exc
+    storage = get_challenge_file_storage(row.storage_provider)
+    if isinstance(storage, S3ChallengeFileStorage):
+        return RedirectResponse(
+            storage.presigned_download_url(row.storage_key, row.original_filename),
+            status_code=302,
+        )
 
-    return FileResponse(
-        path=path,
-        media_type=row.content_type or "application/octet-stream",
-        filename=row.original_filename,
-    )
+    if isinstance(storage, LocalChallengeFileStorage):
+        try:
+            path = storage.path_for_download(row.storage_key)
+        except FileNotFoundError as exc:
+            raise APIError(404, NOT_FOUND, "Challenge file not found.") from exc
+
+        return FileResponse(
+            path=path,
+            media_type=row.content_type or "application/octet-stream",
+            filename=row.original_filename,
+        )
+
+    raise APIError(500, INTERNAL_ERROR, "Challenge file storage is not configured correctly.")
