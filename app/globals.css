@@ -1358,6 +1358,15 @@ h3 {
   gap: 20px;
   align-items: center;
 }
+.sponsor-invite {
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+.sponsor-invite .btn {
+  justify-self: start;
+  max-width: 100%;
+  white-space: normal;
+}
 @media (max-width: 640px) {
   .partner {
     grid-template-columns: 1fr;

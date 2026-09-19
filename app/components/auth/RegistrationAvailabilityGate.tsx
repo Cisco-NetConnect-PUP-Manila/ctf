@@ -85,11 +85,11 @@ export default function RegistrationAvailabilityGate({
     return (
       <div className="shell auth-page__shell auth-page__shell--single">
         <div className="registration-state registration-state--closed">
-          <span className="eyebrow">REGISTRATION.CLOSED</span>
-          <h2>Registration is currently closed</h2>
+          <span className="eyebrow">REGISTRATION.NOT_OPEN</span>
+          <h2>Registration has not opened</h2>
           <p>
-            Team registration is paused by the organizers. Existing approved teams can
-            still sign in through the participant channel when the platform is open.
+            Team registration is not open yet. Please check back when the official
+            registration window is announced.
           </p>
           <div className="registration-state__actions">
             <Link className="btn btn--primary" href="/">

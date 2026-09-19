@@ -78,7 +78,7 @@ export default function Home() {
                   </div>
                   <div className="lcd__row">
                     <span className="lcd__k">&gt; REGISTRATION</span>
-                    <span className="lcd__v amber">Closed</span>
+                    <span className="lcd__v amber">Not yet open</span>
                   </div>
                   <div className="lcd__row">
                     <span className="lcd__k">&gt; ACTS</span>
@@ -425,9 +425,12 @@ export default function Home() {
         <section id="register" className="register">
           <div className="shell">
             <Reveal>
-              <span className="eyebrow">REGISTER.EXE // CLOSED</span>
-              <h2>Registration Closed</h2>
-              <p>Team registration is currently closed.</p>
+              <span className="eyebrow">REGISTER.EXE // NOT YET OPEN</span>
+              <h2>Registration Not Yet Open</h2>
+              <p>
+                Team registration has not opened yet. Please check back for the
+                official opening.
+              </p>
               <HomeAuthActions />
             </Reveal>
           </div>
@@ -466,7 +469,7 @@ export default function Home() {
             <div>
               <h4>Status</h4>
               <ul>
-                <li>Registration <span className="footer__soon">(opening soon)</span></li>
+                <li>Registration <span className="footer__soon">(not yet open)</span></li>
                 <li>Timeline <span className="footer__soon">(TBA)</span></li>
                 <li>Partners <span className="footer__soon">(pending)</span></li>
               </ul>
