@@ -1684,21 +1684,6 @@ h3 {
   margin: 3px 6px;
 }
 
-/* ============================================================
-   reveal
-   ============================================================ */
-.reveal {
-  opacity: 0;
-  transform: translateY(18px);
-  transition:
-    opacity 0.6s ease,
-    transform 0.6s ease;
-}
-.reveal.in {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -4332,13 +4317,15 @@ body {
     inset 0 0 18px rgba(255, 132, 25, 0.06),
     0 0 20px rgba(255, 132, 25, 0.08);
   color: var(--amber-2);
-  display: grid;
-  gap: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin: 0;
-  min-width: min(320px, 100%);
-  padding: 14px 16px;
+  min-height: 52px;
+  padding: 11px 20px;
   text-align: center;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .home-auth-closed span {
@@ -4348,14 +4335,6 @@ body {
   font-weight: 400;
   letter-spacing: 0.14em;
   text-shadow: var(--glow);
-}
-
-.home-auth-closed b {
-  color: var(--ink-dim);
-  font-family: var(--rodin);
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
 }
 
 /* ============================================================
@@ -8699,6 +8678,8 @@ main#top .win__body {
 
   main#top .home-auth-closed p {
     min-width: 0;
+    white-space: normal;
+    width: 100%;
   }
 
   main#top .dialog__actions {
