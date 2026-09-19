@@ -59,8 +59,8 @@ export default function IntroExperience() {
 
     window.sessionStorage.setItem(PUBLIC_INTRO_SEEN_KEY, "true");
     setPhase("loading");
-    const t1 = setTimeout(() => setPhase("reveal"), 900);
-    const t2 = setTimeout(() => setPhase("popup"), 1450);
+    const t1 = setTimeout(() => setPhase("reveal"), 760);
+    const t2 = setTimeout(() => setPhase("popup"), 1150);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);

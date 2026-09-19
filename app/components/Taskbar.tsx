@@ -180,7 +180,7 @@ export default function Taskbar() {
           ]
         : [
             { label: "Main", href: "/" },
-            { label: "Register", href: "/register" },
+            { label: "Registration Status", href: "/#register" },
             { label: "Login", href: "/login" },
           ];
 
@@ -260,9 +260,9 @@ export default function Taskbar() {
                 className={`taskbar__task ${
                   activeRoute === "register" ? "taskbar__task--active" : ""
                 }`}
-                href="/register"
+                href="/#register"
               >
-                Register
+                Registration Status
               </Link>
               <Link
                 className={`taskbar__task ${

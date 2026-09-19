@@ -78,7 +78,7 @@ export default function Home() {
                   </div>
                   <div className="lcd__row">
                     <span className="lcd__k">&gt; REGISTRATION</span>
-                    <span className="lcd__v amber">Opening Soon</span>
+                    <span className="lcd__v amber">Closed</span>
                   </div>
                   <div className="lcd__row">
                     <span className="lcd__k">&gt; ACTS</span>

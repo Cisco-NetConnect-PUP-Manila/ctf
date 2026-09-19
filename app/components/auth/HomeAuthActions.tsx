@@ -47,10 +47,12 @@ export default function HomeAuthActions({ terminal = false }: { terminal?: boole
 
   if (checking) {
     return (
-      <div
-        className={`${containerClass} home-auth-pending`}
-        aria-hidden="true"
-      />
+      <div className={`${containerClass} home-auth-closed`} aria-live="polite">
+        <p>
+          <span>Registration is currently closed.</span>
+          <b>Please check back for the official opening.</b>
+        </p>
+      </div>
     );
   }
 
