@@ -37,7 +37,7 @@ export type PortalModule = {
 export const competition = {
   name: "Packet Capture: Beneath the Network",
   phrase: "Race Smart. Score Higher.",
-  status: "Registration closed",
+  status: "Registration not yet open",
   format: "PacketCapture{FLAG_NAME}",
   contact: "learncyberph@gmail.com",
   description:
