@@ -4,6 +4,7 @@ import Taskbar from "./components/Taskbar";
 import ScrollGlitch from "./components/ScrollGlitch";
 import Nav from "./components/Nav";
 import IntroExperience from "./components/IntroExperience";
+import HashNavigation from "./components/HashNavigation";
 
 export const metadata: Metadata = {
   title: "Packet Capture | Beneath the Network",
@@ -108,6 +109,7 @@ export default function RootLayout({
 
           <Taskbar />
           <ScrollGlitch />
+          <HashNavigation />
 
           {/* CRT glass: curvature, scanlines, sweep, flicker, bezel */}
           <div className="crt" aria-hidden="true">
