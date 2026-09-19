@@ -23,7 +23,10 @@ function IntakeLoader({ phase }: { phase: Phase }) {
   return (
     <div className={`fakeland fakeland--${phase}`} role="status" aria-live="polite">
       <div className="fakeland__loader" aria-label="Loading Packet Capture">
-        <span className="fakeland__loading-label">LOADING...</span>
+        <span className="fakeland__loading-label">
+          <span className="fakeland__loading-text">LOADING...</span>
+          <i className="fakeland__loading-caret" aria-hidden="true" />
+        </span>
         <span className="fakeland__progress" aria-hidden="true">
           <span />
         </span>
