@@ -70,6 +70,29 @@ export default function RootLayout({
     // otherwise trip a hydration-mismatch warning. This only suppresses
     // attribute noise on <html> itself, not real mismatches in the tree.
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link
+          rel="preload"
+          href="/fonts/AcPlus_IBM_VGA_8x14.ttf"
+          as="font"
+          type="font/ttf"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/OffBitTrial-DotBold.otf"
+          as="font"
+          type="font/otf"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/HKGroteskWide-Bold.otf"
+          as="font"
+          type="font/otf"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>
         <div className="tube">
           {/* dark CRT desktop + faint tech grid + phosphor glow */}
