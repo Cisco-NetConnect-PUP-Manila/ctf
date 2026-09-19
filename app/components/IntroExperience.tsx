@@ -1,7 +1,6 @@
 "use client";
 
-import { type CSSProperties, useEffect, useState } from "react";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 type Phase = "loading" | "reveal" | "popup" | "done";
@@ -26,32 +25,46 @@ function IntakeLoader({ phase }: { phase: Phase }) {
       <div className="fakeland__grid" aria-hidden="true" />
       <div className="fakeland__field" aria-hidden="true" />
 
-      <div className="fakeland__panel">
-        <div className="fakeland__seal" aria-hidden="true">
-          <span />
-          <span />
-          <span />
+      <div className="fakeland__terminal">
+        <div className="fakeland__topbar" aria-hidden="true">
+          <span>TVA OS/80</span>
+          <span>PACKET_CAPTURE.EXE</span>
         </div>
 
-        <Image
-          alt="Packet Capture"
-          className="fakeland__logo"
-          height={5464}
-          priority
-          sizes="min(78vw, 780px)"
-          src="/images/packet-capture.png"
-          width={9716}
-        />
+        <div className="fakeland__screen">
+          <div className="fakeland__brand">
+            <span aria-hidden="true">&gt;</span>
+            <b>PACKET_CAPTURE</b>
+          </div>
 
-        <div className="fakeland__meter" aria-hidden="true">
-          {Array.from({ length: 12 }, (_, index) => (
-            <i key={index} style={{ "--tick": index } as CSSProperties} />
-          ))}
+          <div className="fakeland__lines" aria-hidden="true">
+            <p>
+              <span>00:00:01</span> OPENING TEMPORAL ARCHIVE NODE
+            </p>
+            <p>
+              <span>00:00:02</span> VERIFYING EVENT BRANCH
+            </p>
+            <p>
+              <span>00:00:03</span> LOADING BENEATH_THE_NETWORK
+            </p>
+          </div>
+
+          <div className="fakeland__meter" aria-hidden="true">
+            {Array.from({ length: 18 }, (_, index) => (
+              <i key={index} />
+            ))}
+          </div>
+
+          <div className="fakeland__copy">
+            <span>TEMPORAL VARIANCE AUTHORITY</span>
+            <b>Orange terminal channel secured</b>
+          </div>
         </div>
 
-        <div className="fakeland__copy">
-          <span>TVA ARCHIVE INTAKE</span>
-          <b>Aligning event branch</b>
+        <div className="fakeland__footer" aria-hidden="true">
+          <span>CRT MODE</span>
+          <span />
+          <span>1980 SYSTEM CLOCK</span>
         </div>
       </div>
     </div>

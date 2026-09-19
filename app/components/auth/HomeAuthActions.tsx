@@ -46,13 +46,7 @@ export default function HomeAuthActions({ terminal = false }: { terminal?: boole
   const containerClass = terminal ? "hero__auth-actions" : "btn-row";
 
   if (checking) {
-    return (
-      <div className={containerClass} aria-live="polite">
-        <span className={`btn btn--ghost${terminalClass}`} aria-disabled="true">
-          Checking team channel...
-        </span>
-      </div>
-    );
+    return null;
   }
 
   const registrationUnavailable =
@@ -80,19 +74,11 @@ export default function HomeAuthActions({ terminal = false }: { terminal?: boole
 
   if (registrationUnavailable) {
     return (
-      <div className={containerClass}>
-        <span
-          className={`btn btn--primary btn--disabled${terminalClass}`}
-          aria-disabled="true"
-        >
-          Registration paused
-        </span>
-        <Link
-          className={`btn${terminal ? " btn--ghost btn--terminal hero__sign-in" : ""}`}
-          href="/login"
-        >
-          {terminal ? "Sign in" : "Team login"}
-        </Link>
+      <div className={`${containerClass} home-auth-closed`} aria-live="polite">
+        <p>
+          <span>Registration closed</span>
+          <b>Official window pending</b>
+        </p>
       </div>
     );
   }
