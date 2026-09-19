@@ -418,12 +418,11 @@ export default function Home() {
         <section id="register" className="register">
           <div className="shell">
             <Reveal>
-              <span className="eyebrow">REGISTER.EXE - Pending Launch</span>
-              <h2>Join The Response</h2>
+              <span className="eyebrow">REGISTER.EXE - Closed</span>
+              <h2>Registration Closed</h2>
               <p>
-                The network is only the surface. Assemble your team, study the
-                rules, prepare your tools, and wait for the official
-                registration window.
+                Team registration is currently closed. Please check back for
+                the official opening.
               </p>
               <HomeAuthActions />
             </Reveal>

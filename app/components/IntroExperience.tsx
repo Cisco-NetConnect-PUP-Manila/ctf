@@ -37,7 +37,8 @@ function IntakeLoader({ phase }: { phase: Phase }) {
 
 export default function IntroExperience() {
   const pathname = usePathname();
-  const [phase, setPhase] = useState<Phase>("done");
+  // Start covered so the homepage cannot flash before the client checks the session.
+  const [phase, setPhase] = useState<Phase>("loading");
   const publicIntroRoute = pathname === "/";
   const transmission = TRANSMISSIONS[pathname] ?? TRANSMISSIONS["/"];
 
