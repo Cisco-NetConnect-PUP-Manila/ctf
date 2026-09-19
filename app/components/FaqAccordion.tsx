@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { FaqItem } from "../data";
 
 export default function FaqAccordion({ items }: { items: FaqItem[] }) {
-  const [openIndex, setOpenIndex] = useState(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
     <div className="faq-list">
@@ -14,7 +14,11 @@ export default function FaqAccordion({ items }: { items: FaqItem[] }) {
           key={item.q}
           open={openIndex === i}
           onToggle={(event) => {
-            if (event.currentTarget.open) setOpenIndex(i);
+            if (event.currentTarget.open) {
+              setOpenIndex(i);
+            } else {
+              setOpenIndex((current) => (current === i ? null : current));
+            }
           }}
         >
           <summary className="faq-q">
