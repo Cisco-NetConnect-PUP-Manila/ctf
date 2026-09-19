@@ -46,7 +46,12 @@ export default function HomeAuthActions({ terminal = false }: { terminal?: boole
   const containerClass = terminal ? "hero__auth-actions" : "btn-row";
 
   if (checking) {
-    return null;
+    return (
+      <div
+        className={`${containerClass} home-auth-pending`}
+        aria-hidden="true"
+      />
+    );
   }
 
   const registrationUnavailable =

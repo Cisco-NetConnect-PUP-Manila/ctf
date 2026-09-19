@@ -4,8 +4,6 @@
    bulging glass screen + rounded bezel. 80s-futuristic retro GUI.
    ============================================================ */
 
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Orbitron:wght@600;800&display=swap");
-
 :root {
   --bg: #0a0603;
   --bg-2: #120b04;
@@ -59,12 +57,11 @@
   --glow-pink:
     0 0 7px rgba(255, 122, 26, 0.6), 0 0 18px rgba(255, 122, 26, 0.28);
 
-  --mono:
-    "IBM Plex Mono", ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
-  --pixel: "Press Start 2P", var(--mono);
-  --term: "VT323", var(--mono);
-  --display: "Orbitron", var(--pixel);
-  --display-alt: "Orbitron", var(--pixel);
+  --mono: "IBM VGA 8x14", ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
+  --pixel: "OffBit Dot", var(--mono);
+  --term: "IBM VGA 8x14", var(--mono);
+  --display: "OffBit", "OffBit Dot", var(--mono);
+  --display-alt: "OffBit", "OffBit Dot", var(--mono);
   --chrome: "Tahoma", "MS Sans Serif", "Segoe UI", sans-serif;
   --rodin:
     "New Rodin Pro DB", "FOT-NewRodin Pro DB", "HKGroteskWide", "Segoe UI",
@@ -4287,6 +4284,10 @@ body {
 
 .home-auth-closed {
   align-items: center;
+}
+
+.home-auth-pending {
+  min-height: 48px;
 }
 
 .home-auth-closed p {
