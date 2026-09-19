@@ -1562,6 +1562,10 @@ h3 {
   font-style: normal;
 }
 @media (max-width: 720px) {
+  .taskbar__clock {
+    min-width: 7ch;
+  }
+
   .taskbar__task {
     display: none;
   }
@@ -1585,6 +1589,12 @@ h3 {
 }
 .taskbar__clock {
   font-variant-numeric: tabular-nums;
+  min-width: 8ch;
+  text-align: center;
+}
+
+.taskbar__date {
+  min-width: 6ch;
 }
 
 .startmenu {
@@ -4284,10 +4294,6 @@ body {
 
 .home-auth-closed {
   align-items: center;
-}
-
-.home-auth-pending {
-  min-height: 48px;
 }
 
 .home-auth-closed p {
