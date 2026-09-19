@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { ReactNode, useEffect, useState } from "react";
-import { ApiError } from "../../lib/api/client";
 import { getPlatformSettings } from "../../lib/api/platformSettings";
 import type { PlatformSettings } from "../../lib/api/types";
 import AuthNotice from "./AuthNotice";
@@ -16,6 +15,7 @@ export default function RegistrationAvailabilityGate({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const registrationClosed = Boolean(settings && !settings.registration_open);
+  const registrationPaused = Boolean(error || registrationClosed);
 
   useEffect(() => {
     let alive = true;
@@ -26,13 +26,9 @@ export default function RegistrationAvailabilityGate({
       try {
         const next = await getPlatformSettings();
         if (alive) setSettings(next);
-      } catch (caught) {
+      } catch {
         if (!alive) return;
-        setError(
-          caught instanceof ApiError
-            ? caught.message
-            : "Unable to check registration status."
-        );
+        setError("Registration is temporarily paused while the competition server is unavailable.");
       } finally {
         if (alive) setLoading(false);
       }
@@ -45,12 +41,12 @@ export default function RegistrationAvailabilityGate({
   }, []);
 
   useEffect(() => {
-    if (!registrationClosed) return;
+    if (!registrationPaused) return;
     document.body.classList.add("registration-closed-active");
     return () => {
       document.body.classList.remove("registration-closed-active");
     };
-  }, [registrationClosed]);
+  }, [registrationPaused]);
 
   if (loading) {
     return (
@@ -67,10 +63,14 @@ export default function RegistrationAvailabilityGate({
   if (error) {
     return (
       <div className="shell auth-page__shell auth-page__shell--single">
-        <div className="registration-state" role="alert">
-          <span className="eyebrow">REGISTRATION.STATUS</span>
-          <h2>Unable to verify registration</h2>
-          <AuthNotice tone="error">{error}</AuthNotice>
+        <div className="registration-state registration-state--closed" role="status">
+          <span className="eyebrow">REGISTRATION.PAUSED</span>
+          <h2>Registration is temporarily closed</h2>
+          <p>
+            New team registration is paused while organizers restore the production
+            backend. Please wait for the official registration window to reopen.
+          </p>
+          <AuthNotice tone="info">{error}</AuthNotice>
           <div className="registration-state__actions">
             <Link className="btn" href="/">
               Back to main

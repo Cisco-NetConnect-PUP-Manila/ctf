@@ -18,6 +18,11 @@ def build_payload(*, group_name="New Team", email="team@test.com", password=TEST
 
 
 class TestRegistration:
+    def test_registration_defaults_closed_without_setting(self, client):
+        resp = client.post("/auth/register", json=build_payload())
+        assert resp.status_code == 403
+        assert resp.json()["code"] == "REGISTRATION_CLOSED"
+
     def test_pydantic_validation_short_password(self, client, db_session):
         seed_registration_open(db_session, True)
         payload = build_payload(password="short")

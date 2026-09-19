@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 
-type Phase = "landing" | "glitch" | "popup" | "done";
+type Phase = "loading" | "reveal" | "popup" | "done";
 type Transmission = {
   title: string;
   heading: string;
@@ -20,18 +20,40 @@ const TRANSMISSIONS: Record<string, Transmission> = {
 };
 const PUBLIC_INTRO_SEEN_KEY = "packet-capture-public-intro-seen";
 
-function Frame({ cls }: { cls?: string }) {
+function IntakeLoader({ phase }: { phase: Phase }) {
   return (
-    <div className={`fakeland__frame ${cls ?? ""}`.trim()}>
-      <Image
-        alt=""
-        className="fakeland__logo"
-        height={5464}
-        priority
-        sizes="74vw"
-        src="/images/packet-capture.png"
-        width={9716}
-      />
+    <div className={`fakeland fakeland--${phase}`} role="status" aria-live="polite">
+      <div className="fakeland__grid" aria-hidden="true" />
+      <div className="fakeland__field" aria-hidden="true" />
+
+      <div className="fakeland__panel">
+        <div className="fakeland__seal" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+
+        <Image
+          alt="Packet Capture"
+          className="fakeland__logo"
+          height={5464}
+          priority
+          sizes="min(78vw, 780px)"
+          src="/images/packet-capture.png"
+          width={9716}
+        />
+
+        <div className="fakeland__meter" aria-hidden="true">
+          {Array.from({ length: 12 }, (_, index) => (
+            <i key={index} style={{ "--tick": index } as CSSProperties} />
+          ))}
+        </div>
+
+        <div className="fakeland__copy">
+          <span>TVA ARCHIVE INTAKE</span>
+          <b>Aligning event branch</b>
+        </div>
+      </div>
     </div>
   );
 }
@@ -58,9 +80,9 @@ export default function IntroExperience() {
     }
 
     window.sessionStorage.setItem(PUBLIC_INTRO_SEEN_KEY, "true");
-    setPhase("landing");
-    const t1 = setTimeout(() => setPhase("glitch"), 1600);
-    const t2 = setTimeout(() => setPhase("popup"), 3300);
+    setPhase("loading");
+    const t1 = setTimeout(() => setPhase("reveal"), 1900);
+    const t2 = setTimeout(() => setPhase("popup"), 2450);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -71,20 +93,7 @@ export default function IntroExperience() {
 
   return (
     <>
-      {(phase === "landing" || phase === "glitch") && (
-        <div
-          className={`fakeland ${phase === "glitch" ? "is-glitch" : ""}`}
-          aria-hidden="true"
-        >
-          {/* Three full-screen copies create a slow, low-contrast signal drift. */}
-          <Frame />
-          <Frame cls="fakeland__frame--r" />
-          <Frame cls="fakeland__frame--b" />
-          <div className="fakeland__scan" />
-          <div className="fakeland__tear" />
-          <div className="fakeland__dropout" />
-        </div>
-      )}
+      {(phase === "loading" || phase === "reveal") && <IntakeLoader phase={phase} />}
 
       {phase === "popup" && (
         <div className="welcome" onClick={() => setPhase("done")}>

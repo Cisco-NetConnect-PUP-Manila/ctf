@@ -81,6 +81,11 @@ export default function AdminPlatformControls() {
       {error && <div className="challenge-admin__error" role="alert">{error}</div>}
       {notice && <div className="challenge-admin__success" role="status">{notice}</div>}
 
+      <div className="admin-control-panel__section">
+        <span>Public access</span>
+        <b>/register</b>
+      </div>
+
       <div className="admin-control-panel__status">
         <span className={`announce-status announce-status--${submissionsClosed ? "archived" : "published"}`}>
           {submissionsClosed ? "Submissions closed" : "Submissions open"}
@@ -99,8 +104,9 @@ export default function AdminPlatformControls() {
           }
           type="button"
         >
-          <span>Registration</span>
+          <span>Public registration</span>
           <b>{settings.registration_open ? "Open" : "Closed"}</b>
+          <small>/register + /auth/register</small>
         </button>
 
         <button
@@ -115,6 +121,7 @@ export default function AdminPlatformControls() {
         >
           <span>Submissions</span>
           <b>{settings.submissions_open ? "Open" : "Closed"}</b>
+          <small>flag submissions</small>
         </button>
 
         <button
@@ -124,6 +131,7 @@ export default function AdminPlatformControls() {
         >
           <span>Pending teams</span>
           <b>{pendingTeams}</b>
+          <small>approval queue</small>
         </button>
 
         <button
@@ -138,6 +146,7 @@ export default function AdminPlatformControls() {
         >
           <span>Leaderboard</span>
           <b>{settings.leaderboard_visible ? "Visible" : "Hidden"}</b>
+          <small>public standings</small>
         </button>
       </div>
 

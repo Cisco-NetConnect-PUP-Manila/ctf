@@ -4,25 +4,38 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { getCurrentAccount } from "../../lib/api/auth";
-import type { CurrentAccount } from "../../lib/api/types";
+import { getPlatformSettings } from "../../lib/api/platformSettings";
+import type { CurrentAccount, PlatformSettings } from "../../lib/api/types";
 
 export default function HomeAuthActions({ terminal = false }: { terminal?: boolean }) {
   const [session, setSession] = useState<CurrentAccount | null>(null);
+  const [settings, setSettings] = useState<PlatformSettings | null>(null);
+  const [settingsUnavailable, setSettingsUnavailable] = useState(false);
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     let active = true;
 
-    getCurrentAccount()
-      .then((current) => {
-        if (active) setSession(current);
-      })
-      .catch(() => {
-        if (active) setSession(null);
-      })
-      .finally(() => {
-        if (active) setChecking(false);
-      });
+    async function loadAccessState() {
+      const [currentResult, settingsResult] = await Promise.allSettled([
+        getCurrentAccount(),
+        getPlatformSettings(),
+      ]);
+
+      if (!active) return;
+
+      setSession(currentResult.status === "fulfilled" ? currentResult.value : null);
+      if (settingsResult.status === "fulfilled") {
+        setSettings(settingsResult.value);
+        setSettingsUnavailable(false);
+      } else {
+        setSettings(null);
+        setSettingsUnavailable(true);
+      }
+      setChecking(false);
+    }
+
+    void loadAccessState();
 
     return () => {
       active = false;
@@ -42,6 +55,9 @@ export default function HomeAuthActions({ terminal = false }: { terminal?: boole
     );
   }
 
+  const registrationUnavailable =
+    settingsUnavailable || !settings || !settings.registration_open;
+
   if (session?.account.role === "participant" && session.team) {
     return (
       <div className={containerClass}>
@@ -57,6 +73,25 @@ export default function HomeAuthActions({ terminal = false }: { terminal?: boole
       <div className={containerClass}>
         <Link className={`btn btn--primary${terminalClass}`} href="/admin">
           Admin Dashboard
+        </Link>
+      </div>
+    );
+  }
+
+  if (registrationUnavailable) {
+    return (
+      <div className={containerClass}>
+        <span
+          className={`btn btn--primary btn--disabled${terminalClass}`}
+          aria-disabled="true"
+        >
+          Registration paused
+        </span>
+        <Link
+          className={`btn${terminal ? " btn--ghost btn--terminal hero__sign-in" : ""}`}
+          href="/login"
+        >
+          {terminal ? "Sign in" : "Team login"}
         </Link>
       </div>
     );
