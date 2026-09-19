@@ -4078,6 +4078,238 @@ body {
   }
 }
 
+/* Production intro: quiet TVA-style intake screen, replacing the VHS glitch reveal. */
+.fakeland--loading,
+.fakeland--reveal {
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+  color: #f7d58a;
+  background:
+    linear-gradient(180deg, rgba(255, 185, 83, 0.08), transparent 28%),
+    linear-gradient(135deg, #080705 0%, #111007 46%, #050504 100%);
+  cursor: wait;
+}
+
+.fakeland--reveal {
+  pointer-events: none;
+  animation: fakelandExit 560ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.fakeland__grid,
+.fakeland__field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.fakeland__grid {
+  z-index: -3;
+  background:
+    linear-gradient(rgba(216, 170, 86, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(216, 170, 86, 0.07) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse at center, #000 0 54%, transparent 82%);
+  opacity: 0.38;
+}
+
+.fakeland__field {
+  z-index: -2;
+  background:
+    linear-gradient(90deg, rgba(83, 113, 89, 0.18), transparent 26% 72%, rgba(74, 55, 111, 0.16)),
+    radial-gradient(ellipse at center, rgba(244, 181, 75, 0.16), transparent 52%);
+  opacity: 0.8;
+}
+
+.fakeland__panel {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  width: min(820px, 82vw);
+  padding: clamp(28px, 5vw, 56px);
+  animation: fakelandPanelIn 480ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.fakeland__seal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(560px, 72vw);
+  aspect-ratio: 1;
+  border: 1px solid rgba(245, 188, 86, 0.22);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow:
+    inset 0 0 48px rgba(245, 188, 86, 0.06),
+    0 0 64px rgba(245, 188, 86, 0.08);
+}
+
+.fakeland__seal::before,
+.fakeland__seal::after,
+.fakeland__seal span {
+  content: "";
+  position: absolute;
+  inset: 11%;
+  border: 1px solid rgba(245, 188, 86, 0.16);
+  border-radius: 50%;
+}
+
+.fakeland__seal::after {
+  inset: 22%;
+  border-style: dashed;
+  opacity: 0.7;
+  animation: fakelandSealTurn 7s linear infinite;
+}
+
+.fakeland__seal span:nth-child(1) {
+  inset: 50% 7% auto;
+  height: 1px;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(90deg, transparent, rgba(245, 188, 86, 0.34), transparent);
+}
+
+.fakeland__seal span:nth-child(2) {
+  inset: 7% auto 7% 50%;
+  width: 1px;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(180deg, transparent, rgba(245, 188, 86, 0.28), transparent);
+}
+
+.fakeland__seal span:nth-child(3) {
+  inset: 34%;
+  opacity: 0.44;
+}
+
+.fakeland--loading .fakeland__logo,
+.fakeland--reveal .fakeland__logo {
+  position: relative;
+  left: auto;
+  top: auto;
+  width: min(620px, 76vw);
+  height: auto;
+  transform: none;
+  animation: fakelandLogoIn 500ms cubic-bezier(0.23, 1, 0.32, 1) 80ms both;
+  filter:
+    sepia(0.2)
+    saturate(0.82)
+    drop-shadow(0 0 18px rgba(245, 188, 86, 0.2))
+    drop-shadow(0 8px 24px rgba(0, 0, 0, 0.48));
+}
+
+.fakeland__meter {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(12px, 1fr));
+  gap: 8px;
+  width: min(480px, 64vw);
+  margin-top: clamp(24px, 4vw, 40px);
+}
+
+.fakeland__meter i {
+  height: 4px;
+  border: 1px solid rgba(245, 188, 86, 0.35);
+  background: rgba(245, 188, 86, 0.08);
+  animation: fakelandTick 1.1s linear infinite;
+  animation-delay: calc(var(--tick) * 55ms);
+}
+
+.fakeland__copy {
+  display: grid;
+  gap: 7px;
+  margin-top: 18px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.fakeland__copy span {
+  font-family: var(--vga);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: rgba(247, 213, 138, 0.68);
+}
+
+.fakeland__copy b {
+  font-family: var(--term);
+  font-size: clamp(0.82rem, 2vw, 1rem);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: #ffd98d;
+}
+
+@keyframes fakelandPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fakelandLogoIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(4px) drop-shadow(0 0 8px rgba(245, 188, 86, 0.14));
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fakelandTick {
+  0%,
+  34%,
+  100% {
+    background: rgba(245, 188, 86, 0.08);
+    box-shadow: none;
+  }
+  52% {
+    background: rgba(245, 188, 86, 0.86);
+    box-shadow: 0 0 16px rgba(245, 188, 86, 0.34);
+  }
+}
+
+@keyframes fakelandSealTurn {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes fakelandExit {
+  to {
+    opacity: 0;
+    transform: scale(1.015);
+    filter: blur(2px);
+  }
+}
+
+@media (max-width: 640px) {
+  .fakeland__panel {
+    width: min(100%, 92vw);
+    padding-inline: 18px;
+  }
+
+  .fakeland__meter {
+    gap: 5px;
+    width: min(320px, 76vw);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fakeland--loading,
+  .fakeland--reveal,
+  .fakeland__panel,
+  .fakeland--loading .fakeland__logo,
+  .fakeland--reveal .fakeland__logo,
+  .fakeland__meter i,
+  .fakeland__seal::after {
+    animation: none;
+  }
+}
+
 .hero__lead {
   font-family: var(--rodin);
   font-size: 1rem;
@@ -7115,6 +7347,32 @@ body.registration-closed-active .auth-page {
   gap: 14px;
 }
 
+.admin-control-panel__section {
+  align-items: center;
+  border: 1px solid rgba(255, 176, 0, 0.28);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+}
+
+.admin-control-panel__section span,
+.admin-control-panel__section b {
+  font-family: var(--rodin);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-control-panel__section span {
+  color: var(--ink-dim);
+}
+
+.admin-control-panel__section b {
+  color: var(--amber-2);
+}
+
 .admin-control-panel__status {
   align-items: center;
   border: 1px solid var(--line-dim);
@@ -7173,6 +7431,7 @@ body.registration-closed-active .auth-page {
 }
 
 .admin-toggle span,
+.admin-toggle small,
 .admin-control-panel__select {
   color: var(--ink-dim);
   font-family: var(--rodin);
@@ -7180,6 +7439,12 @@ body.registration-closed-active .auth-page {
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.admin-toggle small {
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  opacity: 0.68;
 }
 
 .admin-toggle b {

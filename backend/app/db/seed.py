@@ -104,7 +104,7 @@ def seed():
 
 def _seed_platform_settings(db):
     defaults = {
-        "registration_open": True,
+        "registration_open": False,
         "require_team_approval": True,
     }
     for key, value in defaults.items():
