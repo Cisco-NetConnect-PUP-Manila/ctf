@@ -281,27 +281,27 @@ export const timeline = [
   {
     date: "TBA",
     title: "Registration Opens",
-    body: "Official registration window to be confirmed by the organizing committee.",
+    body: "Registration dates will be announced by the organizers.",
   },
   {
     date: "TBA",
     title: "Registration Closes",
-    body: "Team confirmation and final eligibility checks happen before competition access is granted.",
+    body: "Team confirmation and eligibility checks take place before competition access.",
   },
   {
     date: "TBA",
     title: "Competition Opens",
-    body: "Act I - The Signal becomes available and teams begin collecting Investigation Score.",
+    body: "Act I - The Signal opens and teams begin collecting Investigation Score.",
   },
   {
     date: "TBA",
     title: "Final Submission Deadline",
-    body: "Unlocked teams submit their Final Investigation before the official cutoff.",
+    body: "Final Investigation submissions close at the announced deadline.",
   },
   {
     date: "TBA",
     title: "Awarding / Closing",
-    body: "Rankings are finalized using Investigation Score, time, Intel penalties, and final submission timing.",
+    body: "Rankings are finalized and awards are announced.",
   },
 ];
 
