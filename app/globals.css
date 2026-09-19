@@ -1362,6 +1362,10 @@ h3 {
   .partner {
     grid-template-columns: 1fr;
   }
+  .sponsor-invite .btn {
+    width: 100%;
+    white-space: normal;
+  }
 }
 .partner h3 {
   font-size: 1.4rem;
@@ -1373,6 +1377,12 @@ h3 {
   color: var(--ink-dim);
   font-size: 0.9rem;
   max-width: 52ch;
+}
+.sponsor-invite {
+  padding: 10px 2px;
+}
+.sponsor-invite .btn {
+  white-space: nowrap;
 }
 
 /* ============================================================

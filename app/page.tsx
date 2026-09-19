@@ -366,14 +366,7 @@ export default function Home() {
             </Reveal>
 
             <Reveal>
-              <p className="notice-line">
-                Dates are pending organizer confirmation. No final schedule has
-                been invented in this public build.
-              </p>
-            </Reveal>
-
-            <Reveal>
-              <Window title="TIMELINE.LOG" meta="dates pending // organizer confirmation" icon="[]">
+              <Window title="TIMELINE.LOG" meta="schedule // TBA" icon="[]">
                 <TimelineWave items={timeline} />
               </Window>
             </Reveal>
@@ -391,7 +384,7 @@ export default function Home() {
             </Reveal>
 
             <Reveal>
-              <Window title="partners.db" meta="pending">
+              <Window title="partners.db" meta="open intake">
                 {sponsors.length > 0 ? (
                   <div className="sponsors__grid">
                     {sponsors.map((sponsor) => (
@@ -406,8 +399,22 @@ export default function Home() {
                     ))}
                   </div>
                 ) : (
-                  <div className="empty-state">
-                    Sponsor and partner details are not finalized yet.
+                  <div className="partner sponsor-invite">
+                    <div>
+                      <h3>Interested in collaborating with CyberPH?</h3>
+                      <p>
+                        Your support can help bring Packet Capture 2026 to life
+                        for the cybersecurity community.
+                      </p>
+                    </div>
+                    <a
+                      className="btn btn--primary"
+                      href="https://forms.gle/DgYtWHA9ewaW11qH9"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Open sponsorship & partnership form
+                    </a>
                   </div>
                 )}
               </Window>
