@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getCurrentAccount } from "../lib/api/auth";
+import { getPlatformSettings } from "../lib/api/platformSettings";
 
 const PUBLIC_MENU = [
   { label: "Incident Brief", href: "/#about" },
@@ -70,17 +71,28 @@ export default function Taskbar() {
   const [open, setOpen] = useState(false);
   const [tzOpen, setTzOpen] = useState(false);
   const [accountRole, setAccountRole] = useState<string | null>(null);
+  const [registrationOpen, setRegistrationOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let active = true;
-    getCurrentAccount()
-      .then((current) => {
-        if (active) setAccountRole(current.account.role);
-      })
-      .catch(() => {
-        if (active) setAccountRole(null);
-      });
+
+    setAccountRole(null);
+    setRegistrationOpen(false);
+    Promise.allSettled([getCurrentAccount(), getPlatformSettings()]).then(
+      ([currentResult, settingsResult]) => {
+        if (!active) return;
+        setAccountRole(
+          currentResult.status === "fulfilled"
+            ? currentResult.value.account.role
+            : null
+        );
+        setRegistrationOpen(
+          settingsResult.status === "fulfilled" &&
+            settingsResult.value.registration_open
+        );
+      }
+    );
     return () => {
       active = false;
     };
@@ -180,8 +192,7 @@ export default function Taskbar() {
           ]
         : [
             { label: "Main", href: "/" },
-            { label: "Registration Status", href: "/#register" },
-            { label: "Login", href: "/login" },
+            ...(registrationOpen ? [{ label: "Login", href: "/login" }] : []),
           ];
 
   return (
@@ -213,23 +224,17 @@ export default function Taskbar() {
                 {m.label}
               </Link>
             ))}
-            <div className="startmenu__sep" />
-            {activeRoute === "main" ? (
-              <Link
-                href="/#register"
-                className="startmenu__item"
-                onClick={() => setOpen(false)}
-              >
-                Registration Status
-              </Link>
-            ) : (
-              <Link
-                href="/"
-                className="startmenu__item"
-                onClick={() => setOpen(false)}
-              >
-                Return To Main Site
-              </Link>
+            {activeRoute !== "main" && (
+              <>
+                <div className="startmenu__sep" />
+                <Link
+                  href="/"
+                  className="startmenu__item"
+                  onClick={() => setOpen(false)}
+                >
+                  Return To Main Site
+                </Link>
+              </>
             )}
           </div>
         </div>
@@ -254,16 +259,8 @@ export default function Taskbar() {
           >
             Main
           </Link>
-          {!accountRole && (
+          {!accountRole && registrationOpen && (
             <>
-              <Link
-                className={`taskbar__task ${
-                  activeRoute === "register" ? "taskbar__task--active" : ""
-                }`}
-                href="/#register"
-              >
-                Registration Status
-              </Link>
               <Link
                 className={`taskbar__task ${
                   activeRoute === "login" ? "taskbar__task--active" : ""

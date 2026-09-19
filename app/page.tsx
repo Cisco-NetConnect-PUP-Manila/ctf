@@ -418,12 +418,9 @@ export default function Home() {
         <section id="register" className="register">
           <div className="shell">
             <Reveal>
-              <span className="eyebrow">REGISTER.EXE - Closed</span>
+              <span className="eyebrow">REGISTER.EXE // CLOSED</span>
               <h2>Registration Closed</h2>
-              <p>
-                Team registration is currently closed. Please check back for
-                the official opening.
-              </p>
+              <p>Team registration is currently closed.</p>
               <HomeAuthActions />
             </Reveal>
           </div>

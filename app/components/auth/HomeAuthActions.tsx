@@ -7,6 +7,17 @@ import { getCurrentAccount } from "../../lib/api/auth";
 import { getPlatformSettings } from "../../lib/api/platformSettings";
 import type { CurrentAccount, PlatformSettings } from "../../lib/api/types";
 
+function ClosedRegistrationNotice({ containerClass }: { containerClass: string }) {
+  return (
+    <div className={`${containerClass} home-auth-closed`} aria-live="polite">
+      <p>
+        <span>Registration closed</span>
+        <b>Opening date pending.</b>
+      </p>
+    </div>
+  );
+}
+
 export default function HomeAuthActions({ terminal = false }: { terminal?: boolean }) {
   const [session, setSession] = useState<CurrentAccount | null>(null);
   const [settings, setSettings] = useState<PlatformSettings | null>(null);
@@ -46,14 +57,7 @@ export default function HomeAuthActions({ terminal = false }: { terminal?: boole
   const containerClass = terminal ? "hero__auth-actions" : "btn-row";
 
   if (checking) {
-    return (
-      <div className={`${containerClass} home-auth-closed`} aria-live="polite">
-        <p>
-          <span>Registration is currently closed.</span>
-          <b>Please check back for the official opening.</b>
-        </p>
-      </div>
-    );
+    return terminal ? <ClosedRegistrationNotice containerClass={containerClass} /> : null;
   }
 
   const registrationUnavailable =
@@ -80,14 +84,7 @@ export default function HomeAuthActions({ terminal = false }: { terminal?: boole
   }
 
   if (registrationUnavailable) {
-    return (
-      <div className={`${containerClass} home-auth-closed`} aria-live="polite">
-        <p>
-          <span>Registration is currently closed.</span>
-          <b>Please check back for the official opening.</b>
-        </p>
-      </div>
-    );
+    return terminal ? <ClosedRegistrationNotice containerClass={containerClass} /> : null;
   }
 
   return (
