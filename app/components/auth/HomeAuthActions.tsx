@@ -76,8 +76,8 @@ export default function HomeAuthActions({ terminal = false }: { terminal?: boole
     return (
       <div className={`${containerClass} home-auth-closed`} aria-live="polite">
         <p>
-          <span>Registration closed</span>
-          <b>Official window pending</b>
+          <span>Registration is currently closed.</span>
+          <b>Please check back for the official opening.</b>
         </p>
       </div>
     );
