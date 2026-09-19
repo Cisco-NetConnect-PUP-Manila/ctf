@@ -12,7 +12,6 @@ function ClosedRegistrationNotice({ containerClass }: { containerClass: string }
     <div className={`${containerClass} home-auth-closed`} aria-live="polite">
       <p>
         <span>Registration not yet open</span>
-        <b>Opening date to be announced.</b>
       </p>
     </div>
   );
