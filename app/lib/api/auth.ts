@@ -1,6 +1,8 @@
 import { apiRequest } from "./client";
 import type { CurrentAccount, LoginInput, RegisterInput } from "./types";
 
+let currentAccountRequest: Promise<CurrentAccount> | null = null;
+
 export function registerTeam(payload: RegisterInput) {
   return apiRequest<CurrentAccount>("/auth/register", {
     method: "POST",
@@ -16,10 +18,16 @@ export function login(payload: LoginInput) {
 }
 
 export function getCurrentAccount() {
-  return apiRequest<CurrentAccount>("/auth/me", {
-    method: "GET",
-    cache: "no-store",
-  });
+  if (!currentAccountRequest) {
+    currentAccountRequest = apiRequest<CurrentAccount>("/auth/me", {
+      method: "GET",
+      cache: "no-store",
+    }).finally(() => {
+      currentAccountRequest = null;
+    });
+  }
+
+  return currentAccountRequest;
 }
 
 export function logout() {
