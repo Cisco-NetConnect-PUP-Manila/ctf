@@ -1359,39 +1359,50 @@ h3 {
   align-items: center;
 }
 .sponsor-invite {
+  align-items: center;
+  justify-items: center;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: clamp(18px, 2.4vw, 26px);
+  min-height: 220px;
+  padding: clamp(28px, 4.5vw, 48px) clamp(18px, 5vw, 72px);
+  text-align: center;
+}
+.sponsor-invite > div {
+  max-width: 620px;
+}
+.partner h3 {
+  font-size: clamp(1.2rem, 2.2vw, 1.65rem);
+  line-height: 1.15;
+  text-transform: uppercase;
+  color: var(--amber-2);
+  margin-bottom: 12px;
+}
+.partner p {
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0 auto;
+  max-width: 48ch;
 }
 .sponsor-invite .btn {
-  justify-self: start;
+  justify-content: center;
+  justify-self: center;
   max-width: 100%;
+  text-align: center;
   white-space: normal;
+  width: min(100%, 430px);
 }
 @media (max-width: 640px) {
   .partner {
     grid-template-columns: 1fr;
   }
+  .sponsor-invite {
+    min-height: 0;
+    padding: 28px 16px 30px;
+  }
   .sponsor-invite .btn {
     width: 100%;
-    white-space: normal;
   }
-}
-.partner h3 {
-  font-size: 1.4rem;
-  text-transform: uppercase;
-  color: var(--amber-2);
-  margin-bottom: 8px;
-}
-.partner p {
-  color: var(--ink-dim);
-  font-size: 0.9rem;
-  max-width: 52ch;
-}
-.sponsor-invite {
-  padding: 10px 2px;
-}
-.sponsor-invite .btn {
-  white-space: nowrap;
 }
 
 /* ============================================================
