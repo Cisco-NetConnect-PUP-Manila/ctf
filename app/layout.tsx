@@ -5,20 +5,74 @@ import ScrollGlitch from "./components/ScrollGlitch";
 import Nav from "./components/Nav";
 import IntroExperience from "./components/IntroExperience";
 import HashNavigation from "./components/HashNavigation";
+import {
+  siteDescription,
+  siteName,
+  siteTitle,
+  siteUrl,
+  socialImage,
+} from "./lib/seo";
 
 export const metadata: Metadata = {
-  title: "Packet Capture | Beneath the Network",
-  description:
-    "A team-based, story-driven Capture-the-Flag competition bridging networking fundamentals and cybersecurity.",
-  keywords: ["CTF", "cybersecurity", "capture the flag", "packet capture", "incident response"],
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: siteTitle,
+    template: "%s | Packet Capture",
+  },
+  description: siteDescription,
+  applicationName: siteName,
+  authors: [{ name: "Packet Capture" }],
+  creator: "Packet Capture",
+  publisher: "Packet Capture",
+  category: "technology",
+  keywords: [
+    "Packet Capture",
+    "cybersecurity CTF",
+    "capture the flag",
+    "incident response CTF",
+    "OSINT CTF",
+    "web security CTF",
+    "digital forensics CTF",
+    "networking CTF",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   icons: {
     icon: "/images/ctf-icon.ico",
   },
   openGraph: {
-    title: "PACKET CAPTURE // Beneath The Network",
-    description:
-      "Trace the evidence across four sequential Acts and reconstruct the investigation beneath the network.",
+    title: siteTitle,
+    description: siteDescription,
+    url: siteUrl,
+    siteName,
+    locale: "en_PH",
     type: "website",
+    images: [
+      {
+        url: socialImage,
+        width: 1200,
+        height: 675,
+        alt: "Packet Capture: Beneath the Network",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteTitle,
+    description: siteDescription,
+    images: [socialImage],
   },
 };
 

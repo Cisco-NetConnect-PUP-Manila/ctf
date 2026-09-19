@@ -996,6 +996,34 @@ h3 {
 .sec {
   padding: 52px 0;
 }
+
+/* Keep below-the-fold grids in the DOM for anchors and accessibility, but let
+   the browser defer their layout and paint until they approach the viewport. */
+@supports (content-visibility: auto) {
+  .acts__grid {
+    content-visibility: auto;
+    contain-intrinsic-size: 1200px;
+  }
+
+  .rules__grid {
+    content-visibility: auto;
+    contain-intrinsic-size: 900px;
+  }
+
+  .resources-grid,
+  .faq-list,
+  .timeline {
+    content-visibility: auto;
+    contain-intrinsic-size: 620px;
+  }
+
+  .sponsor-invite,
+  .register,
+  .footer__grid {
+    content-visibility: auto;
+    contain-intrinsic-size: 360px;
+  }
+}
 .sec__head {
   display: flex;
   align-items: flex-end;
@@ -3253,6 +3281,14 @@ body {
   position: absolute;
   inset: 0;
   background: url("/images/packet-capture-bg.png") center / cover no-repeat;
+}
+@supports (background-image: image-set(url("") type("image/webp"))) {
+  .fakeland__frame {
+    background-image: image-set(
+      url("/images/packet-capture-bg.webp") type("image/webp"),
+      url("/images/packet-capture-bg.png") type("image/png")
+    );
+  }
 }
 .fakeland__logo {
   position: absolute;

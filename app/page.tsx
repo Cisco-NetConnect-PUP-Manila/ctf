@@ -4,6 +4,7 @@ import TimelineWave from "./components/TimelineWave";
 import Window from "./components/Window";
 import Reveal from "./components/Reveal";
 import HomeAuthActions from "./components/auth/HomeAuthActions";
+import { homeStructuredData, stringifyJsonLd } from "./lib/seo";
 import {
   acts,
   aiExamples,
@@ -27,6 +28,10 @@ export default function Home() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: stringifyJsonLd(homeStructuredData) }}
+      />
       <main id="top">
         <section className="hero">
           <div className="shell hero__grid">
