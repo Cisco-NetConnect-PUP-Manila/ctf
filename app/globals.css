@@ -8621,3 +8621,158 @@ body.registration-closed-active .auth-page {
     width: fit-content !important;
   }
 }
+
+/* ============================================================
+   PUBLIC SURFACE // RESPONSIVE BALANCE
+   Keep the information hierarchy intact as the viewport narrows:
+   readable copy first, controls second, decorative chrome last.
+   ============================================================ */
+main#top,
+main#top .shell,
+main#top .win,
+main#top .win__body,
+main#top .about,
+main#top .brief-grid,
+main#top .acts__grid,
+main#top .rules__grid,
+main#top .resources-grid {
+  min-width: 0;
+}
+
+main#top .win__body {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  main#top .hero {
+    padding-bottom: 24px;
+  }
+
+  main#top .hero__grid {
+    gap: 30px;
+  }
+
+  main#top .hero__side {
+    max-width: 760px;
+  }
+
+  main#top .win__body {
+    padding: clamp(16px, 2.8vw, 24px);
+  }
+}
+
+@media (max-width: 640px) {
+  main#top .hero {
+    padding-top: 30px;
+  }
+
+  main#top .hero__channel {
+    align-items: flex-start;
+    line-height: 1.35;
+    max-width: 100%;
+  }
+
+  main#top .hero__lead {
+    font-size: 0.9rem;
+    max-width: 40ch;
+  }
+
+  main#top .hero__actions {
+    align-items: stretch;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr;
+  }
+
+  main#top .hero__auth-actions,
+  main#top .hero__actions > .btn,
+  main#top .hero__auth-actions > .btn,
+  main#top .home-auth-closed {
+    width: 100%;
+  }
+
+  main#top .hero__auth-actions {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr;
+  }
+
+  main#top .home-auth-closed p {
+    min-width: 0;
+  }
+
+  main#top .dialog__actions {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  main#top .dialog__actions .btn {
+    min-height: 44px;
+    padding-inline: 10px;
+    width: 100%;
+  }
+
+  main#top .lcd__row {
+    align-items: flex-start;
+    display: grid;
+    gap: 4px 12px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+  }
+
+  main#top .lcd__k,
+  main#top .lcd__v {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  main#top .lcd__v {
+    text-align: right;
+  }
+
+  main#top .act__figs {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  main#top .sec__lead {
+    font-size: 0.88rem;
+    max-width: 48ch;
+  }
+
+  .footer__grid {
+    gap: 24px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  main#top .win__body {
+    padding: 15px 13px;
+  }
+
+  main#top .hero h1 {
+    font-size: clamp(2.15rem, 12.5vw, 3.8rem);
+  }
+
+  main#top .dialog__actions {
+    grid-template-columns: 1fr;
+  }
+
+  main#top .act__figs {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  main#top .act__fig:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .footer__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer__base {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
