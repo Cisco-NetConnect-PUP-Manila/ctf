@@ -6,6 +6,7 @@ services:
     command:
       - "--global.checknewversion=false"
       - "--global.sendanonymoususage=false"
+      - "--log.level=DEBUG"
       # Swarm provider
       - "--providers.swarm=true"
       - "--providers.swarm.network=ctf-network"
