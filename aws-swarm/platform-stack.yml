@@ -3,6 +3,8 @@ version: "3.8"
 services:
   frontend:
     image: ${FRONTEND_IMAGE:-local/ctf-frontend:latest}
+    environment:
+      - BACKEND_INTERNAL_URL=http://backend:8000
     networks:
       - ctf-network
     deploy:
