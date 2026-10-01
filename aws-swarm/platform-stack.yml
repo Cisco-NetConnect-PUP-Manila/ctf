@@ -25,6 +25,8 @@ services:
       - FRONTEND_ORIGIN=https://ctf.${DOMAIN}
       - SESSION_COOKIE_SECURE=true
       - SESSION_COOKIE_NAME=packet_capture_session
+      - FLAG_HASH_SECRET=${FLAG_HASH_SECRET:-prod_flag_secret_packetcapture_2026_xyz}
+      - TEAM_FRAGMENT_SECRET=${TEAM_FRAGMENT_SECRET:-prod_team_fragment_secret_packetcapture_2026_xyz}
     networks:
       - ctf-network
     deploy:
