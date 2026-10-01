@@ -12,7 +12,7 @@ services:
           - node.labels.role == worker
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.frontend.rule=Host(`ctf.${DOMAIN}`)"
+        - "traefik.http.routers.frontend.rule=Host(`${DOMAIN}`) || Host(`ctf.${DOMAIN}`)"
         - "traefik.http.routers.frontend.entrypoints=websecure"
         - "traefik.http.routers.frontend.tls.certresolver=myresolver"
         - "traefik.http.services.frontend.loadbalancer.server.port=3000"
@@ -22,7 +22,7 @@ services:
     environment:
       - BACKEND_ENV=production
       - DATABASE_URL=postgresql+psycopg://packet_capture:${POSTGRES_PASSWORD}@postgres:5432/packet_capture_ctf
-      - FRONTEND_ORIGIN=https://ctf.${DOMAIN}
+      - FRONTEND_ORIGIN=https://${DOMAIN},https://ctf.${DOMAIN}
       - SESSION_COOKIE_SECURE=true
       - SESSION_COOKIE_NAME=packet_capture_session
       - FLAG_HASH_SECRET=${FLAG_HASH_SECRET:-prod_flag_secret_packetcapture_2026_xyz}

@@ -59,8 +59,9 @@ class Settings(BaseSettings):
             return
         if not self.database_url or "localhost" in self.database_url or "127.0.0.1" in self.database_url:
             raise RuntimeError("DATABASE_URL must point to a managed production database.")
-        if not self.frontend_origin.startswith("https://"):
-            raise RuntimeError("FRONTEND_ORIGIN must be an HTTPS origin in production.")
+        for origin in self.frontend_origin.split(","):
+            if not origin.strip().startswith("https://"):
+                raise RuntimeError("Each FRONTEND_ORIGIN must be an HTTPS origin in production.")
         if not self.session_cookie_secure:
             raise RuntimeError("SESSION_COOKIE_SECURE must be true in production.")
         if not self.flag_hash_secret or self.flag_hash_secret == EXAMPLE_FLAG_HASH_SECRET:

@@ -33,9 +33,14 @@ def create_app() -> FastAPI:
         description="Backend API for Packet Capture: Beneath the Network.",
     )
 
+    allowed_origins = [
+        origin.strip()
+        for origin in settings.frontend_origin.split(",")
+        if origin.strip()
+    ]
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[settings.frontend_origin],
+        allow_origins=allowed_origins,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["*"],
