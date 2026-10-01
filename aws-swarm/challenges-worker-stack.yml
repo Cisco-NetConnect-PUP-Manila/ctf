@@ -1,0 +1,134 @@
+version: "3.8"
+
+services:
+  abandoned_project:
+    image: ${CHALLENGE_IMAGE_ABANDONED:-local/ctf-abandoned-project:latest}
+    networks:
+      - ctf-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.role == worker
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.abandoned.rule=Host(`abandoned.challs.${DOMAIN}`)"
+        - "traefik.http.routers.abandoned.entrypoints=websecure"
+        - "traefik.http.routers.abandoned.tls.certresolver=myresolver"
+        - "traefik.http.services.abandoned.loadbalancer.server.port=80"
+
+  black_box:
+    image: ${CHALLENGE_IMAGE_BLACK_BOX:-local/ctf-black-box:latest}
+    networks:
+      - ctf-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.role == worker
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.blackbox.rule=Host(`blackbox.challs.${DOMAIN}`)"
+        - "traefik.http.routers.blackbox.entrypoints=websecure"
+        - "traefik.http.routers.blackbox.tls.certresolver=myresolver"
+        - "traefik.http.services.blackbox.loadbalancer.server.port=5000"
+
+  corrupt_corporate:
+    image: ${CHALLENGE_IMAGE_CORRUPT:-local/ctf-corrupt-corporate:latest}
+    networks:
+      - ctf-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.role == worker
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.corrupt.rule=Host(`corrupt.challs.${DOMAIN}`)"
+        - "traefik.http.routers.corrupt.entrypoints=websecure"
+        - "traefik.http.routers.corrupt.tls.certresolver=myresolver"
+        - "traefik.http.services.corrupt.loadbalancer.server.port=8080"
+
+  forgotten_router:
+    image: ${CHALLENGE_IMAGE_ROUTER:-local/ctf-forgotten-router:latest}
+    networks:
+      - ctf-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.role == worker
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.router.rule=Host(`router.challs.${DOMAIN}`)"
+        - "traefik.http.routers.router.entrypoints=websecure"
+        - "traefik.http.routers.router.tls.certresolver=myresolver"
+        - "traefik.http.services.router.loadbalancer.server.port=80"
+
+  internal_trouble:
+    image: ${CHALLENGE_IMAGE_INTERNAL:-local/ctf-internal-trouble:latest}
+    networks:
+      - ctf-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.role == worker
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.internal.rule=Host(`internal.challs.${DOMAIN}`)"
+        - "traefik.http.routers.internal.entrypoints=websecure"
+        - "traefik.http.routers.internal.tls.certresolver=myresolver"
+        - "traefik.http.services.internal.loadbalancer.server.port=3000"
+
+  lantern_registry:
+    image: ${CHALLENGE_IMAGE_LANTERN:-local/ctf-lantern-registry:latest}
+    networks:
+      - ctf-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.role == worker
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.lantern.rule=Host(`lantern.challs.${DOMAIN}`)"
+        - "traefik.http.routers.lantern.entrypoints=websecure"
+        - "traefik.http.routers.lantern.tls.certresolver=myresolver"
+        - "traefik.http.services.lantern.loadbalancer.server.port=5000"
+
+  maze:
+    image: ${CHALLENGE_IMAGE_MAZE:-local/ctf-maze:latest}
+    networks:
+      - ctf-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.role == worker
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.maze.rule=Host(`maze.challs.${DOMAIN}`)"
+        - "traefik.http.routers.maze.entrypoints=websecure"
+        - "traefik.http.routers.maze.tls.certresolver=myresolver"
+        - "traefik.http.services.maze.loadbalancer.server.port=5000"
+
+  network_archive_portal:
+    image: ${CHALLENGE_IMAGE_ARCHIVE:-local/ctf-network-archive-portal:latest}
+    networks:
+      - ctf-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.role == worker
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.archive.rule=Host(`archive.challs.${DOMAIN}`)"
+        - "traefik.http.routers.archive.entrypoints=websecure"
+        - "traefik.http.routers.archive.tls.certresolver=myresolver"
+        - "traefik.http.services.archive.loadbalancer.server.port=5000"
+
+networks:
+  ctf-network:
+    external: true
