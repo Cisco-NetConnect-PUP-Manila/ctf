@@ -34,6 +34,7 @@ from app.schemas.admin_team import (
     TeamRejectRequest,
 )
 from app.services.email_notifications import (
+    registration_received_email,
     send_email_best_effort,
     team_approved_email,
     team_rejected_email,
