@@ -291,29 +291,29 @@ export const faqs: FaqItem[] = [
 
 export const timeline = [
   {
-    date: "TBA",
+    date: "OCT 03",
     title: "Registration Opens",
-    body: "Registration dates will be announced by the organizers.",
+    body: "Teams can begin registering for the competition.",
   },
   {
-    date: "TBA",
+    date: "OCT 10",
     title: "Registration Closes",
-    body: "Team confirmation and eligibility checks take place before competition access.",
+    body: "The registration period ends before the event begins.",
   },
   {
-    date: "TBA",
-    title: "Competition Opens",
-    body: "Act I - The Signal opens and teams begin collecting Investigation Score.",
+    date: "OCT 10",
+    title: "Webinar",
+    body: "Join the event webinar to prepare for the CTF.",
   },
   {
-    date: "TBA",
-    title: "Final Submission Deadline",
-    body: "Final Investigation submissions close at the announced deadline.",
+    date: "OCT 18",
+    title: "CTF Starts",
+    body: "The competition begins and teams take on the challenges.",
   },
   {
-    date: "TBA",
-    title: "Awarding / Closing",
-    body: "Rankings are finalized and awards are announced.",
+    date: "OCT 18",
+    title: "CTF End / Awarding",
+    body: "The event concludes with the awarding ceremony.",
   },
 ];
 

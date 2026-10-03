@@ -372,7 +372,7 @@ export default function Home() {
             </Reveal>
 
             <Reveal>
-              <Window title="TIMELINE.LOG" meta="schedule // TBA" icon="[]">
+              <Window title="TIMELINE.LOG" meta="schedule // OCT 2026" icon="[]">
                 <TimelineWave items={timeline} />
               </Window>
             </Reveal>
