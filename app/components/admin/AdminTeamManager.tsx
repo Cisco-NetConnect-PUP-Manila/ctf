@@ -12,6 +12,7 @@ import {
 import { ApiError } from "../../lib/api/client";
 import type { AdminTeam } from "../../lib/api/types";
 import AdminParticipantIntake from "./AdminParticipantIntake";
+import useConfirmation from "./useConfirmation";
 
 function errorMessage(caught: unknown, fallback: string) {
   return caught instanceof ApiError ? caught.message : fallback;
@@ -34,6 +35,7 @@ function formatDate(value: string | null) {
 }
 
 export default function AdminTeamManager() {
+  const { confirm, confirmationDialog } = useConfirmation();
   const [teams, setTeams] = useState<AdminTeam[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -112,7 +114,7 @@ export default function AdminTeamManager() {
       setError("Add a rejection reason with at least 2 characters before rejecting this record.");
       return;
     }
-    if (!window.confirm(`Reject "${team.group_name}"?\n\nReason: ${reason}`)) return;
+    if (!await confirm(`Reject "${team.group_name}"?\n\nReason: ${reason}`)) return;
 
     const rejected = await runAction(
       team,
@@ -129,7 +131,7 @@ export default function AdminTeamManager() {
   }
 
   async function handleDeleteRegistration(team: AdminTeam) {
-    const confirmed = window.confirm(
+    const confirmed = await confirm(
       `Permanently delete the participant record for "${team.group_name}"?\n\nThis removes the account and cannot be undone.`
     );
     if (!confirmed) return;
@@ -158,6 +160,7 @@ export default function AdminTeamManager() {
 
   return (
     <div className="team-admin">
+      {confirmationDialog}
       {error && <div className="challenge-admin__error" role="alert">{error}</div>}
 
       <AdminParticipantIntake
@@ -280,13 +283,10 @@ export default function AdminTeamManager() {
                 <button
                   className="btn challenge-admin-row__delete"
                   disabled={busyId === team.id}
-                  onClick={() =>
-                    void runAction(
-                      team,
-                      () => disableAdminTeam(team.id),
-                      "Could not disable team."
-                    )
-                  }
+                  onClick={async () => {
+                    if (!await confirm(`Disable participant access for "${team.group_name}"? The team will lose competition access until reactivated.`)) return;
+                    void runAction(team, () => disableAdminTeam(team.id), "Could not disable team.");
+                  }}
                   type="button"
                 >
                   Disable

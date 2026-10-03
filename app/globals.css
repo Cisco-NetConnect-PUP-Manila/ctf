@@ -4,6 +4,19 @@
    bulging glass screen + rounded bezel. 80s-futuristic retro GUI.
    ============================================================ */
 
+.admin-confirm {
+  width: min(90vw, 560px);
+  padding: 1.5rem;
+  color: #ffd59a;
+  background: #160e06;
+  border: 1px solid #ff8b19;
+  box-shadow: 0 0 24px #ff8b1940;
+}
+.admin-confirm::backdrop { background: #000b; }
+.admin-confirm p { white-space: pre-wrap; overflow-wrap: anywhere; margin: 1rem 0; }
+.admin-confirm__actions { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: flex-end; }
+.admin-confirm button:focus-visible { outline: 2px solid #ffd59a; outline-offset: 4px; }
+
 :root {
   --bg: #0a0603;
   --bg-2: #120b04;

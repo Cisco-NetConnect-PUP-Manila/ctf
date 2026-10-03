@@ -1,4 +1,5 @@
 "use client";
+import useConfirmation from "../admin/useConfirmation";
 
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -116,6 +117,7 @@ function toForm(item: AdminChallenge): FormState {
 }
 
 export default function AdminChallengeManager() {
+  const { confirm, confirmationDialog } = useConfirmation();
   const [acts, setActs] = useState<AdminAct[]>([]);
   const [categories, setCategories] = useState<ChallengeLookup[]>([]);
   const [difficulties, setDifficulties] = useState<ChallengeLookup[]>([]);
@@ -240,7 +242,7 @@ export default function AdminChallengeManager() {
   }
 
   async function handleDelete(item: AdminChallenge) {
-    if (!window.confirm(`Permanently delete "${item.title}"? This cannot be undone.`)) return;
+    if (!await confirm(`Permanently delete "${item.title}"? This cannot be undone.`)) return;
     setBusyId(item.id);
     setError("");
     try {
@@ -522,6 +524,7 @@ export default function AdminChallengeManager() {
 
   return (
     <div className="challenge-admin">
+      {confirmationDialog}
       {error && <div className="challenge-admin__error" role="alert">{error}</div>}
       {notice && <div className="challenge-admin__success" role="status">{notice}</div>}
 

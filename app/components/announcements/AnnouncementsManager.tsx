@@ -1,4 +1,5 @@
 "use client";
+import useConfirmation from "../admin/useConfirmation";
 
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -34,6 +35,7 @@ function formatDate(value: string | null): string {
 }
 
 export default function AnnouncementsManager() {
+  const { confirm, confirmationDialog } = useConfirmation();
   const [items, setItems] = useState<AdminAnnouncement[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -127,7 +129,7 @@ export default function AnnouncementsManager() {
   }
 
   async function handleDelete(item: AdminAnnouncement) {
-    const confirmed = window.confirm(
+    const confirmed = await confirm(
       `Permanently delete "${item.title}"? This cannot be undone.`
     );
     if (!confirmed) return;
@@ -149,6 +151,7 @@ export default function AnnouncementsManager() {
 
   return (
     <div className="announce-admin">
+      {confirmationDialog}
       <form className="announce-admin__form" onSubmit={handleCreate}>
         <div className="announce-field">
           <label htmlFor="announce-title">Title</label>
