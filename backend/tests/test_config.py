@@ -27,10 +27,14 @@ def no_development_credentials(monkeypatch):
     monkeypatch.delenv("DEV_ADMIN_PASSWORD", raising=False)
 
 
-def test_production_requires_mfa_and_valid_encryption_key():
-    for overrides in ({"ADMIN_MFA_REQUIRED": False}, {"MFA_ENCRYPTION_KEY": ""}, {"MFA_ENCRYPTION_KEY": "invalid"}):
+def test_production_requires_valid_key_when_mfa_is_enabled():
+    for overrides in ({"MFA_ENCRYPTION_KEY": ""}, {"MFA_ENCRYPTION_KEY": "invalid"}):
         with pytest.raises(RuntimeError, match="MFA"):
             _production_settings(**overrides).assert_production_ready()
+
+
+def test_production_allows_mfa_to_be_deferred():
+    _production_settings(ADMIN_MFA_REQUIRED=False, MFA_ENCRYPTION_KEY="").assert_production_ready()
 
 
 def test_production_rejects_shipped_credentials(monkeypatch):

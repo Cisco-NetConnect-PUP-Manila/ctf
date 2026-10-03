@@ -1,9 +1,12 @@
 # Authentication hardening
 
-All accounts continue to sign in at `/login`. Organizer accounts additionally require
-a six-digit authenticator code. Participants do not need an authenticator.
+All accounts sign in at `/login`. Admin MFA is currently deferred: `ADMIN_MFA_REQUIRED`
+defaults to `false`, so organizers sign in with email and password without enrollment.
+MFA code and existing enrollment data are retained for a future opt-in rollout.
+Set any existing server environment override to `ADMIN_MFA_REQUIRED=false` and recreate
+the backend to disable a previously enabled deployment. Other security controls remain on.
 
-## Operator setup
+## Future MFA operator setup
 
 1. Rebuild the backend and apply migrations (the Docker startup script does this).
 2. Set a dedicated `MFA_ENCRYPTION_KEY` in the deployment secret manager. Generate it
@@ -17,8 +20,9 @@ a six-digit authenticator code. Participants do not need an authenticator.
 4. Lost-device recovery uses that same operator-only command. It requires explicit
    replacement confirmation. There is deliberately no password-only or email bypass.
 
-`ADMIN_MFA_REQUIRED` defaults to true. Production refuses to start if it is false or the
-encryption key is missing/invalid. Local mode alone supports a development-only derived
+To enable MFA later, set `ADMIN_MFA_REQUIRED=true` after preparing organizer enrollment.
+When enabled, production refuses to start if the encryption key is missing/invalid.
+Local mode alone supports a development-only derived
 encryption key; do not move locally encrypted enrollment secrets into production.
 Production also rejects `DEV_ADMIN_*` variables and the shipped bootstrap password.
 At startup it also rejects active database admin accounts still using the shipped password.
@@ -48,8 +52,8 @@ Browser mutations require an exact configured `Origin` and `X-CSRF-Protection: 1
 The common frontend API client sends the header, and the Next proxy preserves it.
 Cookie-authenticated scripts must also send both headers. Public cookie-free CLI login
 requests remain supported. CORS, secure HttpOnly SameSite cookies, server role checks,
-and MFA-verified admin sessions remain independent defenses. Old password-only admin
-sessions are rejected after rollout. Changing an admin password or enrollment revokes
+and optional MFA-verified admin sessions remain independent defenses. When MFA is enabled,
+old password-only admin sessions are rejected. Changing an admin password or enrollment revokes
 existing sessions; restarting with unchanged local bootstrap credentials does not.
 
 ## Verification

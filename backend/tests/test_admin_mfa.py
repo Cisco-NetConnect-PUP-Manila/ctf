@@ -10,6 +10,16 @@ from app.models.account import AccountSession
 from tests.conftest import create_test_account, TEST_PASSWORD
 
 
+def test_admin_password_login_without_enrollment_when_mfa_disabled(client, db_session, monkeypatch):
+    monkeypatch.setattr(settings, 'admin_mfa_required', False)
+    account = create_test_account(db_session, role='admin')
+    response = client.post('/auth/login', json={'email': account.email, 'password': TEST_PASSWORD})
+    assert response.status_code == 200
+    assert response.json()['account']['role'] == 'admin'
+    assert client.get('/auth/me').status_code == 200
+    assert client.get('/admin/challenges').status_code == 200
+
+
 def test_admin_requires_code_and_rejects_replay(client, db_session, monkeypatch):
     monkeypatch.setattr(settings, 'admin_mfa_required', True)
     account = create_test_account(db_session, role='admin')
