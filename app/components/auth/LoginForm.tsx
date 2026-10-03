@@ -76,7 +76,11 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
     const update = () => {
       const remaining = Math.max(0, Math.ceil((retryUntil - Date.now()) / 1000));
       setRetrySeconds(remaining);
-      if (!remaining) setRetryUntil(0);
+      if (!remaining) {
+        setRetryUntil(0);
+        setError("");
+        setSessionMessage("You can try signing in again now.");
+      }
     };
     update();
     const interval = window.setInterval(update, 1000);
@@ -94,6 +98,8 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
       setSessionMessage("An organizer admin account is required to access the admin panel.");
     } else if (reason === "logged-out") {
       setSessionMessage(content.loggedOut);
+    } else if (reason === "disabled") {
+      setSessionMessage("Your account is disabled. Contact the organizers for help.");
     }
   }, [content.access, content.loggedOut, portal]);
 
@@ -167,6 +173,7 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
           autoComplete="email"
           inputMode="email"
           name="email"
+          aria-invalid={error === "Invalid email or password." || undefined}
           aria-describedby={error ? "login-error" : undefined}
           disabled={submitting}
           onChange={(event) => {
@@ -189,6 +196,7 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
             autoComplete="current-password"
             minLength={1}
             name="password"
+            aria-invalid={error === "Invalid email or password." || undefined}
             aria-describedby={error ? "login-error" : undefined}
             disabled={submitting}
             onChange={(event) => {

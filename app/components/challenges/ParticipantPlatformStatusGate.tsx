@@ -77,9 +77,8 @@ export default function ParticipantPlatformStatusGate({
   useEffect(() => {
     let alive = true;
 
-    async function load() {
-      setLoading(true);
-      setError("");
+    async function load(background = false) {
+      if (!background) { setLoading(true); setError(""); }
       try {
         const [settings, manifest] = await Promise.all([
           getPlatformSettings(),
@@ -87,20 +86,25 @@ export default function ParticipantPlatformStatusGate({
         ]);
         if (alive) setState({ settings, manifest });
       } catch (caught) {
-        if (!alive) return;
+        if (!alive || background) return;
         setError(
           caught instanceof ApiError
             ? caught.message
             : "Unable to verify competition status."
         );
       } finally {
-        if (alive) setLoading(false);
+        if (alive && !background) setLoading(false);
       }
     }
 
     void load();
+    const refresh = () => { if (document.visibilityState === "visible") void load(true); };
+    const timer = window.setInterval(refresh, 30000);
+    window.addEventListener("focus", refresh);
     return () => {
       alive = false;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
     };
   }, []);
 
@@ -138,7 +142,10 @@ export default function ParticipantPlatformStatusGate({
     );
   }
 
-  if (!platformIsFrozen(state.settings)) {
+  const status = state.settings.competition_status;
+  const ended = status === "ended";
+  const unavailable = platformIsFrozen(state.settings) || status === "paused" || status === "upcoming";
+  if (!unavailable) {
     return <>{children}</>;
   }
 
@@ -147,17 +154,16 @@ export default function ParticipantPlatformStatusGate({
       <div className="shell">
         <div className="time-up-panel">
           <div className="time-up-panel__head">
-            <span className="eyebrow">COMPETITION.FROZEN</span>
-            <h2>Time is up</h2>
+            <span className="eyebrow">COMPETITION.{status.toUpperCase()}</span>
+            <h2>{ended ? "Time is up" : status === "upcoming" ? "Competition has not started" : "Scoring is paused"}</h2>
             <p>
-              The organizers have closed scoring. Your recorded solves and points
-              remain saved on the leaderboard.
+              {ended ? "The organizers have closed scoring. Your recorded solves and points remain saved on the leaderboard." : status === "upcoming" ? "Wait for the organizers to open the competition. Your participant account remains registered." : "The organizers have temporarily paused scoring. Your recorded progress remains saved. Check announcements for updates."}
             </p>
           </div>
 
           <div className="time-up-grid" aria-label="Team final recap">
             <div>
-              <span>Final score</span>
+              <span>{ended ? "Final score" : "Recorded score"}</span>
               <b>{stats.score}</b>
             </div>
             <div>

@@ -13,6 +13,7 @@ export default function ParticipantPendingNotice() {
   const { team } = useParticipantSession();
   const approved = team?.status === "approved";
   const rejected = team?.status === "rejected";
+  const disabled = team?.status === "disabled";
 
   useEffect(() => {
     if (approved) {
@@ -30,33 +31,32 @@ export default function ParticipantPendingNotice() {
     );
   }
 
-  if (rejected) {
+  if (rejected || disabled) {
     return (
       <main className="auth-page">
         <div className="shell auth-page__shell">
           <Reveal className="auth-page__intro">
-              <span className="eyebrow">ACCESS.REJECTED</span>
+              <span className="eyebrow">{disabled ? "ACCESS.DISABLED" : "ACCESS.REJECTED"}</span>
             <h1 className="auth-title">
               Access
               <br />
-              <span className="glitch" data-text="Rejected">
-                Rejected
+              <span className="glitch" data-text={disabled ? "Disabled" : "Rejected"}>
+                {disabled ? "Disabled" : "Rejected"}
               </span>
             </h1>
             <p>
-              <ParticipantTeamName /> was reviewed but could not be approved by the
-              organizers.
+              <ParticipantTeamName /> {disabled ? "has been disabled by an organizer." : "was reviewed but could not be approved by the organizers."}
             </p>
           </Reveal>
 
           <Reveal>
             <Window title="TEAM.STATUS" meta="organizer review complete">
               <div className="portal-lock portal-lock--pending">
-                <b>Participant access was not approved.</b>
-                <span>
+                <b>{disabled ? "Participant access is disabled." : "Participant access was not approved."}</b>
+                {!disabled && <span>
                   <strong>Organizer reason:</strong>{" "}
                   {team?.rejection_reason || "No rejection reason was provided."}
-                </span>
+                </span>}
                 <span>
                   Contact the organizers if you need clarification or need your
                   participant record corrected.

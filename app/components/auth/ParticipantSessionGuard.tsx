@@ -35,38 +35,45 @@ export default function ParticipantSessionGuard({
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState("");
 
-  const checkSession = useCallback(async () => {
-    setChecking(true);
-    setError("");
+  const checkSession = useCallback(async (background = false) => {
+    if (!background) { setChecking(true); setError(""); }
 
     try {
       const current = await getCurrentAccount();
       if (current.account.role !== "participant" || !current.team) {
+        setSession(null);
         router.replace("/login?reason=access");
         return;
       }
       if (!allowPending && current.team.status !== "approved") {
+        setSession(null);
         router.replace("/participant/pending");
         return;
       }
       setSession(current);
     } catch (caught) {
       if (caught instanceof ApiError && (caught.status === 401 || caught.status === 403)) {
-        router.replace("/login?reason=session");
+        setSession(null);
+        router.replace(caught.code === "ACCOUNT_DISABLED" ? "/login?reason=disabled" : "/login?reason=session");
         return;
       }
+      if (background) return;
       setError(
         caught instanceof ApiError
           ? caught.message
           : "The session check failed unexpectedly."
       );
     } finally {
-      setChecking(false);
+      if (!background) setChecking(false);
     }
   }, [allowPending, router]);
 
   useEffect(() => {
     void checkSession();
+    const refresh = () => { if (document.visibilityState === "visible") void checkSession(true); };
+    const timer = window.setInterval(refresh, 30000);
+    window.addEventListener("focus", refresh);
+    return () => { window.clearInterval(timer); window.removeEventListener("focus", refresh); };
   }, [checkSession]);
 
   if (checking || (!session && !error)) {
