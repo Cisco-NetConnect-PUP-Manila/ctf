@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { login } from "../../lib/api/auth";
@@ -58,6 +58,18 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [retryUntil, setRetryUntil] = useState(0);
   const [retrySeconds, setRetrySeconds] = useState(0);
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [mfaCode, setMfaCode] = useState("");
+  const errorRef = useRef<HTMLDivElement>(null);
+  const mfaRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
+
+  useEffect(() => {
+    if (mfaRequired) mfaRef.current?.focus();
+  }, [mfaRequired]);
 
   useEffect(() => {
     if (!retryUntil) return;
@@ -92,7 +104,7 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
     setSubmitting(true);
 
     try {
-      const current = await login({ email: email.trim(), password });
+      const current = await login({ email: email.trim(), password, ...(mfaRequired ? { mfa_code: mfaCode } : {}) });
       if (current.account.role === "admin") {
         router.push("/admin");
         router.refresh();
@@ -110,6 +122,15 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
       router.push("/platform");
       router.refresh();
     } catch (caught) {
+      if (caught instanceof ApiError && caught.code === "MFA_REQUIRED") {
+        setMfaRequired(true);
+        return;
+      }
+      if (caught instanceof ApiError && caught.code === "MFA_INVALID") {
+        setMfaCode("");
+        setError(caught.message);
+        return;
+      }
       if (caught instanceof ApiError && caught.status === 429) {
         if (caught.retryAfterSeconds) {
           setRetrySeconds(caught.retryAfterSeconds);
@@ -133,11 +154,9 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
   return (
     <form className="auth-form" onSubmit={handleSubmit} aria-busy={submitting}>
       {sessionMessage && <AuthNotice tone="info">{sessionMessage}</AuthNotice>}
-      {error && !retrySeconds && <AuthNotice tone="error">{error}</AuthNotice>}
+      {error && <div id="login-error" ref={errorRef} tabIndex={-1}><AuthNotice tone="error">{error}</AuthNotice></div>}
       {retrySeconds > 0 && (
-        <AuthNotice tone="info">
-          Too many sign-in attempts. Try again in {retrySeconds} seconds.
-        </AuthNotice>
+        <p className="auth-switch" aria-live="off">Try again in {retrySeconds} seconds.</p>
       )}
 
       <p className="auth-switch">Use the email and password provided for your account.</p>
@@ -148,9 +167,12 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
           autoComplete="email"
           inputMode="email"
           name="email"
+          aria-describedby={error ? "login-error" : undefined}
           disabled={submitting}
           onChange={(event) => {
             setEmail(event.target.value);
+            setMfaRequired(false);
+            setMfaCode("");
             setError("");
           }}
           placeholder={content.placeholder}
@@ -167,9 +189,12 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
             autoComplete="current-password"
             minLength={1}
             name="password"
+            aria-describedby={error ? "login-error" : undefined}
             disabled={submitting}
             onChange={(event) => {
               setPassword(event.target.value);
+              setMfaRequired(false);
+              setMfaCode("");
               setError("");
             }}
             required
@@ -183,7 +208,12 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
         </span>
       </label>
 
-      <button className="btn btn--primary auth-submit" disabled={submitting || retrySeconds > 0} type="submit">
+      {mfaRequired && <label className="auth-field">
+        <span>Authenticator code</span>
+        <input ref={mfaRef} autoComplete="one-time-code" inputMode="numeric" name="mfa_code" pattern="[0-9]{6}" maxLength={6} required value={mfaCode} disabled={submitting} aria-describedby={error ? "login-error" : undefined} onChange={(event) => { setMfaCode(event.target.value.replace(/\D/g, "")); setError(""); }} />
+      </label>}
+
+      <button aria-label={submitting ? content.submitting : content.button} className="btn btn--primary auth-submit" disabled={submitting || retrySeconds > 0} type="submit">
         {retrySeconds > 0 ? `Try again in ${retrySeconds}s` : submitting ? content.submitting : content.button}
       </button>
       <p className="auth-switch">

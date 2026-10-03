@@ -50,6 +50,10 @@ def get_current_account(
         raise APIError(401, SESSION_EXPIRED, "Your session has expired. Please log in again.")
 
     account = account_session.account
+    if account.role == AccountRole.ADMIN.value and settings.admin_mfa_required and not account_session.mfa_verified:
+        account_session.revoked_at = now
+        db.commit()
+        raise APIError(401, AUTH_REQUIRED, "Sign in again with your organizer authenticator.")
     if account.status != AccountStatus.ACTIVE.value:
         raise APIError(403, ACCOUNT_DISABLED, "Account is disabled.")
 

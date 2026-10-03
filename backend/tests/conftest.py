@@ -22,6 +22,12 @@ TEST_PASSWORD = "test-password-1234"
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 
 
+@pytest.fixture(autouse=True)
+def legacy_auth_policy(monkeypatch):
+    # Existing suites exercise unrelated workflows; MFA-specific tests enable it explicitly.
+    monkeypatch.setattr(settings, "admin_mfa_required", False)
+
+
 def _test_database_url() -> str:
     configured = os.environ.get("TEST_DATABASE_URL")
     if configured:
@@ -84,7 +90,7 @@ def db_session(engine):
 def client(db_session):
     app = create_app()
     app.dependency_overrides[get_db] = lambda: db_session
-    with TestClient(app) as test_client:
+    with TestClient(app, headers={"Origin": settings.frontend_origin.split(",")[0].strip(), "X-CSRF-Protection": "1"}) as test_client:
         yield test_client
 
 

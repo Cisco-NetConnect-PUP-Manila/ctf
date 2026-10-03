@@ -13,18 +13,22 @@ this script fills that gap so admin-only endpoints can be exercised locally.
 
 import argparse
 import sys
+from datetime import UTC, datetime
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 # Import the models package so SQLAlchemy resolves cross-model relationships (e.g.
 # Account.team -> Team) before any query runs.
 import app.models  # noqa: F401
-from app.core.security import hash_password, normalize_email
+from app.core.security import hash_password, normalize_email, verify_password
 from app.db.session import SessionLocal
-from app.models.account import Account, AccountRole, AccountStatus
+from app.models.account import Account, AccountRole, AccountSession, AccountStatus
+from app.core.config import settings
 
 
 def create_admin(email: str, password: str) -> None:
+    if settings.backend_env != "local" and password == "AdminPassword123!":
+        raise RuntimeError("The shipped development password is forbidden outside local development.")
     if len(password) < 12:
         sys.exit("Password must be at least 12 characters.")
 
@@ -41,6 +45,9 @@ def create_admin(email: str, password: str) -> None:
             db.add(account)
             action = "Created"
         else:
+            changed = not verify_password(password, account.password_hash) or account.role != AccountRole.ADMIN.value or account.status != AccountStatus.ACTIVE.value
+            if changed:
+                db.execute(update(AccountSession).where(AccountSession.account_id == account.id, AccountSession.revoked_at.is_(None)).values(revoked_at=datetime.now(UTC)))
             account.password_hash = hash_password(password)
             account.role = AccountRole.ADMIN.value
             account.status = AccountStatus.ACTIVE.value

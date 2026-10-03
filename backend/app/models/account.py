@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, String, func
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -32,6 +32,8 @@ class Account(Base):
     role: Mapped[str] = mapped_column(String(32), nullable=False, default=AccountRole.PARTICIPANT.value)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default=AccountStatus.ACTIVE.value)
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    mfa_secret_encrypted: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    mfa_last_step: Mapped[int] = mapped_column(BigInteger, nullable=False, default=-1, server_default="-1")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -63,6 +65,7 @@ class AccountSession(Base):
         nullable=False,
     )
     token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    mfa_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

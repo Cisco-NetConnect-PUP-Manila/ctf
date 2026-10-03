@@ -1,4 +1,5 @@
 from functools import lru_cache
+import os
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -27,6 +28,8 @@ class Settings(BaseSettings):
     session_expire_hours: int = Field(default=12, alias="SESSION_EXPIRE_HOURS")
     login_ip_limit: int = Field(default=300, ge=10, alias="LOGIN_IP_LIMIT")
     trusted_proxy_cidrs: str = Field(default="", alias="TRUSTED_PROXY_CIDRS")
+    admin_mfa_required: bool = Field(default=True, alias="ADMIN_MFA_REQUIRED")
+    mfa_encryption_key: str = Field(default="", alias="MFA_ENCRYPTION_KEY")
     registration_open_by_default: bool = Field(default=False, alias="REGISTRATION_OPEN_BY_DEFAULT")
     challenge_file_storage_provider: str = Field(default="local", alias="CHALLENGE_FILE_STORAGE_PROVIDER")
     challenge_file_storage_root: str = Field(
@@ -59,6 +62,17 @@ class Settings(BaseSettings):
         """Fail fast rather than let every environment silently share one pepper."""
         if self.backend_env == "local":
             return
+        if not self.admin_mfa_required or not self.mfa_encryption_key:
+            raise RuntimeError("Production requires ADMIN_MFA_REQUIRED=true and MFA_ENCRYPTION_KEY.")
+        from cryptography.fernet import Fernet
+        try:
+            Fernet(self.mfa_encryption_key.encode())
+        except (ValueError, TypeError) as exc:
+            raise RuntimeError("MFA_ENCRYPTION_KEY must be a valid Fernet key.") from exc
+        if os.getenv("DEV_ADMIN_EMAIL") or os.getenv("DEV_ADMIN_PASSWORD"):
+            raise RuntimeError("Remove DEV_ADMIN credentials from production.")
+        if os.getenv("BOOTSTRAP_ADMIN_PASSWORD") == "AdminPassword123!":
+            raise RuntimeError("The shipped development password is forbidden in production.")
         if not self.database_url or "localhost" in self.database_url or "127.0.0.1" in self.database_url:
             raise RuntimeError("DATABASE_URL must point to a managed production database.")
         for origin in self.frontend_origin.split(","):

@@ -40,6 +40,7 @@ from app.schemas.auth import (
 from app.services.email_notifications import registration_received_email, send_email_best_effort
 from app.services.email_notifications import EmailMessage
 from app.services.login_security import login_buckets, failed_login
+from app.core.mfa import verified_step
 
 router = APIRouter()
 # Equal-cost verification for unknown accounts reduces email enumeration by timing.
@@ -204,6 +205,7 @@ def login(payload: LoginRequest, response: Response, request: Request, db: Sessi
         select(Account)
         .options(selectinload(Account.team).selectinload(Team.members))
         .where(Account.email == email)
+        .with_for_update()
     )
 
     valid_password = verify_password(payload.password, account.password_hash if account else DUMMY_PASSWORD_HASH)
@@ -227,6 +229,23 @@ def login(payload: LoginRequest, response: Response, request: Request, db: Sessi
         db.commit()
         raise APIError(403, ACCOUNT_DISABLED, "Account is disabled.")
 
+    mfa_verified = False
+    if account.role == AccountRole.ADMIN.value and settings.admin_mfa_required:
+        if not account.mfa_secret_encrypted:
+            db.commit()
+            raise APIError(403, "MFA_SETUP_REQUIRED", "Ask the deployment operator to enroll your organizer authenticator before signing in.")
+        if not payload.mfa_code:
+            db.commit()
+            raise APIError(401, "MFA_REQUIRED", "Enter the six-digit code from your authenticator app.")
+        step = verified_step(account.mfa_secret_encrypted, payload.mfa_code, account.mfa_last_step)
+        if step is None:
+            failed_login(bucket)
+            db.add(AuditLog(actor_account_id=account.id, action="account.mfa_failed", target_type="account", target_id=account.id))
+            db.commit()
+            raise APIError(401, "MFA_INVALID", "Invalid or already-used authenticator code. Try a new code.")
+        account.mfa_last_step = step
+        mfa_verified = True
+
     now = datetime.now(UTC)
     bucket.count = 0
     bucket.blocked_until = None
@@ -234,6 +253,7 @@ def login(payload: LoginRequest, response: Response, request: Request, db: Sessi
     account_session = AccountSession(
         account_id=account.id,
         token_hash=hash_session_token(token),
+        mfa_verified=mfa_verified,
         expires_at=now + timedelta(hours=settings.session_expire_hours),
     )
     account.last_login_at = now
