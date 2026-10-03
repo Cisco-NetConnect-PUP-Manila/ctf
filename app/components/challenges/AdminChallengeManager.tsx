@@ -42,6 +42,7 @@ type FormState = {
   story_context: string;
   objectives: string;
   points: string;
+  max_attempts: string;
   category_id: string;
   difficulty_id: string;
   story_fragment: string;
@@ -57,6 +58,7 @@ const EMPTY_FORM: FormState = {
   story_context: "",
   objectives: "",
   points: "100",
+  max_attempts: "",
   category_id: "",
   difficulty_id: "",
   story_fragment: "",
@@ -91,6 +93,7 @@ function toPayload(form: FormState): AdminChallengeInput {
     story_context: form.story_context.trim() || null,
     objectives: form.objectives.split("\n").map((item) => item.trim()).filter(Boolean),
     points: Number(form.points),
+    max_attempts: form.max_attempts === "" ? null : Number(form.max_attempts),
     category_id: form.category_id || null,
     difficulty_id: form.difficulty_id || null,
     story_fragment: form.story_fragment.trim() || null,
@@ -108,6 +111,7 @@ function toForm(item: AdminChallenge): FormState {
     story_context: item.story_context ?? "",
     objectives: item.objectives.join("\n"),
     points: String(item.points),
+    max_attempts: item.max_attempts == null ? "" : String(item.max_attempts),
     category_id: item.category?.id ?? "",
     difficulty_id: item.difficulty?.id ?? "",
     story_fragment: item.story_fragment ?? "",
@@ -551,6 +555,7 @@ export default function AdminChallengeManager() {
           <label>Title<input required maxLength={200} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value, slug: editingId ? form.slug : slugify(e.target.value) })} /></label>
           <label>Slug<input required maxLength={160} value={form.slug} onChange={(e) => setForm({ ...form, slug: slugify(e.target.value) })} /></label>
           <label>Points<input required min="0" type="number" value={form.points} onChange={(e) => setForm({ ...form, points: e.target.value })} /></label>
+          <label>Maximum attempts per team<input min="1" max="100000" step="1" type="number" placeholder="Unlimited" value={form.max_attempts} onChange={(e) => setForm({ ...form, max_attempts: e.target.value })} /><small>Leave blank for unlimited. Includes previous evaluated attempts; shared by all team members.</small></label>
           <label>Category<select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}>
             <option value="">Uncategorized</option>{categories.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}
           </select></label>
@@ -577,6 +582,7 @@ export default function AdminChallengeManager() {
             <div className="challenge-admin-row__head">
               <div><span className={`announce-status announce-status--${item.status}`}>{item.status}</span><h4>{item.title}</h4></div>
               <b>{item.points} pts</b>
+              <small>{item.max_attempts == null ? "Unlimited attempts" : `${item.max_attempts} attempts per team`}</small>
             </div>
             <p>Act {item.act_number} · {item.category?.name ?? "Uncategorized"} · {item.difficulty?.name ?? "Unrated"}</p>
             <small>

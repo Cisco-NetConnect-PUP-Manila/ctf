@@ -90,10 +90,11 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
     [challenge, submission]
   );
   const scoringFrozen = settings ? platformIsFrozen(settings) : false;
+  const attemptsExhausted = challenge?.max_attempts != null && challenge.attempts_used >= challenge.max_attempts;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!flag.trim() || submitting || scoringFrozen) return;
+    if (!flag.trim() || submitting || scoringFrozen || attemptsExhausted) return;
 
     setSubmitting(true);
     setSubmitError("");
@@ -107,6 +108,7 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
         current
           ? {
               ...current,
+              attempts_used: current.attempts_used + 1,
               solved: result.solved || current.solved,
               awarded_points:
                 result.awarded_points > 0 ? result.awarded_points : current.awarded_points,
@@ -115,6 +117,9 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
           : current
       );
     } catch (caught) {
+      if (caught instanceof ApiError && caught.code === "ATTEMPTS_EXHAUSTED") {
+        try { setChallenge(await getParticipantChallenge(challengeId)); } catch { /* Keep the backend error visible. */ }
+      }
       setSubmitError(
         caught instanceof ApiError ? caught.message : "Unable to submit the flag."
       );
@@ -293,7 +298,7 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
                   type="text"
                   value={flag}
                 />
-                <button className="btn btn--primary" disabled={submitting} type="submit">
+                <button className="btn btn--primary" disabled={submitting || attemptsExhausted} type="submit">
                   {submitting ? "Submitting..." : "Submit flag"}
                 </button>
               </div>
@@ -301,6 +306,8 @@ export default function ParticipantChallengeDetail({ challengeId }: { challengeI
           )}
 
           {submitError && <p className="challenge-detail__error">{submitError}</p>}
+          <p>{challenge.max_attempts == null ? "Unlimited flag attempts." : `${Math.max(0, challenge.max_attempts - challenge.attempts_used)} of ${challenge.max_attempts} team attempts remaining.`}</p>
+          {attemptsExhausted && !challenge.solved && <p className="challenge-detail__error">No attempts remain. Contact an organizer if you need help.</p>}
           {submission && (
             <p className={submission.correct ? "challenge-detail__success" : "challenge-detail__error"}>
               {submission.message}

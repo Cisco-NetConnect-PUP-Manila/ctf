@@ -114,6 +114,8 @@ export type ParticipantAct = {
 };
 
 export type ParticipantChallenge = {
+  max_attempts: number | null;
+  attempts_used: number;
   id: string;
   act_id: string;
   act_number: number;
@@ -176,6 +178,7 @@ export type ChallengeFile = {
 };
 
 export type AdminChallenge = {
+  max_attempts: number | null;
   id: string;
   act_id: string;
   act_number: number;
@@ -196,6 +199,7 @@ export type AdminChallenge = {
 };
 
 export type AdminChallengeInput = {
+  max_attempts: number | null;
   act_id: string;
   title: string;
   slug: string;
