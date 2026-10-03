@@ -334,10 +334,18 @@ export default function Home() {
                   ))}
                 </ul>
               </Window>
+            </Reveal>
+
+            <Reveal className="recommended-tools">
               <Window title="recommended.tools" meta="prepare before event">
-                <ul className="terminal-list">
-                  {recommendedTools.map((item) => (
-                    <li key={item}>{item}</li>
+                <ul className="recommended-tools__grid">
+                  {recommendedTools.map((tool) => (
+                    <li key={tool.name}>
+                      <a href={tool.href} target="_blank" rel="noopener noreferrer">
+                        <span>{tool.name}</span>
+                        <span aria-hidden="true">↗</span>
+                      </a>
+                    </li>
                   ))}
                 </ul>
               </Window>

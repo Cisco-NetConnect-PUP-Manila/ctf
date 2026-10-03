@@ -39,6 +39,11 @@ export type SponsorGroup = {
   logos: SponsorLogo[];
 };
 
+export type RecommendedTool = {
+  name: string;
+  href: string;
+};
+
 export type PortalModule = {
   title: string;
   body: string;
@@ -235,15 +240,14 @@ export const aiExamples = [
   "Similar technologies",
 ];
 
-export const recommendedTools = [
-  "Cisco Packet Tracer",
-  "Wireshark",
-  "Burp Suite Community Edition",
-  "Nmap",
-  "CyberChef",
-  "Python",
-  "Modern web browser",
-  "Common cybersecurity utilities",
+export const recommendedTools: RecommendedTool[] = [
+  { name: "Cisco Packet Tracer", href: "https://www.netacad.com/courses/getting-started-cisco-packet-tracer/1000" },
+  { name: "Wireshark", href: "https://www.wireshark.org/download.html" },
+  { name: "Burp Suite Community Edition", href: "https://portswigger.net/burp/communitydownload" },
+  { name: "Nmap", href: "https://nmap.org/download.html" },
+  { name: "CyberChef", href: "https://gchq.github.io/CyberChef/" },
+  { name: "Python", href: "https://www.python.org/downloads/" },
+  { name: "Firefox (modern web browser)", href: "https://www.mozilla.org/en-US/firefox/new/" },
 ];
 
 export const faqs: FaqItem[] = [
