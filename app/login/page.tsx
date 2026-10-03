@@ -18,8 +18,9 @@ export default function LoginPage() {
             </span>
           </h1>
           <p>
-            Teams and organizers use the same secure account entry point. Your
-            authenticated role determines which workspace opens.
+            Confirmed solo participants, teams, and organizers use the same secure
+            account entry point. Your authenticated role determines which workspace
+            opens.
           </p>
         </Reveal>
 

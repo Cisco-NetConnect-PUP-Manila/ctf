@@ -13,9 +13,10 @@ Use the Google Docs developer guide as the source of truth for task ownership, f
 
 - Live frontend domain: [https://packetcapture.xyz/](https://packetcapture.xyz/)
 - Public website: Next.js App Router frontend.
-- Registration: participant registration flow posts to the FastAPI backend and creates pending teams.
+- Registration: handled by the separate official registration portal; this site only accepts issued participant credentials.
 - Authentication: backend-owned login/session handling with secure HTTP-only cookies.
-- Participant platform: backend-authorized challenge listing, details, submissions, and private file access.
+- Participant platform: backend-authorized challenge listing, details, submissions, and private file access for approved solo participants and teams.
+- Admin intake: organizers can add one participant manually or import a validated CSV; new records remain pending until approved.
 - Admin panel: organizer login, registration/team review, challenge management, file upload, announcements, and audit logging.
 - Backend/API: FastAPI service in `backend/`.
 - Database: PostgreSQL managed through SQLAlchemy models and Alembic migrations.
@@ -222,8 +223,8 @@ docs/
 - Score, Act unlocks, hint penalties, solved state, and leaderboard rank must be calculated by the backend.
 - Public sample flag format: `PacketCapture{FLAG_NAME}`.
 - Final flags are pending organizer confirmation.
-- Registration fields for the first version: Group Name, Email, Password.
-- One email account should be used per team/group so members can access the same team account.
+- Registration records may represent a solo participant or a team. The external portal supplies the participant credentials and roster to the backend.
+- Team entries use one shared group account; solo entries use one individual participant account.
 
 ## Backend Work Still Needed
 

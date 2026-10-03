@@ -16,6 +16,11 @@ class TeamStatus(str, enum.Enum):
     DISABLED = "disabled"
 
 
+class ParticipantType(str, enum.Enum):
+    SOLO = "solo"
+    TEAM = "team"
+
+
 class Team(Base):
     __tablename__ = "teams"
 
@@ -28,6 +33,11 @@ class Team(Base):
         nullable=False,
     )
     group_name: Mapped[str] = mapped_column(String(120), unique=True, index=True, nullable=False)
+    participant_type: Mapped[str] = mapped_column(
+        String(16),
+        nullable=False,
+        default=ParticipantType.TEAM.value,
+    )
     leader_member_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("team_members.id", ondelete="SET NULL"),

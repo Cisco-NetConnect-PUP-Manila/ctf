@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getCurrentAccount } from "../lib/api/auth";
-import { getPlatformSettings } from "../lib/api/platformSettings";
 
 const PUBLIC_MENU = [
   { label: "Incident Brief", href: "/#about" },
@@ -71,25 +70,19 @@ export default function Taskbar() {
   const [open, setOpen] = useState(false);
   const [tzOpen, setTzOpen] = useState(false);
   const [accountRole, setAccountRole] = useState<string | null>(null);
-  const [registrationOpen, setRegistrationOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let active = true;
 
     setAccountRole(null);
-    setRegistrationOpen(false);
-    Promise.allSettled([getCurrentAccount(), getPlatformSettings()]).then(
-      ([currentResult, settingsResult]) => {
+    Promise.allSettled([getCurrentAccount()]).then(
+      ([currentResult]) => {
         if (!active) return;
         setAccountRole(
           currentResult.status === "fulfilled"
             ? currentResult.value.account.role
             : null
-        );
-        setRegistrationOpen(
-          settingsResult.status === "fulfilled" &&
-            settingsResult.value.registration_open
         );
       }
     );
@@ -162,9 +155,7 @@ export default function Taskbar() {
       ? "platform"
       : pathname === "/admin" || pathname.startsWith("/admin/")
         ? "admin"
-        : pathname === "/register"
-          ? "register"
-          : pathname.includes("/login")
+        : pathname.includes("/login")
             ? "login"
             : "main";
   const menu =
@@ -192,7 +183,7 @@ export default function Taskbar() {
           ]
         : [
             { label: "Main", href: "/" },
-            ...(registrationOpen ? [{ label: "Login", href: "/login" }] : []),
+            { label: "Participant access", href: "/login" },
           ];
 
   return (
@@ -259,7 +250,7 @@ export default function Taskbar() {
           >
             Main
           </Link>
-          {!accountRole && registrationOpen && (
+          {!accountRole && (
             <>
               <Link
                 className={`taskbar__task ${
@@ -267,7 +258,7 @@ export default function Taskbar() {
                 }`}
                 href="/login"
               >
-                Login
+                Access
               </Link>
             </>
           )}

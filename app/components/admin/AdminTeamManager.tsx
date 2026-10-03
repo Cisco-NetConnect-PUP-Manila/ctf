@@ -11,6 +11,7 @@ import {
 } from "../../lib/api/adminTeams";
 import { ApiError } from "../../lib/api/client";
 import type { AdminTeam } from "../../lib/api/types";
+import AdminParticipantIntake from "./AdminParticipantIntake";
 
 function errorMessage(caught: unknown, fallback: string) {
   return caught instanceof ApiError ? caught.message : fallback;
@@ -18,6 +19,10 @@ function errorMessage(caught: unknown, fallback: string) {
 
 function statusLabel(status: string) {
   return status.replace(/_/g, " ");
+}
+
+function participantLabel(participantType: AdminTeam["participant_type"]) {
+  return participantType === "solo" ? "Solo participant" : "Team";
 }
 
 function formatDate(value: string | null) {
@@ -73,7 +78,7 @@ export default function AdminTeamManager() {
     try {
       setTeams(await listAdminTeams());
     } catch (caught) {
-      setError(errorMessage(caught, "Unable to load team registrations."));
+      setError(errorMessage(caught, "Unable to load participant records."));
     } finally {
       setLoading(false);
     }
@@ -104,7 +109,7 @@ export default function AdminTeamManager() {
   async function handleReject(team: AdminTeam) {
     const reason = (rejectReasons[team.id] ?? "").trim();
     if (reason.length < 2) {
-      setError("Add a rejection reason with at least 2 characters before rejecting this team.");
+      setError("Add a rejection reason with at least 2 characters before rejecting this record.");
       return;
     }
     if (!window.confirm(`Reject "${team.group_name}"?\n\nReason: ${reason}`)) return;
@@ -125,7 +130,7 @@ export default function AdminTeamManager() {
 
   async function handleDeleteRegistration(team: AdminTeam) {
     const confirmed = window.confirm(
-      `Permanently delete the registration for "${team.group_name}"?\n\nThis removes the team account and cannot be undone.`
+      `Permanently delete the participant record for "${team.group_name}"?\n\nThis removes the account and cannot be undone.`
     );
     if (!confirmed) return;
 
@@ -148,33 +153,38 @@ export default function AdminTeamManager() {
   }
 
   if (loading) {
-    return <p className="challenge-admin__note">Loading team registration queue...</p>;
+    return <p className="challenge-admin__note">Loading participant approval queue...</p>;
   }
 
   return (
     <div className="team-admin">
       {error && <div className="challenge-admin__error" role="alert">{error}</div>}
 
-      <div className="challenge-summary team-admin__summary" aria-label="Team registration summary">
+      <AdminParticipantIntake
+        onCreated={(participant) => setTeams((current) => [participant, ...current])}
+        onImported={(participants) => setTeams((current) => [...participants, ...current])}
+      />
+
+      <div className="challenge-summary team-admin__summary" aria-label="Participant approval summary">
         <div>
-          <span>Total teams</span>
+          <span>Total participants</span>
           <b>{counts.total}</b>
         </div>
         <div>
-          <span>Pending approval</span>
+          <span>Pending confirmation</span>
           <b>{counts.pending}</b>
         </div>
         <div>
-          <span>Approved</span>
+          <span>Approved access</span>
           <b>{counts.approved}</b>
         </div>
       </div>
 
-      <div className="team-admin__filters" role="search" aria-label="Search team registrations">
+      <div className="team-admin__filters" role="search" aria-label="Search participant records">
         <label className="team-admin__search">
-          <span>Search teams</span>
+          <span>Search participants</span>
           <input
-            aria-label="Search by group name, account email, or member"
+            aria-label="Search by participant name, account email, or member"
             onChange={(event) => setSearchQuery(event.target.value)}
             placeholder="Group name, email, or member"
             type="search"
@@ -187,7 +197,7 @@ export default function AdminTeamManager() {
             onChange={(event) => setStatusFilter(event.target.value)}
             value={statusFilter}
           >
-            <option value="all">All teams</option>
+            <option value="all">All participants</option>
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
@@ -195,18 +205,18 @@ export default function AdminTeamManager() {
           </select>
         </label>
         <small aria-live="polite">
-          Showing {visibleTeams.length} of {teams.length} teams
+          Showing {visibleTeams.length} of {teams.length} participants
         </small>
       </div>
 
       <div className="team-admin__list">
         {teams.length === 0 && (
-          <p className="challenge-admin__note">No team registrations yet.</p>
+          <p className="challenge-admin__note">No participant records yet.</p>
         )}
 
         {teams.length > 0 && visibleTeams.length === 0 && (
           <p className="challenge-admin__note">
-            No teams match this search and approval status.
+            No participant records match this search and approval status.
           </p>
         )}
 
@@ -218,11 +228,11 @@ export default function AdminTeamManager() {
                   {statusLabel(team.status)}
                 </span>
                 <h4>{team.group_name}</h4>
-                <small>{team.email}</small>
+                <small>{participantLabel(team.participant_type)}{" // "}{team.email}</small>
               </div>
               <div>
                 <b>{team.member_count}</b>
-                <small>members</small>
+                <small>{team.participant_type === "solo" ? "participant" : "members"}</small>
               </div>
             </header>
 
@@ -312,7 +322,7 @@ export default function AdminTeamManager() {
 
             {team.status === "pending" && (
               <label className="team-admin-row__reject">
-                Rejection reason
+                  Confirmation note
                 <input
                   maxLength={500}
                   minLength={2}
@@ -322,7 +332,7 @@ export default function AdminTeamManager() {
                       [team.id]: event.target.value,
                     }))
                   }
-                  placeholder="Only needed if rejecting this team"
+                  placeholder="Only needed if declining this record"
                   value={rejectReasons[team.id] ?? ""}
                 />
               </label>

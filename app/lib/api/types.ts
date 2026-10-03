@@ -4,6 +4,7 @@ export type TeamMemberInput = {
 };
 
 export type RegisterInput = {
+  participant_type?: "solo" | "team";
   group_name: string;
   email: string;
   password: string;
@@ -29,6 +30,7 @@ export type TeamMember = TeamMemberInput & {
 
 export type Team = {
   id: string;
+  participant_type: "solo" | "team";
   group_name: string;
   status: string;
   rejected_at: string | null;
@@ -40,6 +42,7 @@ export type AdminTeamMember = TeamMember;
 
 export type AdminTeam = {
   id: string;
+  participant_type: "solo" | "team";
   group_name: string;
   status: string;
   email: string;
@@ -49,6 +52,12 @@ export type AdminTeam = {
   rejected_at: string | null;
   rejection_reason: string | null;
   created_at: string;
+};
+
+export type AdminParticipantImportResponse = {
+  created_count: number;
+  participants: AdminTeam[];
+  errors: { row: number; message: string }[];
 };
 
 export type CurrentAccount = {

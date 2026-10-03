@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Marquee from "./components/Marquee";
 import FaqAccordion from "./components/FaqAccordion";
 import TimelineWave from "./components/TimelineWave";
@@ -15,7 +16,7 @@ import {
   rankingCriteria,
   recommendedTools,
   rules,
-  sponsors,
+  sponsorGroups,
   timeline,
 } from "./data";
 
@@ -82,8 +83,8 @@ export default function Home() {
                     <span className="lcd__v">Packet Capture</span>
                   </div>
                   <div className="lcd__row">
-                    <span className="lcd__k">&gt; REGISTRATION</span>
-                    <span className="lcd__v amber">Not yet open</span>
+                    <span className="lcd__k">&gt; PARTICIPANT ACCESS</span>
+                    <span className="lcd__v amber">Credentials required</span>
                   </div>
                   <div className="lcd__row">
                     <span className="lcd__k">&gt; ACTS</span>
@@ -301,7 +302,7 @@ export default function Home() {
             </Reveal>
             <Reveal>
               <p className="sec__lead">
-                By registering, participants agree to follow the rules and any
+                By participating, participants agree to follow the rules and any
                 decisions made by the organizing committee.
               </p>
             </Reveal>
@@ -389,23 +390,39 @@ export default function Home() {
             </Reveal>
 
             <Reveal>
-              <Window title="partners.db" meta="open intake">
-                {sponsors.length > 0 ? (
-                  <div className="sponsors__grid">
-                    {sponsors.map((sponsor) => (
-                      <a
-                        className="sponsor"
-                        href={sponsor.link || "#sponsors"}
-                        key={sponsor.name}
-                      >
-                        {sponsor.name}
-                        <small>{sponsor.tier}</small>
-                      </a>
-                    ))}
-                  </div>
-                ) : (
+              <Window title="partners.db" meta="verified directory">
+                <div className="sponsor-directory">
+                  {sponsorGroups.map((group) => (
+                    <section className={`sponsor-group sponsor-group--${group.id}`} key={group.id}>
+                      <header className="sponsor-group__head">
+                        <div>
+                          <span className="eyebrow">{group.code}</span>
+                          <h3>{group.title}</h3>
+                        </div>
+                      </header>
+                      <div className="sponsor-logo-grid">
+                        {group.logos.map((logo) => (
+                          <div className="sponsor-logo" key={logo.src}>
+                            <div className="sponsor-logo__image">
+                              <Image
+                                alt={logo.name}
+                                decoding="async"
+                                fill
+                                loading="lazy"
+                                sizes="(max-width: 720px) 42vw, 220px"
+                                src={logo.src}
+                              />
+                            </div>
+                            <span>{logo.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  ))}
+
                   <div className="partner sponsor-invite">
                     <div>
+                      <span className="eyebrow">OPEN INTAKE // PARTNERSHIP CHANNEL</span>
                       <h3>Interested in collaborating with CyberPH?</h3>
                       <p>
                         Your support can help bring Packet Capture 2026 to life
@@ -418,23 +435,23 @@ export default function Home() {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      Open sponsorship & partnership form
+                      Open sponsorship &amp; partnership form
                     </a>
                   </div>
-                )}
+                </div>
               </Window>
             </Reveal>
           </div>
         </section>
 
-        <section id="register" className="register">
+        <section id="access" className="register">
           <div className="shell">
             <Reveal>
-              <span className="eyebrow">REGISTER.EXE // NOT YET OPEN</span>
-              <h2>Registration Not Yet Open</h2>
+              <span className="eyebrow">ACCESS.EXE // PARTICIPANT CHANNEL</span>
+              <h2>Participant Access</h2>
               <p>
-                Team registration has not opened yet. Please check back for the
-                official opening.
+                Registration is handled through the official registration process.
+                Use the credentials issued to you to enter the competition platform.
               </p>
               <HomeAuthActions />
             </Reveal>
@@ -469,14 +486,6 @@ export default function Home() {
                 <li>
                   <a href="#sponsors">Sponsors</a>
                 </li>
-              </ul>
-            </div>
-            <div>
-              <h4>Status</h4>
-              <ul>
-                <li>Registration <span className="footer__soon">(not yet open)</span></li>
-                <li>Timeline <span className="footer__soon">(TBA)</span></li>
-                <li>Partners <span className="footer__soon">(pending)</span></li>
               </ul>
             </div>
             <div>

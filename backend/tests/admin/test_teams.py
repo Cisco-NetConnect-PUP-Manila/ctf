@@ -1,8 +1,10 @@
+import io
+
 from tests.conftest import TEST_PASSWORD, create_test_account, create_test_team
 
-from app.models.account import AccountRole
+from app.models.account import Account, AccountRole
 from app.models.audit_log import AuditLog
-from app.models.team import TeamStatus
+from app.models.team import Team, TeamStatus
 
 
 def _login_admin(client, db_session):
@@ -33,6 +35,75 @@ def test_admin_lists_registered_teams(client, db_session):
     assert body[0]["status"] == "pending"
     assert body[0]["email"] == "pending-team@test.com"
     assert body[0]["member_count"] == 1
+
+
+def test_admin_can_create_pending_solo_participant_while_public_intake_is_closed(
+    client, db_session, monkeypatch
+):
+    sent_messages = []
+    monkeypatch.setattr("app.api.routes.admin_teams.send_email_best_effort", sent_messages.append)
+    cookies = _login_admin(client, db_session)
+
+    response = client.post(
+        "/admin/teams",
+        json={
+            "participant_type": "solo",
+            "group_name": "Solo Analyst",
+            "email": "solo-admin@test.com",
+            "password": TEST_PASSWORD,
+            "members": [{"full_name": "Solo Analyst", "email": "solo-admin@test.com"}],
+        },
+        cookies=cookies,
+    )
+
+    assert response.status_code == 201
+    body = response.json()
+    assert body["participant_type"] == "solo"
+    assert body["status"] == "pending"
+    assert body["member_count"] == 1
+    assert db_session.query(AuditLog).filter_by(action="participant.created").count() == 1
+    assert len(sent_messages) == 1
+
+
+def test_admin_csv_import_is_atomic_and_supports_solo_and_team(client, db_session, monkeypatch):
+    sent_messages = []
+    monkeypatch.setattr("app.api.routes.admin_teams.send_email_best_effort", sent_messages.append)
+    cookies = _login_admin(client, db_session)
+    csv_content = """participant_type,group_name,email,password,member_1_name,member_1_email,member_2_name,member_2_email,member_3_name,member_3_email,member_4_name,member_4_email,member_5_name,member_5_email
+team,Imported Team,imported-team@test.com,test-password-1234,Leader,imported-team@test.com,Two,two-import@test.com,Three,three-import@test.com,Four,four-import@test.com,,
+solo,Imported Solo,imported-solo@test.com,test-password-1234,Imported Solo,imported-solo@test.com,,,,,,,,
+"""
+
+    response = client.post(
+        "/admin/teams/import",
+        files={"file": ("participants.csv", io.BytesIO(csv_content.encode()), "text/csv")},
+        cookies=cookies,
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["created_count"] == 2
+    assert {item["participant_type"] for item in body["participants"]} == {"solo", "team"}
+    assert db_session.query(Team).count() == 2
+    assert db_session.query(Account).count() == 3
+    assert len(sent_messages) == 2
+
+
+def test_admin_csv_import_rejects_invalid_rows_without_partial_records(client, db_session):
+    cookies = _login_admin(client, db_session)
+    csv_content = """participant_type,group_name,email,password,member_1_name,member_1_email
+team,Broken Team,broken@test.com,short,Leader,broken@test.com
+"""
+
+    response = client.post(
+        "/admin/teams/import",
+        files={"file": ("participants.csv", io.BytesIO(csv_content.encode()), "text/csv")},
+        cookies=cookies,
+    )
+
+    assert response.status_code == 400
+    assert response.json()["code"] == "VALIDATION_ERROR"
+    assert db_session.query(Team).count() == 0
 
 
 def test_admin_approves_pending_team(client, db_session, monkeypatch):

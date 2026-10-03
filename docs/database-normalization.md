@@ -60,7 +60,7 @@ Use a normalized relational model as the source of truth.
 
 ```txt
 accounts
-  |-- participant account -> teams -> team_members
+  |-- participant account -> participant records -> team_members
   |-- admin account
 
 acts
@@ -113,7 +113,7 @@ Notes:
 - Admin accounts do not need team records.
 - Team member emails are not login accounts unless explicitly promoted later.
 
-### teams
+### teams (competition participant records)
 
 Stores participant group profile.
 
@@ -121,6 +121,7 @@ Stores participant group profile.
 id
 account_id
 group_name
+participant_type
 leader_member_id
 status
 approved_by_account_id
@@ -136,15 +137,17 @@ Recommended constraints:
 
 - `account_id` unique foreign key to `accounts.id`
 - `group_name` unique
+- `participant_type` allowed values: `solo`, `team`
 - `status` allowed values: `pending`, `approved`, `rejected`, `disabled`
 - `approved_by_account_id` references an admin account
 - `rejected_by_account_id` references an admin account
 
-Registration rule:
+Registration and access rule:
 
-- New teams start as `pending`.
-- Only approved teams can access the full participant platform.
-- Pending teams may log in only to see an awaiting-approval state.
+- The separate registration portal creates a pending participant record.
+- A solo participant uses one `team_members` row; a team uses four to five rows.
+- Only approved participant records can access the full participant platform.
+- Pending records may log in only to see an awaiting-confirmation state.
 
 ### team_members
 
@@ -165,7 +168,7 @@ Recommended constraints:
 - `team_id` foreign key to `teams.id`
 - `email` required
 - `full_name` required
-- each team must have 4 to 5 members
+- team records must have 4 to 5 members; solo records have exactly 1 member
 - exactly one member per team has `is_leader = true`
 - leader member email must match the participant account email
 

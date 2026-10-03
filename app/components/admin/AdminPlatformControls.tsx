@@ -82,8 +82,8 @@ export default function AdminPlatformControls() {
       {notice && <div className="challenge-admin__success" role="status">{notice}</div>}
 
       <div className="admin-control-panel__section">
-        <span>Public access</span>
-        <b>/register</b>
+        <span>Registration intake</span>
+        <b>External portal</b>
       </div>
 
       <div className="admin-control-panel__status">
@@ -104,9 +104,9 @@ export default function AdminPlatformControls() {
           }
           type="button"
         >
-          <span>Public registration</span>
+          <span>External registration</span>
           <b>{settings.registration_open ? "Open" : "Closed"}</b>
-          <small>/register + /auth/register</small>
+          <small>official registration portal intake</small>
         </button>
 
         <button

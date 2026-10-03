@@ -45,8 +45,8 @@ export default function AdminOverviewSnapshot() {
   }, []);
 
   const stats = useMemo(() => {
-    const approvedTeams = teams.filter((team) => team.status === "approved").length;
-    const pendingTeams = teams.filter((team) => team.status === "pending").length;
+    const approvedParticipants = teams.filter((team) => team.status === "approved").length;
+    const pendingParticipants = teams.filter((team) => team.status === "pending").length;
     const activeParticipants = teams.reduce((total, team) => total + team.member_count, 0);
     const publishedChallenges = challenges.filter(
       (challenge) => challenge.status === "published"
@@ -56,9 +56,9 @@ export default function AdminOverviewSnapshot() {
     ).length;
 
     return {
-      approvedTeams,
+      approvedParticipants,
       activeParticipants,
-      pendingTeams,
+      pendingParticipants,
       publishedChallenges,
       draftChallenges,
     };
@@ -75,16 +75,16 @@ export default function AdminOverviewSnapshot() {
   return (
     <div className="metric-grid">
       <div className="metric">
-        <span>Approved Teams</span>
-        <b>{stats.approvedTeams}</b>
+        <span>Approved Records</span>
+        <b>{stats.approvedParticipants}</b>
       </div>
       <div className="metric">
         <span>Registered Members</span>
         <b>{stats.activeParticipants}</b>
       </div>
       <div className="metric">
-        <span>Pending Review</span>
-        <b>{stats.pendingTeams}</b>
+        <span>Pending Confirmation</span>
+        <b>{stats.pendingParticipants}</b>
       </div>
       <div className="metric">
         <span>Published Challenges</span>
