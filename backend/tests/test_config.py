@@ -1,4 +1,5 @@
 import pytest
+from cryptography.fernet import Fernet
 
 from app.core.config import Settings
 
@@ -13,9 +14,29 @@ def _production_settings(**overrides):
         "TEAM_FRAGMENT_SECRET": "prod-team-fragment-secret-with-enough-entropy",
         "CHALLENGE_FILE_STORAGE_PROVIDER": "local",
         "EMAIL_PROVIDER": "none",
+        "ADMIN_MFA_REQUIRED": True,
+        "MFA_ENCRYPTION_KEY": Fernet.generate_key().decode(),
     }
     values.update(overrides)
     return Settings(_env_file=None, **values)
+
+
+@pytest.fixture(autouse=True)
+def no_development_credentials(monkeypatch):
+    monkeypatch.delenv("DEV_ADMIN_EMAIL", raising=False)
+    monkeypatch.delenv("DEV_ADMIN_PASSWORD", raising=False)
+
+
+def test_production_requires_mfa_and_valid_encryption_key():
+    for overrides in ({"ADMIN_MFA_REQUIRED": False}, {"MFA_ENCRYPTION_KEY": ""}, {"MFA_ENCRYPTION_KEY": "invalid"}):
+        with pytest.raises(RuntimeError, match="MFA"):
+            _production_settings(**overrides).assert_production_ready()
+
+
+def test_production_rejects_shipped_credentials(monkeypatch):
+    monkeypatch.setenv("DEV_ADMIN_PASSWORD", "AdminPassword123!")
+    with pytest.raises(RuntimeError, match="DEV_ADMIN"):
+        _production_settings().assert_production_ready()
 
 
 def test_production_settings_accept_secure_baseline():

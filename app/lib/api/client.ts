@@ -55,6 +55,7 @@ export async function apiRequest<T>(
       ...init,
       credentials: "include",
       headers: {
+        "X-CSRF-Protection": "1",
         ...(init.body && !isFormData ? { "Content-Type": "application/json" } : {}),
         ...init.headers,
       },

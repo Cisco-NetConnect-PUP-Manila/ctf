@@ -11,6 +11,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.core.config import settings
 from app.models.account import AccountRole
 from app.services import scoring
 from tests.core_loop.factories import PASSWORD, get_act, make_account, make_team, set_rate_limit
@@ -22,7 +23,7 @@ ACT2_FLAG = "PacketCapture{AUTH_BYPASS}"
 
 @pytest.fixture
 def client():
-    return TestClient(app)
+    return TestClient(app, headers={"Origin": settings.frontend_origin.split(",")[0].strip(), "X-CSRF-Protection": "1"})
 
 
 @pytest.fixture

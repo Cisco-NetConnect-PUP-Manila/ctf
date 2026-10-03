@@ -172,7 +172,7 @@ def client(session_factory) -> Generator[TestClient, None, None]:
             session.close()
 
     app.dependency_overrides[get_db] = _get_db
-    with TestClient(app) as test_client:
+    with TestClient(app, headers={"Origin": settings.frontend_origin.split(",")[0].strip(), "X-CSRF-Protection": "1"}) as test_client:
         yield test_client
 
 

@@ -26,6 +26,7 @@ BACKEND_ROOT = Path(__file__).resolve().parents[1]
 def legacy_auth_policy(monkeypatch):
     # Existing suites exercise unrelated workflows; MFA-specific tests enable it explicitly.
     monkeypatch.setattr(settings, "admin_mfa_required", False)
+    monkeypatch.setattr(settings, "registration_open_by_default", False)
 
 
 def _test_database_url() -> str:

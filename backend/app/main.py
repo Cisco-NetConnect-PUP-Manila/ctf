@@ -1,4 +1,5 @@
 from fastapi import Depends, FastAPI
+from contextlib import asynccontextmanager
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -21,7 +22,18 @@ from app.api.routes import (
     submissions,
 )
 from app.core.config import settings
+from app.core.csrf import CSRFMiddleware
 from app.core.errors import APIError, api_error_handler, validation_error_handler
+from app.db.session import SessionLocal
+from app.services.production_security import assert_admin_passwords_safe
+
+
+@asynccontextmanager
+async def lifespan(app):
+    if settings.backend_env != "local":
+        with SessionLocal() as db:
+            assert_admin_passwords_safe(db)
+    yield
 
 
 def create_app() -> FastAPI:
@@ -31,6 +43,7 @@ def create_app() -> FastAPI:
         title="Packet Capture API",
         version="0.1.0",
         description="Backend API for Packet Capture: Beneath the Network.",
+        lifespan=lifespan,
     )
 
     allowed_origins = [
@@ -38,6 +51,7 @@ def create_app() -> FastAPI:
         for origin in settings.frontend_origin.split(",")
         if origin.strip()
     ]
+    app.add_middleware(CSRFMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,

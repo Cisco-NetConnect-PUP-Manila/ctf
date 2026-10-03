@@ -19,6 +19,10 @@ async function forward(
   const cookie = request.headers.get("cookie");
   if (contentType) headers.set("content-type", contentType);
   if (cookie) headers.set("cookie", cookie);
+  for (const name of ["origin", "x-csrf-protection", "sec-fetch-site"]) {
+    const value = request.headers.get(name);
+    if (value) headers.set(name, value);
+  }
 
   try {
     const requestBody =
@@ -34,7 +38,7 @@ async function forward(
     });
 
     const responseHeaders = new Headers();
-    for (const header of ["content-type", "content-disposition", "content-length"]) {
+    for (const header of ["content-type", "content-disposition", "content-length", "retry-after"]) {
       const value = upstream.headers.get(header);
       if (value) responseHeaders.set(header, value);
     }
