@@ -17,7 +17,7 @@ function copyFor(portal: LoginPortal) {
   if (portal === "admin") {
     return {
       emailLabel: "Admin email",
-      placeholder: "admin@example.com",
+      placeholder: "you@example.com",
       button: "Enter admin console",
       submitting: "Verifying organizer...",
       access: "An organizer admin account is required to access the admin panel.",
@@ -27,10 +27,10 @@ function copyFor(portal: LoginPortal) {
 
   if (portal === "auto") {
     return {
-      emailLabel: "Account email",
-      placeholder: "participant-or-admin@example.com",
-      button: "Enter secure portal",
-      submitting: "Verifying account...",
+      emailLabel: "Email address",
+      placeholder: "you@example.com",
+      button: "Sign in",
+      submitting: "Signing in...",
       access: "Sign in with an account authorized to open that page.",
       loggedOut: "Your session has been closed successfully.",
     };
@@ -109,10 +109,7 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
       {sessionMessage && <AuthNotice tone="info">{sessionMessage}</AuthNotice>}
       {error && <AuthNotice tone="error">{error}</AuthNotice>}
 
-      <AuthNotice tone="info">
-        Use the credentials issued through the official registration process. Access
-        opens only after organizer confirmation.
-      </AuthNotice>
+      <p className="auth-switch">Use the email and password provided for your account.</p>
 
       <label className="auth-field">
         <span>{content.emailLabel}</span>

@@ -18,14 +18,13 @@ export default function LoginPage() {
             </span>
           </h1>
           <p>
-            Confirmed solo participants, teams, and organizers use the same secure
-            account entry point. Your authenticated role determines which workspace
-            opens.
+            Sign in to continue your investigation. Your account opens the
+            workspace you have access to.
           </p>
         </Reveal>
 
         <Reveal>
-          <Window title="ACCOUNT.LOGIN" meta="role-aware channel">
+          <Window title="ACCOUNT.LOGIN" meta="account access">
             <LoginForm portal="auto" />
           </Window>
         </Reveal>
