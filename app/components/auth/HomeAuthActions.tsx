@@ -56,13 +56,26 @@ export default function HomeAuthActions({ terminal = false }: { terminal?: boole
     );
   }
 
+  if (terminal) {
+    return (
+      <div className={containerClass}>
+        <a
+          className={`btn btn--primary${terminalClass}`}
+          href="https://docs.google.com/forms/d/e/1FAIpQLSdc83uchBF2Js4MCqfl8ix9ZmHYG-tE7d_6qLnRMnRo40wgqA/viewform"
+        >
+          Register now
+        </a>
+      </div>
+    );
+  }
+
   return (
     <div className={containerClass}>
       <Link
         className={`btn btn--primary${terminalClass}`}
         href="/login"
       >
-        {terminal ? "Participant sign in" : "Participant access"}
+        Participant access
       </Link>
     </div>
   );

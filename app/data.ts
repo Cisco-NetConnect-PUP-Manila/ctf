@@ -27,6 +27,18 @@ export type Sponsor = {
   link?: string;
 };
 
+export type SponsorLogo = {
+  src: string;
+  name: string;
+};
+
+export type SponsorGroup = {
+  id: string;
+  title: string;
+  code: string;
+  logos: SponsorLogo[];
+};
+
 export type PortalModule = {
   title: string;
   body: string;
@@ -163,7 +175,7 @@ export const mechanics = [
 export const rules: RuleSection[] = [
   {
     title: "General Rules",
-    body: "Participants must demonstrate teamwork, professionalism, ethical conduct, and compliance with organizer decisions throughout the event.",
+    body: "Participants may compete solo or as a team and must demonstrate professionalism, ethical conduct, and compliance with organizer decisions throughout the event.",
   },
   {
     title: "Competition Format",
@@ -175,7 +187,7 @@ export const rules: RuleSection[] = [
   },
   {
     title: "Progression System",
-    body: "Teams unlock the next Act by reaching the required minimum Investigation Score. Previously unlocked challenges remain available until the competition ends.",
+    body: "Entries unlock the next Act by reaching the required minimum Investigation Score. Previously unlocked challenges remain available until the competition ends.",
   },
   {
     title: "Flag Submission",
@@ -183,7 +195,7 @@ export const rules: RuleSection[] = [
   },
   {
     title: "Intel Requests",
-    body: "Optional hints may deduct points from the team's Investigation Score. Teams should weigh each request carefully.",
+    body: "Optional hints may deduct points from the entry's Investigation Score. Participants should weigh each request carefully.",
   },
   {
     title: "Allowed Resources",
@@ -199,7 +211,7 @@ export const rules: RuleSection[] = [
   },
   {
     title: "Final Investigation",
-    body: "Completing the four Acts may unlock one final terminal-style reconstruction challenge based on the evidence collected throughout the event.",
+    body: "Completing the four Acts may unlock one final terminal-style reconstruction challenge for qualified entries, based on the evidence collected throughout the event.",
   },
 ];
 
@@ -306,6 +318,67 @@ export const timeline = [
 ];
 
 export const sponsors: Sponsor[] = [];
+
+export const sponsorGroups: SponsorGroup[] = [
+  {
+    id: "challenge-partners",
+    title: "Challenge Partners",
+    code: "CHALLENGE.PARTNERS",
+    logos: [
+      {
+        src: "/images/challenges/Copy of A1SBERG Logo 2025-2026 w_ Background.png",
+        name: "A1SBERG",
+      },
+      { src: "/images/challenges/synx_logo.png", name: "SYNX" },
+    ],
+  },
+  {
+    id: "co-organizers",
+    title: "Co-Organizers",
+    code: "CO.ORGANIZERS",
+    logos: [
+      { src: "/images/co-organizer/CNCP Logo.png", name: "CNCP" },
+      { src: "/images/co-organizer/Cyber PH logo.png", name: "CyberPH" },
+      { src: "/images/co-organizer/ICPEP SE Logo.png", name: "ICpEP.SE" },
+      { src: "/images/co-organizer/MQ CyberSec Club.webp", name: "MQ CyberSec Club" },
+      { src: "/images/co-organizer/WORKFLOW PH - TRANSPARENT (1).png", name: "Workflow PH" },
+    ],
+  },
+  {
+    id: "partners",
+    title: "Partners",
+    code: "PARTNERS.NET",
+    logos: [
+      {
+        src: "/images/partners/Amazon Web Services Student Builder Group - Spade.png",
+        name: "AWS Student Builder Group - SPADE",
+      },
+      {
+        src: "/images/partners/AWS Student Builder Group - Colegio de Muntinlupa .png",
+        name: "AWS Student Builder Group - Colegio de Muntinlupa",
+      },
+      {
+        src: "/images/partners/Information Security Organization (ISO) - DLSU.jpg",
+        name: "Information Security Organization - DLSU",
+      },
+      {
+        src: "/images/partners/PCU-Interactive Society of Computer Engineering Students.PNG",
+        name: "PCU Interactive Society of Computer Engineering Students",
+      },
+    ],
+  },
+  {
+    id: "sponsors",
+    title: "Sponsors",
+    code: "SPONSORS.DAT",
+    logos: [
+      { src: "/images/sponsors/appkademiya_logo.png", name: "Appkademiya" },
+      { src: "/images/sponsors/HCDG-LOGO.png", name: "HCDG" },
+      { src: "/images/sponsors/Prosple_Logo.png", name: "Prosple" },
+      { src: "/images/sponsors/Tutorials-Dojo-Logo-Circle.png", name: "Tutorials Dojo" },
+    ],
+  },
+];
 
 export const competitionModules: PortalModule[] = [
   {
