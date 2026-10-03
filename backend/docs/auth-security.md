@@ -38,7 +38,7 @@ Forwarded IPs are ignored by default. Configure `TRUSTED_PROXY_CIDRS` only for i
 proxies you control that append/overwrite forwarding headers; block direct backend access.
 An unconfigured proxy groups users into one IP budget, so tune for shared campus networks.
 
-Failed logins and MFA attempts are audited without passwords/codes. The first password
+Failed logins and MFA attempts are audited without passwords/codes. The first sign-in
 lockout in a window triggers a best-effort organizer email. Delivery requires a configured
 email provider; `none` sends nothing. Review audit logs and provider delivery failures.
 

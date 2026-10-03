@@ -47,6 +47,15 @@ router = APIRouter()
 DUMMY_PASSWORD_HASH = hash_password(new_session_token())
 
 
+def _notify_lockout(account: Account | None, bucket) -> None:
+    # One notification at the first lockout per window, never for denied retries.
+    if bucket.count == 5 and account and account.role == AccountRole.ADMIN.value:
+        send_email_best_effort(EmailMessage(
+            to=account.email, subject="Packet Capture: repeated sign-in failures",
+            text="Repeated unsuccessful password or authenticator attempts targeted your organizer account. Login is temporarily limited. If this was not you, contact the deployment operator and review your password and MFA.",
+        ))
+
+
 def _registration_is_open(db: Session) -> bool:
     setting = db.scalar(
         select(PlatformSetting).where(PlatformSetting.key == "registration_open")
@@ -218,11 +227,7 @@ def login(payload: LoginRequest, response: Response, request: Request, db: Sessi
             metadata_json={"account_key": bucket.key, "ip_key": ip_bucket.key},
         ))
         db.commit()
-        if bucket.count == 5 and account and account.role == AccountRole.ADMIN.value:
-            send_email_best_effort(EmailMessage(
-                to=account.email, subject="Packet Capture: repeated sign-in failures",
-                text="Repeated unsuccessful attempts targeted your organizer account. Login is temporarily limited. If this was not you, contact the deployment operator and review your password and MFA.",
-            ))
+        _notify_lockout(account, bucket)
         raise APIError(401, INVALID_CREDENTIALS, "Invalid email or password.")
 
     if account.status != AccountStatus.ACTIVE.value:
@@ -239,9 +244,10 @@ def login(payload: LoginRequest, response: Response, request: Request, db: Sessi
             raise APIError(401, "MFA_REQUIRED", "Enter the six-digit code from your authenticator app.")
         step = verified_step(account.mfa_secret_encrypted, payload.mfa_code, account.mfa_last_step)
         if step is None:
-            failed_login(bucket)
-            db.add(AuditLog(actor_account_id=account.id, action="account.mfa_failed", target_type="account", target_id=account.id))
+            blocked = failed_login(bucket)
+            db.add(AuditLog(actor_account_id=account.id, action="account.mfa_failed", target_type="account", target_id=account.id, metadata_json={"throttled": blocked, "ip_key": ip_bucket.key}))
             db.commit()
+            _notify_lockout(account, bucket)
             raise APIError(401, "MFA_INVALID", "Invalid or already-used authenticator code. Try a new code.")
         account.mfa_last_step = step
         mfa_verified = True
