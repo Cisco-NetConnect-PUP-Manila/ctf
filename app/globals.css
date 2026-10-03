@@ -4588,9 +4588,42 @@ body {
 
 .resources-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   margin-top: 18px;
+}
+
+.recommended-tools {
+  margin-top: 16px;
+}
+
+.recommended-tools__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 10px;
+  list-style: none;
+}
+
+.recommended-tools__grid a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 100%;
+  padding: 13px 15px;
+  border: 1px solid var(--line-dim);
+  background: rgba(255, 132, 25, 0.06);
+  color: var(--amber-2);
+  font-family: var(--vga);
+  overflow-wrap: anywhere;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.recommended-tools__grid a:hover,
+.recommended-tools__grid a:focus-visible {
+  border-color: var(--amber);
+  background: rgba(255, 132, 25, 0.16);
+  outline: none;
 }
 
 .terminal-list,
