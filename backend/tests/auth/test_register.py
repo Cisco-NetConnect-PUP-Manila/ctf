@@ -6,7 +6,14 @@ from tests.conftest import (
 )
 
 
-def build_payload(*, group_name="New Team", email="team@test.com", password=TEST_PASSWORD, members=None):
+def build_payload(
+    *,
+    participant_type="team",
+    group_name="New Team",
+    email="team@test.com",
+    password=TEST_PASSWORD,
+    members=None,
+):
     if members is None:
         members = [
             {"full_name": "Leader Name", "email": email},
@@ -14,7 +21,13 @@ def build_payload(*, group_name="New Team", email="team@test.com", password=TEST
             {"full_name": "Member Three", "email": "three@test.com"},
             {"full_name": "Member Four", "email": "four@test.com"},
         ]
-    return {"group_name": group_name, "email": email, "password": password, "members": members}
+    return {
+        "participant_type": participant_type,
+        "group_name": group_name,
+        "email": email,
+        "password": password,
+        "members": members,
+    }
 
 
 class TestRegistration:
@@ -95,6 +108,7 @@ class TestRegistration:
         assert data["account"]["email"] == "team@test.com"
         assert data["account"]["role"] == "participant"
         assert data["account"]["status"] == "active"
+        assert data["team"]["participant_type"] == "team"
         assert data["team"]["group_name"] == "New Team"
         assert data["team"]["status"] == "pending"
         assert len(data["team"]["members"]) == 4
@@ -102,3 +116,40 @@ class TestRegistration:
         assert len(sent_messages) == 1
         assert sent_messages[0].to == "team@test.com"
         assert "registration received" in sent_messages[0].subject.lower()
+
+    def test_successful_solo_registration(self, client, db_session, monkeypatch):
+        sent_messages = []
+        monkeypatch.setattr("app.api.routes.auth.send_email_best_effort", sent_messages.append)
+
+        seed_registration_open(db_session, True)
+        resp = client.post(
+            "/auth/register",
+            json=build_payload(
+                participant_type="solo",
+                group_name="Solo Analyst",
+                email="solo@test.com",
+                members=[{"full_name": "Solo Analyst", "email": "solo@test.com"}],
+            ),
+        )
+
+        assert resp.status_code == 201
+        data = resp.json()
+        assert data["team"]["participant_type"] == "solo"
+        assert data["team"]["group_name"] == "Solo Analyst"
+        assert len(data["team"]["members"]) == 1
+        assert sent_messages[0].to == "solo@test.com"
+
+    def test_team_registration_rejects_a_short_roster(self, client, db_session):
+        seed_registration_open(db_session, True)
+        resp = client.post(
+            "/auth/register",
+            json=build_payload(
+                members=[
+                    {"full_name": "Leader Name", "email": "team@test.com"},
+                    {"full_name": "Member Two", "email": "two@test.com"},
+                ]
+            ),
+        )
+
+        assert resp.status_code == 400
+        assert resp.json()["code"] == "VALIDATION_ERROR"

@@ -58,9 +58,9 @@ export default function AdminActionCenter() {
     if (pendingTeams.length > 0) {
       entries.push({
         tone: "warn",
-        label: "Team approval",
+        label: "Participant approval",
         value: pendingTeams.length,
-        body: `${pendingTeams.length} team${pendingTeams.length === 1 ? "" : "s"} waiting for review.`,
+        body: `${pendingTeams.length} participant record${pendingTeams.length === 1 ? "" : "s"} waiting for confirmation.`,
         href: "#teams",
       });
     }
@@ -85,18 +85,18 @@ export default function AdminActionCenter() {
     if (settings && !settings.registration_open) {
       entries.push({
         tone: "quiet",
-        label: "Registration closed",
+        label: "External intake closed",
         value: "OFF",
-        body: "New team registration is disabled.",
+        body: "The external registration portal is not accepting new records.",
         href: "#control",
       });
     }
     if (disabled.length > 0) {
       entries.push({
         tone: "quiet",
-        label: "Disabled teams",
+        label: "Disabled participants",
         value: disabled.length,
-        body: "Teams currently blocked from participant access.",
+        body: "Participant records currently blocked from platform access.",
         href: "#teams",
       });
     }
@@ -111,7 +111,7 @@ export default function AdminActionCenter() {
       {items.length === 0 ? (
         <div className="admin-action-empty">
           <b>No urgent concerns</b>
-          <span>Team approvals, suspicious signals, and platform controls are clear.</span>
+          <span>Participant approvals, suspicious signals, and platform controls are clear.</span>
         </div>
       ) : (
         items.map((item) => (

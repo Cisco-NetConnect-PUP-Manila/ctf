@@ -2,7 +2,7 @@ export const siteUrl = "https://packetcapture.xyz";
 export const siteName = "Packet Capture";
 export const siteTitle = "Packet Capture | Beneath the Network CTF";
 export const siteDescription =
-  "Packet Capture is a story-driven cybersecurity CTF where teams investigate a connected incident through OSINT, web security, digital forensics, and networking challenges.";
+  "Packet Capture is a story-driven cybersecurity CTF where solo participants and teams investigate a connected incident through OSINT, web security, digital forensics, and networking challenges.";
 export const socialImage = `${siteUrl}/images/packet-capture-social.webp`;
 
 export const homeStructuredData = {

@@ -32,9 +32,11 @@ export default function ParticipantAccountControls() {
   return (
     <div className="portal-account">
       <div className="portal-account__identity">
-        <span>Authenticated team</span>
+        <span>Authenticated participant</span>
         <strong>{team?.group_name}</strong>
         <small>
+          {team?.participant_type === "solo" ? "Solo participant" : "Team participant"}
+          {" // "}
           {account.email}
           {" // "}
           {team?.status}

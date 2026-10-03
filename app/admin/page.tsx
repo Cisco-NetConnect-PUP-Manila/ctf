@@ -25,12 +25,12 @@ export default function AdminPanelPage() {
             </div>
             <h1>Control Room</h1>
             <p>
-              Organizer workspace for challenge publishing, team approvals,
+              Organizer workspace for challenge publishing, participant approvals,
               announcements, and submission monitoring.
             </p>
             <div className="admin-hero-strip" aria-label="Admin console responsibilities">
               <span>Challenge Ops</span>
-              <span>Team Review</span>
+              <span>Participant Review</span>
               <span>Score Lock</span>
             </div>
             <div className="portal-actions">
@@ -42,7 +42,7 @@ export default function AdminPanelPage() {
           </Reveal>
 
           <Reveal>
-            <Window title="event.control" meta="registration / scoring / freeze">
+            <Window title="event.control" meta="intake / scoring / freeze">
               <AdminPlatformControls />
             </Window>
           </Reveal>
@@ -137,14 +137,14 @@ export default function AdminPanelPage() {
         <div className="shell">
           <Reveal className="sec__head">
             <div>
-              <span className="eyebrow">(04) Team Management</span>
-              <h2>Registration Approval Queue</h2>
+              <span className="eyebrow">(04) Participant Management</span>
+              <h2>Participant Approval Queue</h2>
             </div>
             <span className="section-index">03 / 05</span>
           </Reveal>
 
           <Reveal>
-            <Window title="team.approval" meta="admin approve / reject / disable">
+            <Window title="participant.approval" meta="admin approve / reject / disable">
               <AdminTeamManager />
             </Window>
           </Reveal>

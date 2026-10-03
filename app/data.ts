@@ -37,15 +37,15 @@ export type PortalModule = {
 export const competition = {
   name: "Packet Capture: Beneath the Network",
   phrase: "Race Smart. Score Higher.",
-  status: "Registration not yet open",
+  status: "Participant access only",
   format: "PacketCapture{FLAG_NAME}",
   contact: "learncyberph@gmail.com",
   description:
-    "A team-based, story-driven Capture-the-Flag competition that bridges networking fundamentals and cybersecurity through immersive, hands-on technical challenges.",
+    "A story-driven Capture-the-Flag competition for solo participants and teams, bridging networking fundamentals and cybersecurity through immersive, hands-on technical challenges.",
   hero:
     "Participants become a Cyber Incident Response Team tracing anomalies across a seemingly ordinary network. Every solved challenge uncovers another fragment of the larger investigation beneath the network.",
   about:
-    "Packet Capture places participants inside an evolving cyber incident instead of a disconnected list of challenges. Teams move from intelligence gathering and attack-vector discovery to digital evidence recovery and network restoration.",
+    "Packet Capture places participants inside an evolving cyber incident instead of a disconnected list of challenges. Solo participants and teams move from intelligence gathering and attack-vector discovery to digital evidence recovery and network restoration.",
   story:
     "Organizations connected to the same digital infrastructure begin reporting identical anomalies: account lockouts, altered internal websites, missing files, and unexplained traffic. There is no ransom demand, only a transmission from somewhere below the surface.",
 };
@@ -240,8 +240,8 @@ export const faqs: FaqItem[] = [
     a: "The competition is open to students, professionals, and individuals interested in networking and cybersecurity.",
   },
   {
-    q: "How many members are allowed per team?",
-    a: "Each team must follow the team composition requirements specified by the organizers.",
+    q: "How are solo and team entries handled?",
+    a: "Solo participants use their own approved participant record. Teams use one approved group record and follow the roster requirements specified by the organizers.",
   },
   {
     q: "Can we use Artificial Intelligence?",

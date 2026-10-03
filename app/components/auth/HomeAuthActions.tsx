@@ -4,44 +4,21 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { getCurrentAccount } from "../../lib/api/auth";
-import { getPlatformSettings } from "../../lib/api/platformSettings";
-import type { CurrentAccount, PlatformSettings } from "../../lib/api/types";
-
-function ClosedRegistrationNotice({ containerClass }: { containerClass: string }) {
-  return (
-    <div className={`${containerClass} home-auth-closed`} aria-live="polite">
-      <p>
-        <span>Registration not yet open</span>
-      </p>
-    </div>
-  );
-}
+import type { CurrentAccount } from "../../lib/api/types";
 
 export default function HomeAuthActions({ terminal = false }: { terminal?: boolean }) {
   const [session, setSession] = useState<CurrentAccount | null>(null);
-  const [settings, setSettings] = useState<PlatformSettings | null>(null);
-  const [settingsUnavailable, setSettingsUnavailable] = useState(false);
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     let active = true;
 
     async function loadAccessState() {
-      const [currentResult, settingsResult] = await Promise.allSettled([
-        getCurrentAccount(),
-        getPlatformSettings(),
-      ]);
+      const [currentResult] = await Promise.allSettled([getCurrentAccount()]);
 
       if (!active) return;
 
       setSession(currentResult.status === "fulfilled" ? currentResult.value : null);
-      if (settingsResult.status === "fulfilled") {
-        setSettings(settingsResult.value);
-        setSettingsUnavailable(false);
-      } else {
-        setSettings(null);
-        setSettingsUnavailable(true);
-      }
       setChecking(false);
     }
 
@@ -56,11 +33,8 @@ export default function HomeAuthActions({ terminal = false }: { terminal?: boole
   const containerClass = terminal ? "hero__auth-actions" : "btn-row";
 
   if (checking) {
-    return terminal ? <ClosedRegistrationNotice containerClass={containerClass} /> : null;
+    return terminal ? <div className={containerClass} aria-hidden="true" /> : null;
   }
-
-  const registrationUnavailable =
-    settingsUnavailable || !settings || !settings.registration_open;
 
   if (session?.account.role === "participant" && session.team) {
     return (
@@ -82,20 +56,13 @@ export default function HomeAuthActions({ terminal = false }: { terminal?: boole
     );
   }
 
-  if (registrationUnavailable) {
-    return terminal ? <ClosedRegistrationNotice containerClass={containerClass} /> : null;
-  }
-
   return (
     <div className={containerClass}>
-      <Link className={`btn btn--primary${terminalClass}`} href="/register">
-        Register team
-      </Link>
       <Link
-        className={`btn${terminal ? " btn--ghost btn--terminal hero__sign-in" : ""}`}
+        className={`btn btn--primary${terminalClass}`}
         href="/login"
       >
-        {terminal ? "Sign in" : "Team login"}
+        {terminal ? "Participant sign in" : "Participant access"}
       </Link>
     </div>
   );

@@ -65,6 +65,7 @@ def _team_to_response(team: Team | None) -> TeamResponse | None:
         return None
     return TeamResponse(
         id=team.id,
+        participant_type=team.participant_type,
         group_name=team.group_name,
         status=team.status,
         rejected_at=team.rejected_at,
@@ -95,7 +96,7 @@ def _raise_for_integrity(exc: IntegrityError) -> None:
 
 
 @router.post("/register", response_model=MeResponse, status_code=status.HTTP_201_CREATED)
-def register_team(payload: RegisterRequest, db: Session = Depends(get_db)) -> MeResponse:
+def register_participant(payload: RegisterRequest, db: Session = Depends(get_db)) -> MeResponse:
     if not _registration_is_open(db):
         raise APIError(403, REGISTRATION_CLOSED, "Registration is currently closed.")
 
@@ -140,6 +141,7 @@ def register_team(payload: RegisterRequest, db: Session = Depends(get_db)) -> Me
         team = Team(
             account_id=account.id,
             group_name=group_name,
+            participant_type=payload.participant_type,
             status=TeamStatus.PENDING.value,
         )
         db.add(team)
@@ -167,7 +169,11 @@ def register_team(payload: RegisterRequest, db: Session = Depends(get_db)) -> Me
                 action="team.registered",
                 target_type="team",
                 target_id=team.id,
-                metadata_json={"group_name": team.group_name, "member_count": len(payload.members)},
+                metadata_json={
+                    "group_name": team.group_name,
+                    "participant_type": team.participant_type,
+                    "member_count": len(payload.members),
+                },
             )
         )
         db.commit()

@@ -16,7 +16,7 @@ export default function CompetitionPlatformPage() {
       <section className="portal-hero" id="dashboard">
         <div className="shell portal-hero__grid">
           <Reveal className="platform-hero-copy">
-            <span className="eyebrow">TEAM PORTAL.EXE</span>
+            <span className="eyebrow">PARTICIPANT PORTAL.EXE</span>
             <h1>
               Competition
               <br />
@@ -25,7 +25,7 @@ export default function CompetitionPlatformPage() {
               </span>
             </h1>
             <p>
-              Participant workspace for approved teams. Open available
+              Participant workspace for approved solo participants and teams. Open available
               challenges, download evidence files, submit flags, and track
               current progress.
             </p>
@@ -38,7 +38,7 @@ export default function CompetitionPlatformPage() {
               <div>
                 <span>02</span>
                 <b>Open unlocked Acts</b>
-                <small>Use only challenges your team has access to.</small>
+                <small>Use only challenges your participant record can access.</small>
               </div>
               <div>
                 <span>03</span>
@@ -57,7 +57,7 @@ export default function CompetitionPlatformPage() {
           </Reveal>
 
           <Reveal>
-            <Window title="team.snapshot" meta="backend live">
+            <Window title="participant.snapshot" meta="backend live">
               <div className="platform-snapshot-panel">
                 <ParticipantDashboardSnapshot />
               </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { login } from "../../lib/api/auth";
 import { ApiError } from "../../lib/api/client";
@@ -21,7 +20,6 @@ function copyFor(portal: LoginPortal) {
       placeholder: "admin@example.com",
       button: "Enter admin console",
       submitting: "Verifying organizer...",
-      registered: "Team registration received. Wait for admin approval before entering the platform.",
       access: "An organizer admin account is required to access the admin panel.",
       loggedOut: "Your admin session has been closed successfully.",
     };
@@ -30,23 +28,21 @@ function copyFor(portal: LoginPortal) {
   if (portal === "auto") {
     return {
       emailLabel: "Account email",
-      placeholder: "team-or-admin@example.com",
+      placeholder: "participant-or-admin@example.com",
       button: "Enter secure portal",
       submitting: "Verifying account...",
-      registered: "Team registration received. Sign in with the team email to continue.",
       access: "Sign in with an account authorized to open that page.",
       loggedOut: "Your session has been closed successfully.",
     };
   }
 
   return {
-    emailLabel: "Team email",
-    placeholder: "team@example.com",
-    button: "Enter team portal",
+    emailLabel: "Participant email",
+    placeholder: "participant@example.com",
+    button: "Enter participant portal",
     submitting: "Establishing session...",
-    registered: "Team registration received. Sign in with the team email to continue.",
-    access: "A participant team account is required to open that page.",
-    loggedOut: "Your team session has been closed successfully.",
+    access: "An approved participant account is required to open that page.",
+    loggedOut: "Your participant session has been closed successfully.",
   };
 }
 
@@ -57,13 +53,11 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [error, setError] = useState("");
-  const [registered, setRegistered] = useState(false);
   const [sessionMessage, setSessionMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const search = new URLSearchParams(window.location.search);
-    setRegistered(search.get("registered") === "1");
     const reason = search.get("reason");
     if (reason === "session") {
       setSessionMessage("Your session is missing or expired. Sign in again to continue.");
@@ -112,13 +106,13 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
 
   return (
     <form className="auth-form" onSubmit={handleSubmit} noValidate>
-      {registered && (
-        <AuthNotice tone="success">
-          {content.registered}
-        </AuthNotice>
-      )}
       {sessionMessage && <AuthNotice tone="info">{sessionMessage}</AuthNotice>}
       {error && <AuthNotice tone="error">{error}</AuthNotice>}
+
+      <AuthNotice tone="info">
+        Use the credentials issued through the official registration process. Access
+        opens only after organizer confirmation.
+      </AuthNotice>
 
       <label className="auth-field">
         <span>{content.emailLabel}</span>
@@ -163,11 +157,6 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
         {submitting ? content.submitting : content.button}
       </button>
 
-      {portal !== "admin" && (
-        <p className="auth-switch">
-          No team account yet? <Link href="/register">Register your team</Link>
-        </p>
-      )}
     </form>
   );
 }

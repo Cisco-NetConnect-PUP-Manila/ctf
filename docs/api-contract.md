@@ -30,7 +30,7 @@ older note, stop and ask the website lead.
 
 | Role | Access |
 | --- | --- |
-| Public | `/health`, `/auth/register`, `/auth/login` |
+| Public | `/health`, `/auth/register` (official registration portal only), `/auth/login` |
 | Participant | `/auth/me`, `/auth/logout`, `/challenges`, `/challenges/{id}`, `/challenges/{id}/submissions`, `/challenges/{id}/intel-requests`, `/leaderboard`, `/announcements` |
 | Admin | All participant endpoints plus every `/admin/*` endpoint |
 
@@ -40,8 +40,8 @@ Rules:
 - `/admin/*` requires an account with role `admin`.
 - Every protected endpoint checks role and account/team status server-side. The
   frontend never decides scoring, unlocks, solves, penalties, or permissions.
-- Teams with `status = pending` may log in but cannot access participant challenges
-  until approved.
+- Participant records with `status = pending` may log in but cannot access participant
+  challenges until approved. A record can represent either a solo participant or a team.
 
 ## 3. Error Contract
 
@@ -87,7 +87,7 @@ Every error response uses this envelope:
 | --- | --- | --- | --- |
 | GET | `/health` | Public | Backend health check |
 | GET | `/health/db` | Public | Database reachability check |
-| POST | `/auth/register` | Public | Register a team |
+| POST | `/auth/register` | External registration portal | Create a pending solo or team participant record |
 | POST | `/auth/login` | Public | Create session |
 | POST | `/auth/logout` | Authenticated | End session |
 | GET | `/auth/me` | Authenticated | Current account + team |
@@ -135,6 +135,7 @@ Team:
 ```json
 {
   "id": "uuid",
+  "participant_type": "team",
   "group_name": "Group Name",
   "status": "pending",
   "members": [
@@ -148,7 +149,7 @@ Me (nested shape used by `/auth/register`, `/auth/login`, `/auth/me`):
 ```json
 {
   "account": { "id": "uuid", "email": "team@example.com", "role": "participant", "status": "active" },
-  "team": { "id": "uuid", "group_name": "Group Name", "status": "pending", "members": [] }
+  "team": { "id": "uuid", "participant_type": "team", "group_name": "Group Name", "status": "pending", "members": [] }
 }
 ```
 
@@ -221,6 +222,7 @@ Request:
 
 ```json
 {
+  "participant_type": "team",
   "group_name": "Team Alpha",
   "email": "team@example.com",
   "password": "min-12-chars",
@@ -240,11 +242,32 @@ Request:
 
 > Pending organizer confirmation: final team-size rule. Contract keeps the 4–5 roster.
 
+The separate registration portal creates this pending record. `participant_type` is
+`team` or `solo`; teams provide four to five members, while solo participants provide
+exactly one member. The member matching the login email is the leader.
+
 **POST /auth/login** (Public)
 
 Request: `{ "email": "...", "password": "..." }`. Response: Me model + sets
 `packet_capture_session` cookie. Errors: `VALIDATION_ERROR` (invalid credentials),
 `ACCOUNT_DISABLED`.
+
+### 6.2 Admin participant intake
+
+These endpoints require an admin session. They bypass the public registration toggle and
+always create records with `pending` status so the existing approval gate remains in place.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `POST` | `/admin/teams` | Add one solo or team participant manually |
+| `POST` | `/admin/teams/import` | Atomically import up to 500 participant records from a UTF-8 CSV up to 2 MB |
+
+Manual creation uses the same payload as `/auth/register`. CSV columns are:
+`participant_type`, `group_name`, `email`, `password`, and `member_1_name`/
+`member_1_email` through `member_5_name`/`member_5_email`. Teams require four or five
+member pairs; solo records require one. The login email must match a member email.
+CSV validation is all-or-nothing, and duplicate account emails or group names are rejected.
+Passwords are hashed immediately and are never written to audit metadata.
 
 **POST /auth/logout** (Authenticated)
 

@@ -24,7 +24,7 @@ export default function ParticipantPendingNotice() {
     return (
       <main className="auth-state-page" aria-live="polite">
         <span className="eyebrow">ACCESS.APPROVED</span>
-        <h1>Opening team platform</h1>
+        <h1>Opening participant platform</h1>
         <div className="auth-state-page__pulse" aria-hidden="true" />
       </main>
     );
@@ -35,9 +35,9 @@ export default function ParticipantPendingNotice() {
       <main className="auth-page">
         <div className="shell auth-page__shell">
           <Reveal className="auth-page__intro">
-            <span className="eyebrow">REGISTRATION.REJECTED</span>
+              <span className="eyebrow">ACCESS.REJECTED</span>
             <h1 className="auth-title">
-              Registration
+              Access
               <br />
               <span className="glitch" data-text="Rejected">
                 Rejected
@@ -52,14 +52,14 @@ export default function ParticipantPendingNotice() {
           <Reveal>
             <Window title="TEAM.STATUS" meta="organizer review complete">
               <div className="portal-lock portal-lock--pending">
-                <b>Team registration rejected.</b>
+                <b>Participant access was not approved.</b>
                 <span>
                   <strong>Organizer reason:</strong>{" "}
                   {team?.rejection_reason || "No rejection reason was provided."}
                 </span>
                 <span>
-                  Contact the organizers if you need clarification or want to submit
-                  corrected registration details.
+                  Contact the organizers if you need clarification or need your
+                  participant record corrected.
                 </span>
                 <div className="portal-actions">
                   <ParticipantAccountControls />
@@ -79,7 +79,7 @@ export default function ParticipantPendingNotice() {
     <main className="auth-page">
       <div className="shell auth-page__shell">
         <Reveal className="auth-page__intro">
-          <span className="eyebrow">REGISTRATION.PENDING</span>
+          <span className="eyebrow">ACCESS.PENDING</span>
           <h1 className="auth-title">
             Awaiting
             <br />
@@ -90,18 +90,18 @@ export default function ParticipantPendingNotice() {
             </span>
           </h1>
           <p>
-            <ParticipantTeamName /> is registered. Challenge access opens after an
-            organizer approves the team.
+            <ParticipantTeamName /> is on the participant list. Challenge access
+            opens after an organizer confirms the record.
           </p>
         </Reveal>
 
         <Reveal>
           <Window title="TEAM.STATUS" meta="approval required">
             <div className="portal-lock portal-lock--pending">
-              <b>Team registration received.</b>
+            <b>Participant record awaiting confirmation.</b>
               <span>
-                The admin approval queue controls participant access. Once approved,
-                Act 1 challenges become available through the platform.
+                The organizer approval queue controls participant access. Once
+                confirmed, Act 1 challenges become available through the platform.
               </span>
               <div className="portal-actions">
                 <ParticipantAccountControls />

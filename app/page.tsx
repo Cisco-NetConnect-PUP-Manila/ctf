@@ -82,8 +82,8 @@ export default function Home() {
                     <span className="lcd__v">Packet Capture</span>
                   </div>
                   <div className="lcd__row">
-                    <span className="lcd__k">&gt; REGISTRATION</span>
-                    <span className="lcd__v amber">Not yet open</span>
+                    <span className="lcd__k">&gt; PARTICIPANT ACCESS</span>
+                    <span className="lcd__v amber">Credentials required</span>
                   </div>
                   <div className="lcd__row">
                     <span className="lcd__k">&gt; ACTS</span>
@@ -301,7 +301,7 @@ export default function Home() {
             </Reveal>
             <Reveal>
               <p className="sec__lead">
-                By registering, participants agree to follow the rules and any
+                By participating, participants agree to follow the rules and any
                 decisions made by the organizing committee.
               </p>
             </Reveal>
@@ -427,14 +427,14 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="register" className="register">
+        <section id="access" className="register">
           <div className="shell">
             <Reveal>
-              <span className="eyebrow">REGISTER.EXE // NOT YET OPEN</span>
-              <h2>Registration Not Yet Open</h2>
+              <span className="eyebrow">ACCESS.EXE // PARTICIPANT CHANNEL</span>
+              <h2>Participant Access</h2>
               <p>
-                Team registration has not opened yet. Please check back for the
-                official opening.
+                Registration is handled through the official registration process.
+                Use the credentials issued to you to enter the competition platform.
               </p>
               <HomeAuthActions />
             </Reveal>
@@ -474,7 +474,7 @@ export default function Home() {
             <div>
               <h4>Status</h4>
               <ul>
-                <li>Registration <span className="footer__soon">(not yet open)</span></li>
+                <li>Participant access <span className="footer__soon">(credentials required)</span></li>
                 <li>Timeline <span className="footer__soon">(TBA)</span></li>
                 <li>Partners <span className="footer__soon">(pending)</span></li>
               </ul>

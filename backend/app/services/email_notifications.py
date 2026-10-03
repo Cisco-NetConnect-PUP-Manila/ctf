@@ -96,40 +96,43 @@ def send_email_best_effort(message: EmailMessage) -> None:
 
 
 def registration_received_email(team: Team) -> EmailMessage:
+    participant_label = "solo participant" if team.participant_type == "solo" else "team"
     return EmailMessage(
         to=team.account.email,
-        subject="Packet Capture registration received",
+        subject=f"Packet Capture {participant_label} registration received",
         text=(
             f"Hi {team.group_name},\n\n"
-            "We received your Packet Capture team registration. "
-            "Your team is pending organizer review. We will email you again once your "
-            "registration status changes.\n\n"
+            f"We received your Packet Capture {participant_label} registration. "
+            f"Your {participant_label} record is pending organizer review. We will email "
+            "you again once your registration status changes.\n\n"
             "Packet Capture Team"
         ),
     )
 
 
 def team_approved_email(team: Team) -> EmailMessage:
+    participant_label = "solo participant" if team.participant_type == "solo" else "team"
     return EmailMessage(
         to=team.account.email,
-        subject="Packet Capture registration approved",
+        subject=f"Packet Capture {participant_label} registration approved",
         text=(
             f"Hi {team.group_name},\n\n"
-            "Your Packet Capture registration has been approved. You may now log in "
-            "to the participant platform with your team account.\n\n"
+            f"Your Packet Capture {participant_label} registration has been approved. "
+            "You may now log in to the participant platform with your account.\n\n"
             "Packet Capture Team"
         ),
     )
 
 
 def team_rejected_email(team: Team) -> EmailMessage:
+    participant_label = "solo participant" if team.participant_type == "solo" else "team"
     reason = f"\n\nReason: {team.rejection_reason}" if team.rejection_reason else ""
     return EmailMessage(
         to=team.account.email,
-        subject="Packet Capture registration update",
+        subject=f"Packet Capture {participant_label} registration update",
         text=(
             f"Hi {team.group_name},\n\n"
-            "Your Packet Capture registration was not approved at this time."
+            f"Your Packet Capture {participant_label} registration was not approved at this time."
             f"{reason}\n\n"
             "Please contact the organizers if you need help updating your registration.\n\n"
             "Packet Capture Team"
