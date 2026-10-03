@@ -133,6 +133,8 @@ def test_participant_shape_never_exposes_flag_or_admin_fields(client, db_session
     )
 
     assert set(item) == {
+        "max_attempts",
+        "attempts_used",
         "id",
         "act_id",
         "act_number",

@@ -113,6 +113,7 @@ def _challenge_to_admin_response(db: Session, challenge: Challenge) -> Challenge
         story_context=challenge.story_context,
         objectives=list(challenge.objectives_json or []),
         points=challenge.points,
+        max_attempts=challenge.max_attempts,
         status=challenge.status,
         is_visible=challenge.is_visible,
         story_fragment=challenge.story_fragment,
@@ -280,6 +281,7 @@ def create_challenge(
         story_context=payload.story_context,
         objectives_json=payload.objectives,
         points=payload.points,
+        max_attempts=payload.max_attempts,
         status=ChallengeStatus.DRAFT.value,
         is_visible=payload.is_visible,
         story_fragment=payload.story_fragment,
@@ -328,6 +330,9 @@ def update_challenge(
         value = getattr(payload, field)
         if value is not None:
             setattr(challenge, field, value)
+
+    if "max_attempts" in payload.model_fields_set:
+        challenge.max_attempts = payload.max_attempts
 
     if payload.objectives is not None:
         challenge.objectives_json = payload.objectives

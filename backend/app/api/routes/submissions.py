@@ -33,6 +33,7 @@ router = APIRouter()
 
 # Statuses come from docs/api-contract.md section 3.
 _ERROR_STATUS: dict[str, int] = {
+    "ATTEMPTS_EXHAUSTED": status.HTTP_403_FORBIDDEN,
     NOT_FOUND: status.HTTP_404_NOT_FOUND,
     # 422 for both of these is what the contract specifies. Written numerically because
     # the Starlette constant for 422 is deprecated.

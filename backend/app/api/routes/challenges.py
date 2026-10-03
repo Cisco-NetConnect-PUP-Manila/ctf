@@ -4,7 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse, RedirectResponse, Response
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.deps import get_current_team
@@ -13,7 +13,7 @@ from app.core.team_fragments import derive_team_fragment
 from app.db.session import get_db
 from app.models.act import Act
 from app.models.challenge import Challenge, ChallengeFile, ChallengeStatus
-from app.models.submission import Solve
+from app.models.submission import Solve, Submission
 from app.models.team import Team
 from app.schemas.challenge import (
     ActChallengeGroupResponse,
@@ -53,6 +53,7 @@ def _challenge_response(
     solved_ids: set[UUID],
     awarded_points: dict[UUID, int],
     team_fragments: dict[UUID, str],
+    attempts_used: int = 0,
 ) -> ChallengeParticipantResponse:
     return ChallengeParticipantResponse(
         id=challenge.id,
@@ -63,6 +64,8 @@ def _challenge_response(
         category=challenge.category.name if challenge.category else None,
         difficulty=challenge.difficulty.name if challenge.difficulty else None,
         points=challenge.points,
+        max_attempts=challenge.max_attempts,
+        attempts_used=attempts_used,
         mission_brief="" if locked else challenge.mission_brief,
         story_context=None if locked else challenge.story_context,
         objectives=[] if locked else list(challenge.objectives_json or []),
@@ -133,6 +136,7 @@ def list_challenges(
         for challenge_id in solved_ids
     }
     unlocked_ids = scoring.unlocked_act_ids(db, team.id)
+    attempts = dict(db.execute(select(Submission.challenge_id, func.count()).where(Submission.team_id == team.id).group_by(Submission.challenge_id)).all())
 
     groups: list[ActChallengeGroupResponse] = []
     for act in acts:
@@ -159,6 +163,7 @@ def list_challenges(
                         solved_ids=solved_ids,
                         awarded_points=awarded_points,
                         team_fragments=team_fragments,
+                        attempts_used=attempts.get(challenge.id, 0),
                     )
                     for challenge in challenges_by_act.get(act.id, [])
                 ],
@@ -190,6 +195,7 @@ def get_challenge(
     return _challenge_response(
         challenge,
         locked=False,
+        attempts_used=db.scalar(select(func.count()).select_from(Submission).where(Submission.team_id == team.id, Submission.challenge_id == challenge.id)) or 0,
         solved_ids=solved_ids,
         awarded_points={challenge.id: solve_row[0]} if solve_row is not None else {},
         team_fragments={

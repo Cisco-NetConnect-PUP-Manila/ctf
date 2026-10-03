@@ -85,6 +85,7 @@ class LookupResponse(BaseModel):
 
 
 class ChallengeCreateRequest(StrictRequest):
+    max_attempts: int | None = Field(default=None, ge=1, le=100000, strict=True)
     act_id: UUID
     title: str = Field(min_length=2, max_length=200)
     slug: str = Field(min_length=2, max_length=160)
@@ -115,6 +116,7 @@ class ChallengeCreateRequest(StrictRequest):
 
 
 class ChallengeUpdateRequest(StrictRequest):
+    max_attempts: int | None = Field(default=None, ge=1, le=100000, strict=True)
     act_id: UUID | None = None
     title: str | None = Field(default=None, min_length=2, max_length=200)
     slug: str | None = Field(default=None, min_length=2, max_length=160)
@@ -147,6 +149,7 @@ class ChallengeUpdateRequest(StrictRequest):
 
 
 class ChallengeAdminResponse(BaseModel):
+    max_attempts: int | None = None
     id: UUID
     act_id: UUID
     act_number: int
@@ -168,6 +171,8 @@ class ChallengeAdminResponse(BaseModel):
 
 
 class ChallengeParticipantResponse(BaseModel):
+    max_attempts: int | None = None
+    attempts_used: int = 0
     id: UUID
     act_id: UUID
     act_number: int

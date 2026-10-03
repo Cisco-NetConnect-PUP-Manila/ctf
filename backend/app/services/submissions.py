@@ -38,7 +38,7 @@ import logging
 from dataclasses import dataclass
 from uuid import UUID
 
-from sqlalchemy import select, text
+from sqlalchemy import func, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
@@ -213,6 +213,16 @@ def submit_flag(
         raise SubmissionError(ALREADY_SOLVED, "Your team has already solved this challenge.")
 
     # 5. Record the attempt.
+    # The team row lock serializes count + insert, including concurrent wrong flags.
+    db.refresh(challenge, attribute_names=["max_attempts"])
+    if challenge.max_attempts is not None:
+        used = db.scalar(select(func.count()).select_from(Submission).where(
+            Submission.team_id == team.id, Submission.challenge_id == challenge.id,
+        )) or 0
+        if used >= challenge.max_attempts:
+            db.commit()
+            raise SubmissionError("ATTEMPTS_EXHAUSTED", "Your team has used all attempts for this challenge. Contact an organizer.")
+
     attempt = Submission(
         team_id=team.id,
         challenge_id=challenge.id,

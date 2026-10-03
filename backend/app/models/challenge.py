@@ -96,6 +96,7 @@ class Challenge(Base):
     story_context: Mapped[str | None] = mapped_column(Text, nullable=True)
     objectives_json: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     points: Mapped[int] = mapped_column(Integer, nullable=False)
+    max_attempts: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # status is the lifecycle; is_visible is the organizer's emergency pull switch that
     # does not reset publish metadata. Handoff section 10 step 3 requires both as
@@ -162,6 +163,7 @@ class Challenge(Base):
 
     __table_args__ = (
         CheckConstraint("points >= 0", name="ck_challenges_points_non_negative"),
+        CheckConstraint("max_attempts IS NULL OR max_attempts >= 1", name="ck_challenges_max_attempts_positive"),
         CheckConstraint(
             "status in ('draft', 'ready_for_review', 'published', 'archived')",
             name="ck_challenges_status",
