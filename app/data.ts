@@ -291,19 +291,29 @@ export const faqs: FaqItem[] = [
 
 export const timeline = [
   {
-    date: "OCT 3–10",
-    title: "Registration",
-    body: "Team registration is open from October 3 through October 10.",
+    date: "OCT 03",
+    title: "Registration Opens",
+    body: "Teams can begin registering for the competition.",
+  },
+  {
+    date: "OCT 10",
+    title: "Registration Closes",
+    body: "The registration period ends before the event begins.",
   },
   {
     date: "OCT 10",
     title: "Webinar",
-    body: "Join the event webinar before the competition begins.",
+    body: "Join the event webinar to prepare for the CTF.",
   },
   {
     date: "OCT 18",
-    title: "CTF & Awarding",
-    body: "Compete in the CTF, followed by the awarding ceremony.",
+    title: "CTF Starts",
+    body: "The competition begins and teams take on the challenges.",
+  },
+  {
+    date: "OCT 18",
+    title: "CTF End / Awarding",
+    body: "The event concludes with the awarding ceremony.",
   },
 ];
 

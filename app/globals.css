@@ -3239,7 +3239,9 @@ body {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  cursor: pointer;
+  cursor:
+    url("/images/cursor-hand.svg") 9 3,
+    pointer;
   /* opaque so the wave line is hidden inside the circle */
   background: radial-gradient(
     circle at 50% 40%,
