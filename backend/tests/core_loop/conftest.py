@@ -50,6 +50,7 @@ TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", DEFAULT_TEST_DATABASE_UR
 CONCURRENCY_POOL_SIZE = 20
 
 TABLES_TO_TRUNCATE = (
+    "auth_throttles",
     "intel_requests",
     "hints",
     "act_unlocks",

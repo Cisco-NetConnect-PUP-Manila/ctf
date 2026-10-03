@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     session_cookie_name: str = Field(default="packet_capture_session", alias="SESSION_COOKIE_NAME")
     session_cookie_secure: bool = Field(default=False, alias="SESSION_COOKIE_SECURE")
     session_expire_hours: int = Field(default=12, alias="SESSION_EXPIRE_HOURS")
+    login_ip_limit: int = Field(default=300, ge=10, alias="LOGIN_IP_LIMIT")
+    trusted_proxy_cidrs: str = Field(default="", alias="TRUSTED_PROXY_CIDRS")
     registration_open_by_default: bool = Field(default=False, alias="REGISTRATION_OPEN_BY_DEFAULT")
     challenge_file_storage_provider: str = Field(default="local", alias="CHALLENGE_FILE_STORAGE_PROVIDER")
     challenge_file_storage_root: str = Field(

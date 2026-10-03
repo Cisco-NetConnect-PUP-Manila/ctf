@@ -39,16 +39,19 @@ class APIError(Exception):
         code: str,
         message: str,
         field_errors: dict | None = None,
+        headers: dict[str, str] | None = None,
     ):
         self.status_code = status_code
         self.code = code
         self.message = message
         self.field_errors = field_errors or {}
+        self.headers = headers or {}
 
 
 async def api_error_handler(request: Request, exc: APIError):
     return JSONResponse(
         status_code=exc.status_code,
+        headers=exc.headers,
         content={
             "code": exc.code,
             "message": exc.message,

@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, Request, Response, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
@@ -38,8 +38,12 @@ from app.schemas.auth import (
     TeamResponse,
 )
 from app.services.email_notifications import registration_received_email, send_email_best_effort
+from app.services.email_notifications import EmailMessage
+from app.services.login_security import login_buckets, failed_login
 
 router = APIRouter()
+# Equal-cost verification for unknown accounts reduces email enumeration by timing.
+DUMMY_PASSWORD_HASH = hash_password(new_session_token())
 
 
 def _registration_is_open(db: Session) -> bool:
@@ -193,21 +197,39 @@ def register_participant(payload: RegisterRequest, db: Session = Depends(get_db)
 
 
 @router.post("/login", response_model=MeResponse)
-def login(payload: LoginRequest, response: Response, db: Session = Depends(get_db)) -> MeResponse:
+def login(payload: LoginRequest, response: Response, request: Request, db: Session = Depends(get_db)) -> MeResponse:
     email = normalize_email(payload.email)
+    bucket, ip_bucket = login_buckets(db, email, request)
     account = db.scalar(
         select(Account)
         .options(selectinload(Account.team).selectinload(Team.members))
         .where(Account.email == email)
     )
 
-    if account is None or not verify_password(payload.password, account.password_hash):
+    valid_password = verify_password(payload.password, account.password_hash if account else DUMMY_PASSWORD_HASH)
+    if account is None or not valid_password:
+        blocked = failed_login(bucket)
+        db.add(AuditLog(
+            actor_account_id=account.id if account else None,
+            action="account.login_throttled" if blocked else "account.login_failed",
+            target_type="account", target_id=account.id if account else None,
+            metadata_json={"account_key": bucket.key, "ip_key": ip_bucket.key},
+        ))
+        db.commit()
+        if bucket.count == 5 and account and account.role == AccountRole.ADMIN.value:
+            send_email_best_effort(EmailMessage(
+                to=account.email, subject="Packet Capture: repeated sign-in failures",
+                text="Repeated unsuccessful attempts targeted your organizer account. Login is temporarily limited. If this was not you, contact the deployment operator and review your password and MFA.",
+            ))
         raise APIError(401, INVALID_CREDENTIALS, "Invalid email or password.")
 
     if account.status != AccountStatus.ACTIVE.value:
+        db.commit()
         raise APIError(403, ACCOUNT_DISABLED, "Account is disabled.")
 
     now = datetime.now(UTC)
+    bucket.count = 0
+    bucket.blocked_until = None
     token = new_session_token()
     account_session = AccountSession(
         account_id=account.id,
