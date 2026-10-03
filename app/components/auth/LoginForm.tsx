@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { login } from "../../lib/api/auth";
 import { ApiError } from "../../lib/api/client";
@@ -55,6 +56,20 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
   const [error, setError] = useState("");
   const [sessionMessage, setSessionMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [retryUntil, setRetryUntil] = useState(0);
+  const [retrySeconds, setRetrySeconds] = useState(0);
+
+  useEffect(() => {
+    if (!retryUntil) return;
+    const update = () => {
+      const remaining = Math.max(0, Math.ceil((retryUntil - Date.now()) / 1000));
+      setRetrySeconds(remaining);
+      if (!remaining) setRetryUntil(0);
+    };
+    update();
+    const interval = window.setInterval(update, 1000);
+    return () => window.clearInterval(interval);
+  }, [retryUntil]);
 
   useEffect(() => {
     const search = new URLSearchParams(window.location.search);
@@ -72,6 +87,7 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting || retryUntil > Date.now()) return;
     setError("");
     setSubmitting(true);
 
@@ -94,9 +110,19 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
       router.push("/platform");
       router.refresh();
     } catch (caught) {
+      if (caught instanceof ApiError && caught.status === 429) {
+        if (caught.retryAfterSeconds) {
+          setRetrySeconds(caught.retryAfterSeconds);
+          setRetryUntil(Date.now() + caught.retryAfterSeconds * 1000);
+        }
+        setError("Too many sign-in attempts. Please wait before trying again.");
+        return;
+      }
       setError(
         caught instanceof ApiError
-          ? caught.message
+          ? caught.status === 401
+            ? "Invalid email or password."
+            : caught.message
           : "Login failed unexpectedly. Please try again."
       );
     } finally {
@@ -105,9 +131,14 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
   }
 
   return (
-    <form className="auth-form" onSubmit={handleSubmit} noValidate>
+    <form className="auth-form" onSubmit={handleSubmit} aria-busy={submitting}>
       {sessionMessage && <AuthNotice tone="info">{sessionMessage}</AuthNotice>}
-      {error && <AuthNotice tone="error">{error}</AuthNotice>}
+      {error && !retrySeconds && <AuthNotice tone="error">{error}</AuthNotice>}
+      {retrySeconds > 0 && (
+        <AuthNotice tone="info">
+          Too many sign-in attempts. Try again in {retrySeconds} seconds.
+        </AuthNotice>
+      )}
 
       <p className="auth-switch">Use the email and password provided for your account.</p>
 
@@ -117,6 +148,7 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
           autoComplete="email"
           inputMode="email"
           name="email"
+          disabled={submitting}
           onChange={(event) => {
             setEmail(event.target.value);
             setError("");
@@ -135,6 +167,7 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
             autoComplete="current-password"
             minLength={1}
             name="password"
+            disabled={submitting}
             onChange={(event) => {
               setPassword(event.target.value);
               setError("");
@@ -150,10 +183,12 @@ export default function LoginForm({ portal = "auto" }: LoginFormProps) {
         </span>
       </label>
 
-      <button className="btn btn--primary auth-submit" disabled={submitting} type="submit">
-        {submitting ? content.submitting : content.button}
+      <button className="btn btn--primary auth-submit" disabled={submitting || retrySeconds > 0} type="submit">
+        {retrySeconds > 0 ? `Try again in ${retrySeconds}s` : submitting ? content.submitting : content.button}
       </button>
-
+      <p className="auth-switch">
+        Need account access? Contact your organizer. <Link href="/">Back to public site</Link>
+      </p>
     </form>
   );
 }

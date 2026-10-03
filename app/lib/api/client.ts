@@ -20,16 +20,18 @@ export class ApiError extends Error {
   status: number;
   code?: string;
   fieldErrors: FieldErrors;
+  retryAfterSeconds?: number;
 
   constructor(
     message: string,
-    options: { status: number; code?: string; fieldErrors?: FieldErrors }
+    options: { status: number; code?: string; fieldErrors?: FieldErrors; retryAfterSeconds?: number }
   ) {
     super(message);
     this.name = "ApiError";
     this.status = options.status;
     this.code = options.code;
     this.fieldErrors = options.fieldErrors ?? {};
+    this.retryAfterSeconds = options.retryAfterSeconds;
   }
 }
 
@@ -80,6 +82,16 @@ export async function apiRequest<T>(
     ? validationErrors(body.detail)
     : {};
   const fieldErrors = { ...detailFields, ...(body.field_errors ?? {}) };
+  const retryHeader = response.headers.get("Retry-After");
+  const retryValue = retryHeader ?? fieldErrors.retry_after_seconds;
+  let retryAfterSeconds: number | undefined;
+  if (retryValue) {
+    const seconds = Number(retryValue);
+    const delay = Number.isFinite(seconds)
+      ? seconds
+      : (Date.parse(retryValue) - Date.now()) / 1000;
+    if (Number.isFinite(delay) && delay > 0) retryAfterSeconds = Math.ceil(delay);
+  }
   const message =
     body.message ??
     (typeof body.detail === "string" ? body.detail : undefined) ??
@@ -92,6 +104,7 @@ export async function apiRequest<T>(
     status: response.status,
     code: body.code,
     fieldErrors,
+    retryAfterSeconds,
   });
 }
 

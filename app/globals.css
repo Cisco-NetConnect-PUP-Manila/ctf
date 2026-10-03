@@ -5640,6 +5640,17 @@ body.registration-closed-active .auth-page {
   opacity: 0.58;
 }
 
+.auth-page--login .auth-submit {
+  width: 100%;
+  min-width: 0;
+  justify-content: center;
+  text-align: center;
+}
+
+.auth-page--login .auth-submit:disabled {
+  cursor: not-allowed;
+}
+
 .auth-switch {
   color: var(--ink-dim);
   font-family: var(--rodin);

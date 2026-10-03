@@ -4,7 +4,7 @@ import Window from "../components/Window";
 
 export default function LoginPage() {
   return (
-    <main className="auth-page">
+    <main className="auth-page auth-page--login">
       <div className="shell auth-page__shell">
         <Reveal className="auth-page__intro">
           <span className="eyebrow">SECURE ACCESS.EXE</span>
